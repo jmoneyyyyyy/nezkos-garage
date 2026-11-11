@@ -182,3 +182,284 @@
     border-right-color: var(--border);
   }
 }
+
+.app-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+
+  h1 {
+    margin: 32px 0 0;
+  }
+}
+
+.app-header-user {
+  position: fixed;
+  top: 22px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal {
+  width: min(640px, calc(100% - 32px));
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: var(--shadow);
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+.modal-body {
+  position: relative;
+  padding: 24px;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.form-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(4, auto);
+  grid-auto-flow: column; /* fill the left column top-to-bottom, then the right */
+  gap: 8px 16px;
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-auto-flow: row;
+  }
+}
+
+.modal-body label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.muted {
+  color: var(--text);
+  opacity: 0.8;
+}
+
+.danger {
+  color: #dc2626;
+}
+
+.vehicle-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start; /* cards keep their own height instead of matching the tallest */
+  gap: 24px;
+  padding: 24px;
+  text-align: left;
+}
+
+.vehicle-card {
+  width: 360px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--code-bg);
+  box-shadow: var(--shadow);
+}
+
+.vehicle-photo {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--social-bg);
+  border-bottom: 1px solid var(--border);
+
+  /* Absolutely positioned so the photo's own height can't stretch the box */
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.vehicle-photo-empty {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.vehicle-photo-actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.vehicle-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 20px 20px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.vehicle-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px 16px;
+  margin: 0;
+
+  dt {
+    font-size: 13px;
+    opacity: 0.8;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--text-h);
+    overflow-wrap: anywhere; /* long VINs */
+  }
+}
+
+.service-records {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+
+  h3 {
+    margin: 0;
+    font-size: 17px;
+    color: var(--text-h);
+  }
+
+  ul {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    font-size: 15px;
+  }
+
+  li > p {
+    font-size: 14px;
+  }
+
+  > .muted {
+    margin-top: 8px;
+  }
+}
+
+.service-records-header,
+.service-record-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.service-record-title strong {
+  color: var(--text-h);
+}
+
+.service-record-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.vehicle-delete {
+  align-self: flex-start;
+}
+
+.service-records-view {
+  margin-top: 8px;
+}
+
+.service-records-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  text-align: left;
+
+  h2 {
+    margin: 0;
+    padding-right: 32px; /* room for the × button */
+  }
+
+  ul {
+    margin: 0;
+    align-self: stretch;
+  }
+}
+
+.vehicle-card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* The photo picker in the Add vehicle form reuses .vehicle-photo, at a smaller size */
+.form-photo {
+  width: 260px;
+  max-width: 100%;
+  align-self: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
