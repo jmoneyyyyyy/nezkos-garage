@@ -24,14 +24,13 @@ function toForm(vehicle: Vehicle): typeof empty {
 
 type Props = {
   uid: string;
-  vehicle?: Vehicle; // edit this vehicle; omit to add a new one
+  vehicle?: Vehicle;
   onSaved?: () => void;
 };
 
 export default function VehicleForm({ uid, vehicle, onSaved }: Props) {
   const [form, setForm] = useState(vehicle ? toForm(vehicle) : empty);
   const [error, setError] = useState<string | null>(null);
-  // Only used when adding; an existing car's photo is managed from its card
   const fileRef = useRef<HTMLInputElement>(null);
   const [photo, setPhoto] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);

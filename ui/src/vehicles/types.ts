@@ -45,10 +45,10 @@ export const MAINTENANCE_LABELS: Record<MaintenanceType, string> = {
 export interface MaintenanceEntry {
   id: string;
   type: MaintenanceType;
-  date: string; // "YYYY-MM-DD"
-  mileage?: number; // odometer at time of service
+  date: string;
+  mileage?: number;
   cost?: number;
-  details?: string; // e.g. "0W-20 full synthetic, OEM filter"
+  details?: string;
 }
 
 export interface Vehicle {
@@ -62,7 +62,7 @@ export interface Vehicle {
   trim?: string;
   vin?: string;
   licensePlate?: string;
-  photo?: string; // JPEG data URL, resized in the browser to fit in the doc
+  photo?: string;
   owners: string[];
   maintenance: MaintenanceEntry[];
   createdAt?: Timestamp;
@@ -74,7 +74,6 @@ export type NewVehicleInput = Omit<
   "id" | "owners" | "maintenance" | "createdAt" | "updatedAt"
 >;
 
-// The fields the vehicle form edits. The photo is saved separately from the card.
 export type VehicleDetailsInput = Omit<NewVehicleInput, "photo">;
 
 export type NewMaintenanceInput = Omit<MaintenanceEntry, "id">;

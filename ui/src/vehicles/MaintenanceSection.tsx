@@ -4,8 +4,6 @@ import MaintenanceForm from "./MaintenanceForm";
 import { useDeleteMaintenance } from "./hooks";
 import { MAINTENANCE_LABELS, type MaintenanceEntry, type Vehicle } from "./types";
 
-// Build the date from its parts so it stays in local time. new Date("2026-11-11")
-// would be read as UTC midnight and show up as the day before in US time zones.
 function formatDate(date: string) {
   const [y, m, d] = date.split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString();
@@ -17,7 +15,6 @@ function formatCost(cost: number) {
 
 export default function MaintenanceSection({ uid, vehicle }: { uid: string; vehicle: Vehicle }) {
   const [showList, setShowList] = useState(false);
-  // "new" = adding a record, an entry = editing that record, null = form closed
   const [editing, setEditing] = useState<MaintenanceEntry | "new" | null>(null);
   const remove = useDeleteMaintenance(uid);
   const closeForm = () => setEditing(null);

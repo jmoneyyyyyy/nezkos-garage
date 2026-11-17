@@ -5,17 +5,16 @@ import {
   type MaintenanceEntry, type MaintenanceType, type NewMaintenanceInput,
 } from "./types";
 
-// "en-CA" formats as YYYY-MM-DD, in local time, which is what <input type="date"> wants
 const today = () => new Date().toLocaleDateString("en-CA");
 
-type Props = {
+type MaintenanceFormProps = {
   uid: string;
   vehicleId: string;
-  entry?: MaintenanceEntry; // edit this record; omit to add a new one
+  entry?: MaintenanceEntry;
   onSaved: () => void;
 };
 
-export default function MaintenanceForm({ uid, vehicleId, entry, onSaved }: Props) {
+export default function MaintenanceForm({ uid, vehicleId, entry, onSaved }: MaintenanceFormProps) {
   const [form, setForm] = useState({
     type: entry?.type ?? ("oil_change" as MaintenanceType),
     date: entry?.date ?? today(),

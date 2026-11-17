@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  addMaintenanceEntry, createVehicle, deleteMaintenanceEntry, deleteVehicle,
-  listVehicles, setVehiclePhoto, updateMaintenanceEntry, updateVehicle,
+  addMaintenanceEntry, addNewVehicle, deleteMaintenanceEntry, deleteVehicle,
+  getAllVehicles, setVehiclePhoto, updateMaintenanceEntry, updateVehicleInformation,
 } from "./api";
 import type {
   MaintenanceEntry, NewMaintenanceInput, NewVehicleInput, VehicleDetailsInput,
@@ -10,11 +10,10 @@ import type {
 export function useVehicles(uid: string) {
   return useQuery({
     queryKey: ["vehicles", uid],
-    queryFn: () => listVehicles(uid),
+    queryFn: () => getAllVehicles(uid),
   });
 }
 
-// Every vehicle write refetches the list afterwards so the page shows the saved state.
 function useVehicleMutation<TInput>(uid: string, mutationFn: (input: TInput) => Promise<unknown>) {
   const qc = useQueryClient();
   return useMutation({
@@ -24,12 +23,12 @@ function useVehicleMutation<TInput>(uid: string, mutationFn: (input: TInput) => 
 }
 
 export function useCreateVehicle(uid: string) {
-  return useVehicleMutation(uid, (input: NewVehicleInput) => createVehicle(uid, input));
+  return useVehicleMutation(uid, (input: NewVehicleInput) => addNewVehicle(uid, input));
 }
 
 export function useUpdateVehicle(uid: string) {
   return useVehicleMutation(uid, ({ vehicleId, input }: { vehicleId: string; input: VehicleDetailsInput }) =>
-    updateVehicle(vehicleId, input)
+    updateVehicleInformation(vehicleId, input)
   );
 }
 

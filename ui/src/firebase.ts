@@ -1,11 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { initializeFirestore } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCnGxCydANLT7MPe1FdWObi8Es1LRssHt8",
   authDomain: "nezkos-garage-log.firebaseapp.com",
@@ -16,9 +12,9 @@ const firebaseConfig = {
   measurementId: "G-PHM5B5DWW3"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = initializeFirestore(app, { ignoreUndefinedProperties: true });
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
-export default db;
+const vehicleCollection = initializeFirestore(app, { ignoreUndefinedProperties: true });
+const auth = getAuth(app);
+const googleProvider = new GoogleAuthProvider();
+
+export { vehicleCollection, auth, googleProvider };

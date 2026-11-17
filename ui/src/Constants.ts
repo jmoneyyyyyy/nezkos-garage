@@ -1,9 +1,11 @@
 const GARAGE_LOG_TITLE = "Nezko's Garage Log";
 const GOOGLE_SIGN_IN_BUTTON_TEXT = "Sign in with Google";
 const SIGN_OUT_BUTTON_TEXT = "Sign out";
+const ADD_VEHICLE_BUTTON_TEXT = "Add Vehicle";
 
 export {
   GARAGE_LOG_TITLE,
   GOOGLE_SIGN_IN_BUTTON_TEXT,
-  SIGN_OUT_BUTTON_TEXT
+  SIGN_OUT_BUTTON_TEXT,
+  ADD_VEHICLE_BUTTON_TEXT
 };

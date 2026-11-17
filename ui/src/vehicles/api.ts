@@ -2,20 +2,20 @@ import {
   addDoc, arrayUnion, collection, deleteDoc, deleteField, doc, getDocs,
   query, runTransaction, serverTimestamp, updateDoc, where,
 } from "firebase/firestore";
-import db from "../firebase";
+import { vehicleCollection } from "../firebase";
 import { newId } from "../lib/id";
 import type {
   MaintenanceEntry, NewMaintenanceInput, NewVehicleInput, Vehicle, VehicleDetailsInput,
 } from "./types";
 
-export async function listVehicles(uid: string): Promise<Vehicle[]> {
-  const q = query(collection(db, "vehicles"), where("owners", "array-contains", uid));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Vehicle, "id">) }));
+export async function getAllVehicles(uid: string): Promise<Vehicle[]> {
+  const getAllVehiclesQuery = query(collection(vehicleCollection, "vehicles"), where("owners", "array-contains", uid));
+  const snap = await getDocs(getAllVehiclesQuery);
+  return snap.docs.map((doc) => ({ id: doc.id, ...(doc.data() as Omit<Vehicle, "id">) }));
 }
 
-export async function createVehicle(uid: string, input: NewVehicleInput): Promise<string> {
-  const ref = await addDoc(collection(db, "vehicles"), {
+export async function addNewVehicle(uid: string, input: NewVehicleInput): Promise<string> {
+  const ref = await addDoc(collection(vehicleCollection, "vehicles"), {
     ...input,
     owners: [uid],
     maintenance: [],
@@ -25,11 +25,9 @@ export async function createVehicle(uid: string, input: NewVehicleInput): Promis
   return ref.id;
 }
 
-export async function updateVehicle(vehicleId: string, input: VehicleDetailsInput) {
-  await updateDoc(doc(db, "vehicles", vehicleId), {
+export async function updateVehicleInformation(vehicleId: string, input: VehicleDetailsInput) {
+  await updateDoc(doc(vehicleCollection, "vehicles", vehicleId), {
     ...input,
-    // A cleared optional field comes in as undefined, which Firestore skips (leaving
-    // the old value), so delete those fields explicitly.
     trim: input.trim ?? deleteField(),
     vin: input.vin ?? deleteField(),
     licensePlate: input.licensePlate ?? deleteField(),
@@ -38,45 +36,42 @@ export async function updateVehicle(vehicleId: string, input: VehicleDetailsInpu
 }
 
 export async function deleteVehicle(vehicleId: string) {
-  await deleteDoc(doc(db, "vehicles", vehicleId));
+  await deleteDoc(doc(vehicleCollection, "vehicles", vehicleId));
 }
 
 export async function setVehiclePhoto(vehicleId: string, photo: string | null) {
-  await updateDoc(doc(db, "vehicles", vehicleId), {
+  await updateDoc(doc(vehicleCollection, "vehicles", vehicleId), {
     photo: photo ?? deleteField(),
     updatedAt: serverTimestamp(),
   });
 }
 
 export async function addMaintenanceEntry(vehicleId: string, input: NewMaintenanceInput) {
-  await updateDoc(doc(db, "vehicles", vehicleId), {
+  await updateDoc(doc(vehicleCollection, "vehicles", vehicleId), {
     maintenance: arrayUnion({ id: newId(), ...input }),
     updatedAt: serverTimestamp(),
   });
 }
 
-// Service records live in an array on the vehicle doc, so changing or removing one
-// means reading the array and writing back an edited copy. The transaction keeps
-// two edits made at the same time from overwriting each other.
-async function editMaintenance(
+async function editMaintenanceRecord(
   vehicleId: string,
   edit: (entries: MaintenanceEntry[]) => MaintenanceEntry[]
 ) {
-  const ref = doc(db, "vehicles", vehicleId);
-  await runTransaction(db, async (tx) => {
-    const snap = await tx.get(ref);
+  const ref = doc(vehicleCollection, "vehicles", vehicleId);
+  await runTransaction(vehicleCollection, async (transaction) => {
+    const snap = await transaction.get(ref);
     if (!snap.exists()) throw new Error("This vehicle no longer exists.");
     const { maintenance = [] } = snap.data() as Vehicle;
-    tx.update(ref, { maintenance: edit(maintenance), updatedAt: serverTimestamp() });
+    transaction.update(ref, { maintenance: edit(maintenance), updatedAt: serverTimestamp() });
   });
 }
 
 export async function updateMaintenanceEntry(vehicleId: string, entry: MaintenanceEntry) {
-  await editMaintenance(vehicleId, (entries) =>
-    entries.map((e) => (e.id === entry.id ? entry : e))
+  await editMaintenanceRecord(vehicleId, (entries) =>
+    entries.map((entryItem) => (entryItem.id === entry.id ? entry : entryItem))
   );
 }
 
 export async function deleteMaintenanceEntry(vehicleId: string, entryId: string) {
-  await editMaintenance(vehicleId, (entries) => entries.filter((e) => e.id !== entryId));
+  await editMaintenanceRecord(vehicleId, (entries) => entries.filter((entryItem) => entryItem.id !== entryId));
 }

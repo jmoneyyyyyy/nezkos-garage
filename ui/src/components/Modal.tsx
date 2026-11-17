@@ -12,8 +12,6 @@ export default function Modal({ open, onClose, children }: ModalProps) {
   }, [open]);
 
   return (
-    // onClose also fires when Esc closes the dialog, which keeps `open` in sync.
-    // Clicks on the backdrop land on the <dialog> itself; clicks inside land on .modal-body.
     <dialog
       ref={dialogRef}
       className="modal"
