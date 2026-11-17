@@ -1,6 +1,6 @@
 # Garage Log
 
-Personal web app for tracking maintenance on two family vehicles.
+Personal web app for tracking maintenance on family vehicles.
 
 ## Stack
 - `ui/`: React + TypeScript, built with Vite
