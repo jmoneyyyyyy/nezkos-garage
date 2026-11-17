@@ -1,4 +1,15 @@
-import { GOOGLE_SIGN_IN_BUTTON_TEXT, LANDING_STEPS } from "../Constants";
+import {
+  GOOGLE_SIGN_IN_BUTTON_TEXT,
+  HOW_IT_WORKS_LINK_TEXT,
+  LANDING_FINAL_SUBTEXT,
+  LANDING_FINAL_TITLE,
+  LANDING_HERO_SUBTEXT,
+  LANDING_HERO_TITLE,
+  LANDING_STEPS,
+  LANDING_STEPS_TITLE,
+  NEZKOS_GARAGE,
+  SIGN_IN_BUTTON_TEXT,
+} from "../Constants";
 import "./landing.css";
 
 type LandingProps = {
@@ -13,28 +24,25 @@ function Landing({ onSignIn }: LandingProps) {
   return (
     <main className="landing">
       <header className="landing-nav">
-        <span className="landing-brand">Nezko's Garage</span>
+        <span className="landing-brand">{NEZKOS_GARAGE}</span>
         <nav aria-label="Page sections">
           <button className="landing-link" onClick={scrollToHowItWorks}>
-            How it works
+            {HOW_IT_WORKS_LINK_TEXT}
           </button>
-          <button onClick={onSignIn}>Sign in</button>
+          <button onClick={onSignIn}>{SIGN_IN_BUTTON_TEXT}</button>
         </nav>
       </header>
 
       <section className="landing-hero">
-        <h1>Keep track of your vehicle maintenance.</h1>
-        <p className="landing-lede">
-          Log every service for the family vehicles in one place, and see what's
-          been done and when.
-        </p>
+        <h1>{LANDING_HERO_TITLE}</h1>
+        <p className="landing-lede">{LANDING_HERO_SUBTEXT}</p>
         <button className="landing-cta" onClick={onSignIn}>
           {GOOGLE_SIGN_IN_BUTTON_TEXT}
         </button>
       </section>
 
       <section id="how-it-works" className="landing-section landing-section-alt">
-        <h2>Up and running in minutes</h2>
+        <h2>{LANDING_STEPS_TITLE}</h2>
         <ol className="landing-steps">
           {LANDING_STEPS.map((step) => (
             <li key={step.title}>
@@ -46,15 +54,15 @@ function Landing({ onSignIn }: LandingProps) {
       </section>
 
       <section className="landing-section landing-final">
-        <h2>Ready to get organized?</h2>
-        <p>Open your garage and start your first log.</p>
+        <h2>{LANDING_FINAL_TITLE}</h2>
+        <p>{LANDING_FINAL_SUBTEXT}</p>
         <button className="landing-cta" onClick={onSignIn}>
           {GOOGLE_SIGN_IN_BUTTON_TEXT}
         </button>
       </section>
 
       <footer className="landing-footer">
-        &copy; {new Date().getFullYear()} Nezko's Garage
+        &copy; {new Date().getFullYear()} {NEZKOS_GARAGE}
       </footer>
     </main>
   );

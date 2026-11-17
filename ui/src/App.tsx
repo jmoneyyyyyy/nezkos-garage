@@ -1,5 +1,5 @@
 import { useAuth } from "./auth/useAuth";
-import { GARAGE_LOG_TITLE, SIGN_OUT_BUTTON_TEXT } from "./Constants";
+import { GARAGE_LOG_TITLE, LOADING_TEXT, SIGN_OUT_BUTTON_TEXT } from "./Constants";
 import "./App.css";
 import Landing from "./landing/Landing";
 import AddVehicleModal from "./vehicles/AddVehicleModal";
@@ -9,7 +9,7 @@ function App() {
   const { user, loading, signIn, signOut } = useAuth();
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <p>{LOADING_TEXT}</p>;
   }
 
   if (!user) {
