@@ -1,6 +1,7 @@
 import { useAuth } from "./auth/useAuth";
-import { GARAGE_LOG_TITLE, GOOGLE_SIGN_IN_BUTTON_TEXT, SIGN_OUT_BUTTON_TEXT } from "./Constants";
+import { GARAGE_LOG_TITLE, SIGN_OUT_BUTTON_TEXT } from "./Constants";
 import "./App.css";
+import Landing from "./landing/Landing";
 import AddVehicleModal from "./vehicles/AddVehicleModal";
 import VehicleList from "./vehicles/VehicleList";
 
@@ -12,12 +13,7 @@ function App() {
   }
 
   if (!user) {
-    return (
-      <div>
-        <h1>{GARAGE_LOG_TITLE}</h1>
-        <button onClick={signIn}>{GOOGLE_SIGN_IN_BUTTON_TEXT}</button>
-      </div>
-    );
+    return <Landing onSignIn={signIn} />;
   }
 
   return (
