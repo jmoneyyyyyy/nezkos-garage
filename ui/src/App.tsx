@@ -25,7 +25,7 @@ function App() {
       <header className="app-header">
         <h1>{GARAGE_LOG_TITLE}</h1>
         <div className="app-header-user">
-          <span>Welcome back, {user.displayName ?? user.email}</span>
+          <span>Welcome back: {user.displayName ?? user.email}</span>
           <button onClick={signOut}>{SIGN_OUT_BUTTON_TEXT}</button>
         </div>
       </header>
