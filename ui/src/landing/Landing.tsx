@@ -11,13 +11,19 @@ const STEPS = [
   { title: "Log your maintenance", body: "Add a service record after every visit to the shop or the driveway." },
 ];
 
+function scrollToHowItWorks() {
+  document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+}
+
 function Landing({ onSignIn }: LandingProps) {
   return (
     <main className="landing">
       <header className="landing-nav">
         <span className="landing-brand">Nezko's Garage</span>
         <nav aria-label="Page sections">
-          <a href="#how-it-works">How it works</a>
+          <button className="landing-link" onClick={scrollToHowItWorks}>
+            How it works
+          </button>
           <button onClick={onSignIn}>Sign in</button>
         </nav>
       </header>

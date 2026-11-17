@@ -51,20 +51,20 @@ html {
     gap: 20px;
   }
 
-  a {
-    font: 600 14px/1 var(--heading);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+  .landing-link {
+    padding: 0;
     color: var(--text);
-    text-decoration: none;
+    background: none;
+    border: none;
+    box-shadow: none;
 
-    &:hover {
+    &:hover:not(:disabled) {
       color: var(--text-h);
     }
   }
 
   @media (max-width: 560px) {
-    a {
+    .landing-link {
       display: none;
     }
   }
