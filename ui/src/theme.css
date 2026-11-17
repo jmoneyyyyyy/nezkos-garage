@@ -410,6 +410,7 @@ textarea {
     background: var(--garage-black);
     border: 1px solid var(--garage-line);
     border-radius: 8px;
+    text-align: center;
   }
 
   dt {
