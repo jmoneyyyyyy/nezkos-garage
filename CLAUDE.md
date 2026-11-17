@@ -8,6 +8,11 @@ Personal web app for tracking maintenance on family vehicles.
   from the browser. There is no backend server.
 - Server state: TanStack Query
 - Hosting: AWS Amplify, auto-deploys on push to `main` (config in `amplify.yml`)
+- Domain: `nezkos-garage.com`, registered and managed in Route 53
+
+## Status
+- Built: Google sign-in, add vehicle form, vehicle list
+- Not built yet: vehicle detail page and maintenance history (add/edit/delete)
 
 ## Commands (run from `ui/`)
 - `npm run dev`: local dev server
@@ -28,11 +33,9 @@ Personal web app for tracking maintenance on family vehicles.
 - Firestore rejects `undefined`; omit optional fields or rely on
   `ignoreUndefinedProperties`
 
-## Security
-- Authorization is enforced by Firestore rules, not the client. Any change
-  to the data shape needs a matching update to the rules.
-- Never commit secrets, service account keys, or `.env` files.
-
-## Gotchas
-- New deploy domains must be added to Firebase → Authentication →
-  Authorized domains, or Google sign-in fails.
+## Deployment
+- Every push to `main` triggers an Amplify build; a failed build leaves the
+  live site on the last good version
+- Build settings are in `amplify.yml` at the repo root (app root is `ui`,
+  output is `dist`)
+- DNS and the

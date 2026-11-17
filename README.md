@@ -1,106 +1,58 @@
-# Nezko's Garage Log
-
-A personal web app for recording and tracking maintenance and modifications on the family vehicles. Sign in with Google, add a vehicle, and keep a dated history of every service, repair, and mod, with mileage, cost, and notes.
-
+# Garage Log
+ 
+A personal web app for tracking maintenance on two family vehicles.
+ 
+**Live demo:** https://nezkos-garage.com
+ 
+![Garage Log screenshot](docs/screenshot.png)
+ 
 ## Features
-
-- Google sign-in; each user only sees vehicles they own
-- Add, edit, and delete vehicles (name, make, model, year, mileage, color, trim, VIN, license plate)
-- Optional vehicle photo, resized in the browser before saving
-- Per-vehicle maintenance log: add, edit, and delete entries
-- Predefined service types (oil change, brake pads, spark plugs, and so on) plus `repair`, `modification`, and `other`
-
+- Google sign-in with Firebase Authentication
+- Vehicle records: name, make, model, year, mileage, color, plus optional trim, VIN, and license plate
+- Per-owner access: each vehicle can only be read or changed by the users listed as its owners
+**Roadmap:** per-vehicle maintenance history (service type, date, mileage, cost, details) with add, edit, and delete.
+ 
 ## Tech stack
-
-| Area | Choice |
-| --- | --- |
-| UI | React 19 + TypeScript |
-| Build tooling | Vite, ESLint |
-| Server state | TanStack Query (with React Query Devtools) |
-| Database | Cloud Firestore |
-| Auth | Firebase Authentication (Google provider) |
-| Hosting | AWS Amplify (auto-deploys on push to `main`) |
-
-There is no backend server. The browser talks directly to Firebase, and access control is enforced by Firestore security rules.
+- **Frontend:** React, TypeScript, Vite, TanStack Query
+- **Auth and data:** Firebase Authentication (Google sign-in) and Firestore
+- **Hosting:** AWS Amplify Hosting
+- **DNS and domain:** Amazon Route 53 (domain registration and hosted zone)
+- **HTTPS:** Amplify-managed certificate (AWS Certificate Manager)
+- **CI/CD:** Amplify builds and deploys automatically on every push to `main`
 
 ## Architecture
-
-### Data model
-
-A single Firestore collection, `vehicles`. Each document holds the vehicle details, an `owners` array of user uids, and the maintenance history as an embedded `maintenance` array:
-
+The browser talks directly to Firebase. There is no backend server of my own, and
+access is enforced by Firestore security rules: each vehicle document has an
+`owners` list, and only those users can read or change it.
+ 
 ```
-vehicles/{vehicleId}
-  name, make, model, year, mileage, color
-  trim?, vin?, licensePlate?, photo?   (photo is a JPEG data URL)
-  owners: string[]                     (uids allowed to access the vehicle)
-  maintenance: [
-    { id, type, date, mileage?, cost?, details? }
-  ]
-  createdAt, updatedAt                 (server timestamps)
+Browser (React app on AWS Amplify)
+   |-- Google sign-in --> Firebase Authentication
+   |-- reads/writes   --> Firestore (checked by security rules)
 ```
-
-Notes:
-
-- Maintenance dates are `"YYYY-MM-DD"` strings, not Timestamps.
-- Entry ids come from `newId()` in [ui/src/lib/id.ts](ui/src/lib/id.ts).
-- Embedding keeps each vehicle's history in a single read. The trade-off is Firestore's 1MB document limit, which the photo shares with the maintenance records. That is why photos are scaled down to at most 800px and re-encoded as JPEG in [ui/src/lib/image.ts](ui/src/lib/image.ts).
-- Adding an entry uses `arrayUnion`. Editing or deleting an entry runs in a Firestore transaction (read the array, change it, write it back) so concurrent edits don't clobber each other.
-
-### State management
-
-- **Server state:** TanStack Query. Reads go through the `useVehicles(uid)` query (key `["vehicles", uid]`). Every create, update, and delete is a mutation that invalidates that key on success, so the list refetches.
-- **Auth state:** the `useAuth` hook wraps Firebase's `onAuthStateChanged` and exposes `user`, `loading`, `signIn`, and `signOut`.
-- **UI state:** local component state (modals, forms). There is no global client store.
-
-### Authorization
-
-Firestore rules, not the client, decide who can read or write a vehicle, based on the `owners` array. The client query filters with `where("owners", "array-contains", uid)`. Any change to the data shape needs a matching update to the rules.
-
-## Project layout
-
-```
-ui/
-  src/
-    main.tsx          App entry: QueryClientProvider + devtools
-    App.tsx           Signed-out / signed-in shell
-    firebase.ts       Firebase app, Firestore, and Auth setup
-    Constants.ts      UI strings
-    auth/             useAuth hook
-    vehicles/         Vehicle feature
-      api.ts            Firestore reads and writes
-      hooks.ts          TanStack Query hooks wrapping api.ts
-      types.ts          Types, MAINTENANCE_TYPES, MAINTENANCE_LABELS
-      *.tsx             VehicleList, VehicleCard, forms, modals, maintenance UI
-    components/       Shared components (Modal)
-    lib/              id.ts, image.ts helpers
-    theme.css         Garage theme
-```
-
-## Getting started
-
-Requires Node.js and npm. Run everything from `ui/`:
-
-```sh
+ 
+## Run locally
+```bash
 cd ui
 npm install
 npm run dev
 ```
-
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Start the local dev server |
-| `npm run build` | Type-check (`tsc -b`) and build for production. Must pass before pushing |
-| `npm run lint` | Run ESLint |
-| `npm run preview` | Serve the production build locally |
-
+ 
+You'll need a Firebase project with Google sign-in and Firestore enabled. The
+Firebase web app config is set up in `ui/src/firebase.ts`.
+ 
 ## Deployment
-
-Pushing to `main` triggers an automatic build and deploy on AWS Amplify.
-
-When adding a new deploy domain, add it under Firebase Console → Authentication → Settings → Authorized domains, or Google sign-in will fail on that domain.
-
-## Security
-
-- Never commit secrets, service account keys, or `.env` files.
-- The Firebase web config in `ui/src/firebase.ts` identifies the project and is not a secret. Data access is protected by Firestore rules and Authentication.
+Pushes to `main` trigger an Amplify build (`amplify.yml`). The site started as a
+static site on S3 deployed with GitHub Actions, then moved to Amplify for managed
+HTTPS, custom domain support, and simpler CI/CD.
+ 
+The custom domain (`nezkos-garage.com`) is registered in Route 53. Amplify
+manages the DNS records and certificate in the domain's hosted zone.
+ 
+## Lessons learned
+- Adding a custom domain in Amplify before registering it created a second hosted
+  zone that conflicted with the one the Route 53 registrar made. Registering the
+  domain first, then letting Amplify write its records into the registrar's zone,
+  fixed certificate validation.
+- Every new domain a site is served from has to be added to Firebase's authorized
+  domains list, or Google sign-in fails.
