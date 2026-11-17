@@ -1,15 +1,9 @@
-import { GOOGLE_SIGN_IN_BUTTON_TEXT } from "../Constants";
+import { GOOGLE_SIGN_IN_BUTTON_TEXT, LANDING_STEPS } from "../Constants";
 import "./landing.css";
 
 type LandingProps = {
   onSignIn: () => void;
 };
-
-const STEPS = [
-  { title: "Sign in", body: "Use your Google account. No new password to remember." },
-  { title: "Add your vehicles", body: "Enter the basics and drop in a photo." },
-  { title: "Log your maintenance", body: "Add a service record after every visit to the shop or the driveway." },
-];
 
 function scrollToHowItWorks() {
   document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
@@ -42,7 +36,7 @@ function Landing({ onSignIn }: LandingProps) {
       <section id="how-it-works" className="landing-section landing-section-alt">
         <h2>Up and running in minutes</h2>
         <ol className="landing-steps">
-          {STEPS.map((step) => (
+          {LANDING_STEPS.map((step) => (
             <li key={step.title}>
               <h3>{step.title}</h3>
               <p>{step.body}</p>
