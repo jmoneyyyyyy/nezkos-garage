@@ -1,6 +1,6 @@
 # Garage Log
  
-A personal web app for tracking maintenance on two family vehicles.
+A personal web app for tracking maintenance on family vehicles.
  
 **Live demo:** https://nezkos-garage.com
  
