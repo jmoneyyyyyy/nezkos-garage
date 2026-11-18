@@ -13,6 +13,7 @@ const LANDING_HERO_SUBTEXT =
 const LANDING_STEPS_TITLE = "Up and running in minutes";
 const LANDING_FINAL_TITLE = "Ready to get organized?";
 const LANDING_FINAL_SUBTEXT = "Open your garage and start your first log.";
+const REQUIRED_FIELD = "* Required Field";
 
 const LANDING_STEPS = [
   { title: "Sign in", body: "Use your Google account. No new password to remember." },
@@ -36,4 +37,5 @@ export {
   LANDING_STEPS_TITLE,
   LANDING_FINAL_TITLE,
   LANDING_FINAL_SUBTEXT,
+  REQUIRED_FIELD,
 };

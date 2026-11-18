@@ -2,6 +2,7 @@ import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { PHOTO_READ_ERROR, photoFromInput } from "../lib/image";
 import { useCreateVehicle, useUpdateVehicle } from "./hooks";
 import type { Vehicle, VehicleDetailsInput } from "./types";
+import { REQUIRED_FIELD } from "../Constants";
 
 const empty = {
   name: "", make: "", model: "", year: "", mileage: "",
@@ -129,7 +130,7 @@ export default function VehicleForm({ uid, vehicle, onSaved }: Props) {
         <input placeholder="VIN (optional)" value={form.vin} onChange={set("vin")} />
         <input placeholder="License plate (optional)" value={form.licensePlate} onChange={set("licensePlate")} />
       </div>
-      <p className="muted">* Required</p>
+      <p className="muted">{REQUIRED_FIELD}</p>
       <button type="submit" disabled={isPending}>
         {isPending ? "Saving..." : vehicle ? "Save changes" : "Add vehicle"}
       </button>
