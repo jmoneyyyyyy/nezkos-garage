@@ -52,26 +52,14 @@
 
 @media (max-width: 560px) {
   .site-header {
-    flex-wrap: wrap;
-    gap: 6px 12px;
     padding: 12px 16px;
-  }
-
-  /* Let the actions join the header's own flex row so the greeting can wrap */
-  .site-header-actions {
-    display: contents;
   }
 
   .site-header-link {
     display: none;
   }
 
-  .site-header button {
-    margin-left: auto;
-  }
-
-  .site-header-user {
-    order: 1;
-    flex: 1 0 100%;
+  .site-header-actions {
+    gap: 12px;
   }
 }
