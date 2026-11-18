@@ -120,15 +120,16 @@ export default function VehicleForm({ uid, vehicle, onSaved }: Props) {
       )}
       {photoError && <p role="alert">{photoError}</p>}
       <div className="form-fields">
-        <input placeholder="Name (e.g. Justin's Civic)" value={form.name} onChange={set("name")} />
-        <input placeholder="Make" value={form.make} onChange={set("make")} />
-        <input placeholder="Model" value={form.model} onChange={set("model")} />
-        <input placeholder="Year" inputMode="numeric" value={form.year} onChange={set("year")} />
-        <input placeholder="Approx. mileage" inputMode="numeric" value={form.mileage} onChange={set("mileage")} />
-        <input placeholder="Color" value={form.color} onChange={set("color")} />
+        <input placeholder="Name * (e.g. Justin's Civic)" aria-required value={form.name} onChange={set("name")} />
+        <input placeholder="Make *" aria-required value={form.make} onChange={set("make")} />
+        <input placeholder="Model *" aria-required value={form.model} onChange={set("model")} />
+        <input placeholder="Year *" aria-required inputMode="numeric" value={form.year} onChange={set("year")} />
+        <input placeholder="Approx. mileage *" aria-required inputMode="numeric" value={form.mileage} onChange={set("mileage")} />
+        <input placeholder="Color *" aria-required value={form.color} onChange={set("color")} />
         <input placeholder="VIN (optional)" value={form.vin} onChange={set("vin")} />
         <input placeholder="License plate (optional)" value={form.licensePlate} onChange={set("licensePlate")} />
       </div>
+      <p className="muted">* Required</p>
       <button type="submit" disabled={isPending}>
         {isPending ? "Saving..." : vehicle ? "Save changes" : "Add vehicle"}
       </button>
