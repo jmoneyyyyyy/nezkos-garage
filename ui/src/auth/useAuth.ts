@@ -1,22 +1,8 @@
-import { useEffect, useState } from "react";
-import { onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
-import { auth, googleProvider } from "../firebase";
+import { useContext } from "react";
+import { AuthContext } from "./AuthContext";
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    return onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setLoading(false);
-    });
-  }, []);
-
-  return {
-    user,
-    loading,
-    signIn: () => signInWithPopup(auth, googleProvider),
-    signOut: () => signOut(auth),
-  };
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
+  return ctx;
 }

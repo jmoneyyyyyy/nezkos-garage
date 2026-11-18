@@ -14,7 +14,8 @@
     "@tanstack/react-query-devtools": "^5.108.0",
     "firebase": "^13.0.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

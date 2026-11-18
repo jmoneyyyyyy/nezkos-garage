@@ -1,6 +1,6 @@
+import { useAuth } from "../auth/useAuth";
 import {
   GOOGLE_SIGN_IN_BUTTON_TEXT,
-  HOW_IT_WORKS_LINK_TEXT,
   LANDING_FINAL_SUBTEXT,
   LANDING_FINAL_TITLE,
   LANDING_HERO_SUBTEXT,
@@ -8,33 +8,18 @@ import {
   LANDING_STEPS,
   LANDING_STEPS_TITLE,
   NEZKOS_GARAGE,
-  SIGN_IN_BUTTON_TEXT,
 } from "../Constants";
-import Header from "../components/Header";
 import "./landing.css";
 
-type LandingProps = {
-  onSignIn: () => void;
-};
+function Landing() {
+  const { signIn } = useAuth();
 
-function scrollToHowItWorks() {
-  document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
-}
-
-function Landing({ onSignIn }: LandingProps) {
   return (
     <main className="landing">
-      <Header>
-        <button className="site-header-link" onClick={scrollToHowItWorks}>
-          {HOW_IT_WORKS_LINK_TEXT}
-        </button>
-        <button onClick={onSignIn}>{SIGN_IN_BUTTON_TEXT}</button>
-      </Header>
-
       <section className="landing-hero">
         <h1>{LANDING_HERO_TITLE}</h1>
         <p className="landing-lede">{LANDING_HERO_SUBTEXT}</p>
-        <button className="landing-cta" onClick={onSignIn}>
+        <button className="landing-cta" onClick={signIn}>
           {GOOGLE_SIGN_IN_BUTTON_TEXT}
         </button>
       </section>
@@ -54,7 +39,7 @@ function Landing({ onSignIn }: LandingProps) {
       <section className="landing-section landing-final">
         <h2>{LANDING_FINAL_TITLE}</h2>
         <p>{LANDING_FINAL_SUBTEXT}</p>
-        <button className="landing-cta" onClick={onSignIn}>
+        <button className="landing-cta" onClick={signIn}>
           {GOOGLE_SIGN_IN_BUTTON_TEXT}
         </button>
       </section>
