@@ -30,53 +30,6 @@ html {
   }
 }
 
-/* Nav ----------------------------------------------------------------- */
-
-.landing-nav {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 24px;
-  background: rgba(10, 12, 11, 0.85);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(8px);
-
-  nav {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .landing-link {
-    padding: 0;
-    color: var(--text);
-    background: none;
-    border: none;
-    box-shadow: none;
-
-    &:hover:not(:disabled) {
-      color: var(--text-h);
-    }
-  }
-
-  @media (max-width: 560px) {
-    .landing-link {
-      display: none;
-    }
-  }
-}
-
-.landing-brand {
-  font: 800 italic 22px/1 var(--heading);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: var(--text-h);
-}
-
 /* Hero ---------------------------------------------------------------- */
 
 .landing-hero {

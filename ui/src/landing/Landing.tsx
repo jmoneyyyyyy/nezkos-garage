@@ -10,6 +10,7 @@ import {
   NEZKOS_GARAGE,
   SIGN_IN_BUTTON_TEXT,
 } from "../Constants";
+import Header from "../components/Header";
 import "./landing.css";
 
 type LandingProps = {
@@ -23,15 +24,12 @@ function scrollToHowItWorks() {
 function Landing({ onSignIn }: LandingProps) {
   return (
     <main className="landing">
-      <header className="landing-nav">
-        <span className="landing-brand">{NEZKOS_GARAGE}</span>
-        <nav aria-label="Page sections">
-          <button className="landing-link" onClick={scrollToHowItWorks}>
-            {HOW_IT_WORKS_LINK_TEXT}
-          </button>
-          <button onClick={onSignIn}>{SIGN_IN_BUTTON_TEXT}</button>
-        </nav>
-      </header>
+      <Header>
+        <button className="site-header-link" onClick={scrollToHowItWorks}>
+          {HOW_IT_WORKS_LINK_TEXT}
+        </button>
+        <button onClick={onSignIn}>{SIGN_IN_BUTTON_TEXT}</button>
+      </Header>
 
       <section className="landing-hero">
         <h1>{LANDING_HERO_TITLE}</h1>

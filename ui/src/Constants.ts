@@ -5,6 +5,7 @@ const SIGN_IN_BUTTON_TEXT = "Sign in";
 const SIGN_OUT_BUTTON_TEXT = "Sign out";
 const ADD_VEHICLE_BUTTON_TEXT = "Add Vehicle";
 const LOADING_TEXT = "Loading...";
+const WELCOME_BACK_TEXT = "Welcome back:";
 const HOW_IT_WORKS_LINK_TEXT = "How it works";
 const LANDING_HERO_TITLE = "Keep track of your vehicle maintenance.";
 const LANDING_HERO_SUBTEXT =
@@ -26,6 +27,7 @@ export {
   ADD_VEHICLE_BUTTON_TEXT,
   LANDING_STEPS,
   LOADING_TEXT,
+  WELCOME_BACK_TEXT,
   SIGN_IN_BUTTON_TEXT,
   NEZKOS_GARAGE,
   HOW_IT_WORKS_LINK_TEXT,

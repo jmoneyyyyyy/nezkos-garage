@@ -259,7 +259,7 @@ textarea {
 
 /* Signed-out, loading, and empty states ------------------------------- */
 
-#root > div:not(:has(> .app-header)) {
+#root > div:not(:has(> .site-header)) {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -288,24 +288,13 @@ textarea {
 
 /* Header -------------------------------------------------------------- */
 
-.app-header {
+.page-title {
   margin-bottom: 24px;
 }
 
-.app-header-user {
-  padding: 10px 14px;
-  font-size: 14px;
-  color: var(--garage-gray);
-  background: rgba(17, 20, 18, 0.85);
-  border: 1px solid var(--garage-line);
-  border-radius: 10px;
-  backdrop-filter: blur(8px);
-  box-shadow: var(--shadow);
-
-  button {
-    font-size: 12px;
-    padding: 7px 12px;
-  }
+.site-header button {
+  font-size: 12px;
+  padding: 7px 12px;
 }
 
 /* Vehicle cards ------------------------------------------------------- */
