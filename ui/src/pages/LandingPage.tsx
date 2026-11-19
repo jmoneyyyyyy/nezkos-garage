@@ -1,4 +1,4 @@
-import { useAuth } from "../auth/useAuth";
+import { useAuth } from "../hooks/useAuth";
 import {
   GOOGLE_SIGN_IN_BUTTON_TEXT,
   LANDING_FINAL_SUBTEXT,
@@ -11,7 +11,7 @@ import {
 } from "../Constants";
 import "./landing.css";
 
-function Landing() {
+function LandingPage() {
   const { signIn } = useAuth();
 
   return (
@@ -51,4 +51,4 @@ function Landing() {
   );
 }
 
-export default Landing;
+export default LandingPage;

@@ -9,7 +9,7 @@ Personal web app for tracking maintenance on family vehicles.
 - Server state: TanStack Query
 - Routing: React Router (`ui/src/routes.tsx`); `AppLayout` renders the shared
   `Header` plus the matched page via `<Outlet />`. Routes: `/` (landing,
-  public), `/vehicles` (signed-in only); guards are in `ui/src/auth/RouteGuards.tsx`
+  public), `/vehicles` (signed-in only); guards are in `ui/src/components/routing/RouteGuards.tsx`
 - Hosting: AWS Amplify, auto-deploys on push to `main` (config in `amplify.yml`)
 - Domain: `nezkos-garage.com`, registered and managed in Route 53
 
@@ -28,10 +28,13 @@ Personal web app for tracking maintenance on family vehicles.
 - Maintenance entry dates are `"YYYY-MM-DD"` strings, not Timestamps
 - Entry ids come from `newId()` in `ui/src/lib/id.ts`
 - Service types live in `MAINTENANCE_TYPES` / `MAINTENANCE_LABELS`
-  in `ui/src/features/vehicles/types.ts`
+  in `ui/src/types/vehicle.ts`
 
 ## Conventions
-- Feature code goes in `ui/src/features/<feature>/` (api.ts, hooks.ts, components)
+- Code is organized by layer under `ui/src/`:
+  `components/<area>/` (layout, common, routing, vehicles), `pages/` (one per
+  route), `hooks/`, `context/`, `api/` (Firestore calls), `types/`, `lib/`
+  (helpers, firebase), `styles/`. User-facing text lives in `Constants.ts`
 - Use `import type` for type-only imports (verbatimModuleSyntax is on)
 - Firestore rejects `undefined`; omit optional fields or rely on
   `ignoreUndefinedProperties`

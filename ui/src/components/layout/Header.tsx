@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { NEZKOS_GARAGE } from "../Constants";
+import { NEZKOS_GARAGE } from "../../Constants";
 import "./header.css";
 
 type HeaderProps = { children?: ReactNode };

@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { LOADING_TEXT } from "../Constants";
-import { useAuth } from "./useAuth";
+import { LOADING_TEXT } from "../../Constants";
+import { useAuth } from "../../hooks/useAuth";
 
 /** Signed-in users only; everyone else goes to the landing page. */
 export function RequireAuth() {

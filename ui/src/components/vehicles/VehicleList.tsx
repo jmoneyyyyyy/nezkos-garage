@@ -1,5 +1,5 @@
 import VehicleCard from "./VehicleCard";
-import { useVehicles } from "./hooks";
+import { useVehicles } from "../../hooks/useVehicles";
 
 export default function VehicleList({ uid }: { uid: string }) {
   const { data, isLoading, isError, error } = useVehicles(uid);

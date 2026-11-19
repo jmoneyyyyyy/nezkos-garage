@@ -2,11 +2,11 @@ import {
   addDoc, arrayUnion, collection, deleteDoc, deleteField, doc, getDocs,
   query, runTransaction, serverTimestamp, updateDoc, where,
 } from "firebase/firestore";
-import { vehicleCollection } from "../firebase";
+import { vehicleCollection } from "../lib/firebase";
 import { newId } from "../lib/id";
 import type {
   MaintenanceEntry, NewMaintenanceInput, NewVehicleInput, Vehicle, VehicleDetailsInput,
-} from "./types";
+} from "../types/vehicle";
 
 export async function getAllVehicles(uid: string): Promise<Vehicle[]> {
   const getAllVehiclesQuery = query(collection(vehicleCollection, "vehicles"), where("owners", "array-contains", uid));

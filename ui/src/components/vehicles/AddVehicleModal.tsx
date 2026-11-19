@@ -1,7 +1,7 @@
 import { useState } from "react";
-import Modal from "../components/Modal";
+import Modal from "../common/Modal";
 import VehicleForm from "./VehicleForm";
-import { ADD_VEHICLE_BUTTON_TEXT } from "../Constants";
+import { ADD_VEHICLE_BUTTON_TEXT } from "../../Constants";
 
 export default function AddVehicleModal({ uid }: { uid: string }) {
   const [open, setOpen] = useState(false);

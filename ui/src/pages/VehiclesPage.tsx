@@ -1,7 +1,7 @@
-import { useAuth } from "../auth/useAuth";
+import { useAuth } from "../hooks/useAuth";
 import { GARAGE_LOG_TITLE } from "../Constants";
-import AddVehicleModal from "./AddVehicleModal";
-import VehicleList from "./VehicleList";
+import AddVehicleModal from "../components/vehicles/AddVehicleModal";
+import VehicleList from "../components/vehicles/VehicleList";
 
 export default function VehiclesPage() {
   const { user } = useAuth();

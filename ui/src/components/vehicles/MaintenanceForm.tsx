@@ -1,9 +1,9 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { useAddMaintenance, useUpdateMaintenance } from "./hooks";
+import { useAddMaintenance, useUpdateMaintenance } from "../../hooks/useVehicles";
 import {
   MAINTENANCE_LABELS, MAINTENANCE_TYPES,
   type MaintenanceEntry, type MaintenanceType, type NewMaintenanceInput,
-} from "./types";
+} from "../../types/vehicle";
 
 const today = () => new Date().toLocaleDateString("en-CA");
 

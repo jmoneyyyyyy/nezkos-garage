@@ -2,10 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   addMaintenanceEntry, addNewVehicle, deleteMaintenanceEntry, deleteVehicle,
   getAllVehicles, setVehiclePhoto, updateMaintenanceEntry, updateVehicleInformation,
-} from "./api";
+} from "../api/vehicles";
 import type {
   MaintenanceEntry, NewMaintenanceInput, NewVehicleInput, VehicleDetailsInput,
-} from "./types";
+} from "../types/vehicle";
 
 export function useVehicles(uid: string) {
   return useQuery({

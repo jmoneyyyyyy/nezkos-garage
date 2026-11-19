@@ -1,8 +1,8 @@
 import { useState } from "react";
-import Modal from "../components/Modal";
+import Modal from "../common/Modal";
 import MaintenanceForm from "./MaintenanceForm";
-import { useDeleteMaintenance } from "./hooks";
-import { MAINTENANCE_LABELS, type MaintenanceEntry, type Vehicle } from "./types";
+import { useDeleteMaintenance } from "../../hooks/useVehicles";
+import { MAINTENANCE_LABELS, type MaintenanceEntry, type Vehicle } from "../../types/vehicle";
 
 function formatDate(date: string) {
   const [y, m, d] = date.split("-").map(Number);

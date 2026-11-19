@@ -1,8 +1,8 @@
 import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
-import { PHOTO_READ_ERROR, photoFromInput } from "../lib/image";
-import { useCreateVehicle, useUpdateVehicle } from "./hooks";
-import type { Vehicle, VehicleDetailsInput } from "./types";
-import { REQUIRED_FIELD } from "../Constants";
+import { PHOTO_READ_ERROR, photoFromInput } from "../../lib/image";
+import { useCreateVehicle, useUpdateVehicle } from "../../hooks/useVehicles";
+import type { Vehicle, VehicleDetailsInput } from "../../types/vehicle";
+import { REQUIRED_FIELD } from "../../Constants";
 
 const empty = {
   name: "", make: "", model: "", year: "", mileage: "",

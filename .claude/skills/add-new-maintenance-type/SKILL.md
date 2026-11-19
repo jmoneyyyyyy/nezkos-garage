@@ -5,7 +5,7 @@ description: Add a new maintenance service type (e.g. "timing_belt") to the Gara
 
 # Add a new maintenance service type
 
-Service types are defined in `ui/src/features/vehicles/types.ts`.
+Service types are defined in `ui/src/types/vehicle.ts`.
 
 1. Add the snake_case key to the `MAINTENANCE_TYPES` array, before `"other"`.
 2. Add a matching human-readable label to `MAINTENANCE_LABELS`.

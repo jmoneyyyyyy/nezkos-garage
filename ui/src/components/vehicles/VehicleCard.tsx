@@ -1,10 +1,10 @@
 import { useRef, useState, type ChangeEvent } from "react";
-import Modal from "../components/Modal";
-import { PHOTO_READ_ERROR, photoFromInput } from "../lib/image";
+import Modal from "../common/Modal";
+import { PHOTO_READ_ERROR, photoFromInput } from "../../lib/image";
 import MaintenanceSection from "./MaintenanceSection";
 import VehicleForm from "./VehicleForm";
-import { useDeleteVehicle, useSetVehiclePhoto } from "./hooks";
-import type { Vehicle } from "./types";
+import { useDeleteVehicle, useSetVehiclePhoto } from "../../hooks/useVehicles";
+import type { Vehicle } from "../../types/vehicle";
 
 export default function VehicleCard({ uid, vehicle }: { uid: string; vehicle: Vehicle }) {
   const fileRef = useRef<HTMLInputElement>(null);

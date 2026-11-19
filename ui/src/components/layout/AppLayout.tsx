@@ -1,11 +1,11 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { useAuth } from "../auth/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 import {
   HOW_IT_WORKS_LINK_TEXT,
   SIGN_IN_BUTTON_TEXT,
   SIGN_OUT_BUTTON_TEXT,
   WELCOME_BACK_TEXT,
-} from "../Constants";
+} from "../../Constants";
 import Header from "./Header";
 
 function scrollToHowItWorks() {
