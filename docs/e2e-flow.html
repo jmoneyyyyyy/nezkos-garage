@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nezko's Garage: End-to-End Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,800&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout concept: one long reading column, a numbered timeline for the real
+     page-load sequence, and tables/diagrams for everything else. Matches the
+     app's own garage look: racing green on gunmetal, condensed italic headings. */
+  :root {
+    --bg: #f5f7f6;
+    --surface: #ffffff;
+    --surface-2: #eaefec;
+    --line: #d3dbd7;
+    --ink: #17201b;
+    --muted: #55645b;
+    --accent: #0f8a47;
+    --accent-soft: rgba(15, 138, 71, 0.12);
+    --auth: #2a6fdb;
+    --data: #b8710a;
+    --code-bg: #0f1512;
+    --code-ink: #dbe6df;
+    --head: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+    --body: "Barlow", system-ui, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0a0c0b;
+      --surface: #131815;
+      --surface-2: #1b221e;
+      --line: #2b322e;
+      --ink: #e7ece9;
+      --muted: #98a29c;
+      --accent: #34c770;
+      --accent-soft: rgba(52, 199, 112, 0.14);
+      --auth: #6aa2ff;
+      --data: #f0b24a;
+      --code-bg: #0d110f;
+      --code-ink: #dbe6df;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 17px/1.6 var(--body);
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+  a { color: var(--accent); }
+
+  /* Masthead */
+  header.top { border-bottom: 1px solid var(--line); padding: 56px 0 28px; }
+  .eyebrow { font: 600 13px/1 var(--head); text-transform: uppercase; letter-spacing: .2em; color: var(--accent); }
+  h1 { margin: 14px 0 12px; font: italic 800 clamp(40px, 7vw, 68px)/1 var(--head); text-transform: uppercase; text-wrap: balance; }
+  .lede { max-width: 66ch; font-size: 19px; color: var(--muted); margin: 0; }
+  nav.toc { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  nav.toc .wrap { display: flex; gap: 6px 18px; flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; }
+  nav.toc a { font: 600 13px/1 var(--head); text-transform: uppercase; letter-spacing: .1em; text-decoration: none; color: var(--muted); padding: 6px 0; }
+  nav.toc a:hover { color: var(--accent); }
+
+  section { padding: 56px 0 8px; scroll-margin-top: 48px; }
+  h2 { margin: 0 0 8px; font: 700 clamp(28px, 4vw, 38px)/1.05 var(--head); text-transform: uppercase; letter-spacing: .01em; text-wrap: balance; }
+  h2::after { content: ""; display: block; width: 72px; height: 4px; margin-top: 12px; background: var(--accent); transform: skewX(-20deg); }
+  h3 { margin: 28px 0 6px; font: 700 22px/1.2 var(--head); text-transform: uppercase; letter-spacing: .04em; }
+  p { margin: 10px 0; }
+  .sub { color: var(--muted); max-width: 70ch; margin-bottom: 20px; }
+  code { font: 500 .88em var(--mono); background: var(--surface-2); padding: 1px 6px; border-radius: 4px; }
+  pre { margin: 14px 0; padding: 16px 18px; background: var(--code-bg); color: var(--code-ink); border-radius: 8px; overflow-x: auto; font: 400 14px/1.55 var(--mono); }
+  pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+  .c { color: #7d8b83; }
+
+  /* Architecture strip */
+  .arch { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 22px 0; }
+  .node { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--accent); border-radius: 10px; padding: 16px 18px; }
+  .node.auth { border-top-color: var(--auth); }
+  .node.data { border-top-color: var(--data); }
+  .node h4 { margin: 0 0 4px; font: 700 20px/1.1 var(--head); text-transform: uppercase; letter-spacing: .04em; }
+  .node p { margin: 0; font-size: 15px; color: var(--muted); }
+
+  /* Numbered timeline: this one is a true sequence */
+  ol.steps { list-style: none; margin: 26px 0 0; padding: 0; counter-reset: step; }
+  ol.steps > li { position: relative; counter-increment: step; padding: 0 0 30px 62px; }
+  ol.steps > li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 42px; height: 42px; display: grid; place-items: center; font: 700 20px/1 var(--head); color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 50%; }
+  ol.steps > li::after { content: ""; position: absolute; left: 20px; top: 48px; bottom: 6px; width: 2px; background: var(--line); }
+  ol.steps > li:last-child::after { display: none; }
+  ol.steps h3 { margin: 0 0 4px; font-size: 24px; }
+  .files { font: 500 13px/1.4 var(--mono); color: var(--muted); margin: 0 0 6px; }
+  .net { display: inline-block; margin-top: 4px; font: 600 12px/1 var(--head); text-transform: uppercase; letter-spacing: .12em; padding: 5px 9px; border-radius: 4px; background: var(--surface-2); color: var(--muted); }
+  .net.yes { background: var(--accent-soft); color: var(--accent); }
+
+  /* Tables */
+  .scroll { overflow-x: auto; margin: 16px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 640px; }
+  th, td { text-align: left; vertical-align: top; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: none; }
+  th { font: 600 12px/1.2 var(--head); text-transform: uppercase; letter-spacing: .14em; color: var(--muted); background: var(--surface-2); }
+  td.k { font-weight: 600; white-space: nowrap; }
+
+  /* Diagram */
+  .diagram { overflow-x: auto; margin: 18px 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  .diagram svg { display: block; min-width: 760px; width: 100%; height: auto; }
+  .lane-box { fill: var(--surface-2); stroke: var(--line); }
+  .lane-title { font: 700 15px var(--head); text-transform: uppercase; letter-spacing: .06em; fill: var(--ink); text-anchor: middle; }
+  .lifeline { stroke: var(--line); stroke-dasharray: 4 5; }
+  .msg { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+  .msg.ret { stroke-dasharray: 5 4; }
+  .arrow-head { fill: var(--muted); }
+  .lbl { font: 500 13px var(--body); fill: var(--ink); text-anchor: middle; }
+  .note { fill: var(--accent-soft); stroke: var(--accent); }
+  .note-t { font: 500 12.5px var(--body); fill: var(--ink); text-anchor: middle; }
+  .num { font: 700 12px var(--head); fill: var(--accent); }
+
+  /* Component tree */
+  .tree { margin: 18px 0; padding: 18px 20px; background: var(--code-bg); color: var(--code-ink); border-radius: 10px; overflow-x: auto; font: 400 14px/1.75 var(--mono); }
+  .tl { display: grid; grid-template-columns: 440px 1fr; gap: 0 16px; white-space: nowrap; }
+  .tree .t-prov { color: #7fb4ff; }
+  .tree .t-layout { color: #f0b24a; }
+  .tree .t-page { color: #52de8d; font-weight: 500; }
+  .tree .t-note { color: #7d8b83; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; color: var(--muted); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
+
+  /* Layer stack */
+  .layers { display: grid; gap: 0; margin: 20px 0; }
+  .layer { display: grid; grid-template-columns: minmax(130px, 200px) 1fr; gap: 6px 20px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--line); border-bottom: none; }
+  .layer:first-child { border-radius: 10px 10px 0 0; }
+  .layer:last-child { border-bottom: 1px solid var(--line); border-radius: 0 0 10px 10px; }
+  .layer b { font: 700 18px/1.2 var(--head); text-transform: uppercase; letter-spacing: .05em; }
+  .layer span { color: var(--muted); font-size: 15px; }
+  .layer code { font-size: 12.5px; }
+  @media (max-width: 560px) { .layer { grid-template-columns: 1fr; } }
+
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .two > div { min-width: 0; }
+  .callout { margin: 18px 0; padding: 14px 18px; background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; }
+  .callout b { font-family: var(--head); text-transform: uppercase; letter-spacing: .06em; }
+  ul.tight { margin: 8px 0; padding-left: 20px; }
+  ul.tight li { margin: 6px 0; }
+  footer { margin-top: 64px; padding: 24px 0 48px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Garage Log &middot; How it works</div>
+    <h1>End-to-end flow</h1>
+    <p class="lede">What happens from the moment someone opens <code>nezkos-garage.com</code>: how the page loads, how Google sign-in and Firebase Auth work, what the app asks Firestore for, and how the data turns into components on screen.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <div class="wrap">
+    <a href="#big-picture">Big picture</a>
+    <a href="#journey">Page-load journey</a>
+    <a href="#signin">Sign-in</a>
+    <a href="#network">Network calls</a>
+    <a href="#firestore">Firestore data</a>
+    <a href="#components">Components</a>
+    <a href="#data-layer">Data layer</a>
+    <a href="#writes">Writes</a>
+    <a href="#hosting">Hosting</a>
+    <a href="#notes">Good to know</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============================ BIG PICTURE ============================ -->
+<section id="big-picture">
+  <h2>The big picture</h2>
+  <p class="sub">There is no backend server. The React app is a set of static files, and the browser talks directly to two Firebase services.</p>
+  <div class="arch">
+    <div class="node">
+      <h4>AWS Amplify</h4>
+      <p>Hosts the built static files (<code>index.html</code>, JS, CSS) behind <code>nezkos-garage.com</code>. It only ever serves files.</p>
+    </div>
+    <div class="node">
+      <h4>React app (browser)</h4>
+      <p>Runs everything: routing, screens, validation, photo resizing. Built with Vite, React Router and TanStack Query.</p>
+    </div>
+    <div class="node auth">
+      <h4>Firebase Auth</h4>
+      <p>Handles Google sign-in and remembers who is signed in. Gives the app a user id (<code>uid</code>) and a token.</p>
+    </div>
+    <div class="node data">
+      <h4>Cloud Firestore</h4>
+      <p>The database. One collection, <code>vehicles</code>. Each request carries the user's token so Firestore knows who is asking.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ JOURNEY ============================ -->
+<section id="journey">
+  <h2>The page-load journey</h2>
+  <p class="sub">Follow one visit, in order. The same steps cover a first visit and a returning, already-signed-in visit; the difference is what step 3 finds.</p>
+
+  <ol class="steps">
+    <li>
+      <h3>The browser fetches the app</h3>
+      <div class="files">ui/index.html &rarr; src/main.tsx</div>
+      <p>The browser requests the site. Amplify returns <code>index.html</code>, which is nearly empty: a <code>&lt;div id="root"&gt;</code> and one script tag. The script is the built JavaScript bundle, and the page's CSS and the Google Fonts stylesheet load alongside it. Nothing is drawn yet.</p>
+      <span class="net yes">Network: static files only</span>
+    </li>
+
+    <li>
+      <h3>React boots and wraps the app in providers</h3>
+      <div class="files">src/main.tsx &rarr; src/App.tsx</div>
+      <p><code>main.tsx</code> creates a TanStack <code>QueryClient</code> (the cache for server data) and renders <code>&lt;QueryClientProvider&gt;</code> around <code>&lt;App&gt;</code>, plus the Query Devtools panel (development builds only by default). <code>App</code> then nests <code>&lt;AuthProvider&gt;</code> and <code>&lt;BrowserRouter&gt;</code>, and renders <code>&lt;AppRoutes&gt;</code>.</p>
+      <p>Importing <code>lib/firebase.ts</code> runs once at this point: it initializes the Firebase app, creates the Firestore instance (with <code>ignoreUndefinedProperties</code> on), and creates the Auth instance and the Google provider.</p>
+      <span class="net">Network: none</span>
+    </li>
+
+    <li>
+      <h3>Firebase restores the session</h3>
+      <div class="files">src/context/AuthProvider.tsx</div>
+      <p><code>AuthProvider</code> starts with <code>user = null</code> and <code>loading = true</code>. In a <code>useEffect</code> it subscribes with <code>onAuthStateChanged(auth, callback)</code>. Firebase looks in the browser's IndexedDB for a saved session. If one exists it quietly reloads that user (and may refresh the token in the background); if not, the user is null. Either way the callback fires once, the provider calls <code>setUser(...)</code> and <code>setLoading(false)</code>, and everything below re-renders. The subscription stays open, so signing in or out later triggers the same callback.</p>
+      <p>This is why the app has to wait: until that first callback, it does not know whether the visitor is signed in.</p>
+      <span class="net yes">Network: possible token refresh, no Firestore</span>
+    </li>
+
+    <li>
+      <h3>The router picks a page</h3>
+      <div class="files">src/routes.tsx &middot; src/components/routing/RouteGuards.tsx &middot; src/components/layout/AppLayout.tsx</div>
+      <p><code>AppLayout</code> wraps every route. It always draws the sticky <code>Header</code> and an <code>&lt;Outlet /&gt;</code> where the matched page goes. Inside it, two guard components decide what the visitor may see. While <code>loading</code> is true both show <code>Loading...</code> instead of guessing, so there is no flash of the wrong page.</p>
+      <div class="scroll"><table>
+        <thead><tr><th>URL</th><th>Still loading</th><th>Signed out</th><th>Signed in</th></tr></thead>
+        <tbody>
+          <tr><td class="k"><code>/</code> <span style="color:var(--muted)">(RedirectIfAuthed)</span></td><td>"Loading..."</td><td>Landing page</td><td>Redirect to <code>/vehicles</code></td></tr>
+          <tr><td class="k"><code>/vehicles</code> <span style="color:var(--muted)">(RequireAuth)</span></td><td>"Loading..."</td><td>Redirect to <code>/</code></td><td>Vehicles page</td></tr>
+          <tr><td class="k">anything else</td><td colspan="3">Redirect to <code>/</code>, then the row above applies</td></tr>
+        </tbody>
+      </table></div>
+      <p>The header also depends on auth: signed out it shows "How it works" (on the landing page only) and "Sign in"; signed in it shows the greeting and "Sign out".</p>
+      <span class="net">Network: none</span>
+    </li>
+
+    <li>
+      <h3>Signed out: the landing page</h3>
+      <div class="files">src/pages/LandingPage.tsx &middot; src/Constants.ts</div>
+      <p>A signed-out visitor sees the hero, the "how it works" steps and a closing prompt. All of the text comes from <code>Constants.ts</code>. Both "Sign in with Google" buttons call <code>signIn</code> from <code>useAuth()</code>. No database is touched, so this whole path makes no Firestore requests. Sign-in is covered in <a href="#signin">its own section</a>.</p>
+      <span class="net">Network: none beyond step 1</span>
+    </li>
+
+    <li>
+      <h3>Signed in: the vehicles page asks for data</h3>
+      <div class="files">src/pages/VehiclesPage.tsx &rarr; components/vehicles/VehicleList.tsx &rarr; hooks/useVehicles.ts</div>
+      <p><code>VehiclesPage</code> reads the user from <code>useAuth()</code> and renders the title, the Add Vehicle button, and <code>&lt;VehicleList uid=...&gt;</code>. The list calls <code>useVehicles(uid)</code>, which is a TanStack <code>useQuery</code> with the key <code>["vehicles", uid]</code>. The cache has nothing under that key yet, so it runs the query function and the list shows "Loading vehicles..." meanwhile.</p>
+      <p>The query function, <code>getAllVehicles(uid)</code> in <code>api/vehicles.ts</code>, is where the app finally talks to Firestore:</p>
+<pre><code>query(
+  collection(db, "vehicles"),
+  where("owners", "array-contains", uid)   <span class="c">// only vehicles this user owns</span>
+)
+getDocs(...)                                 <span class="c">// one request, returns every match</span></code></pre>
+      <p>The Firestore SDK opens a connection to Google's servers and attaches the signed-in user's Firebase token to the request. Firestore checks that token against its security rules, then returns every <code>vehicles</code> document whose <code>owners</code> array contains this <code>uid</code>. The function maps each document to <code>{ id, ...data }</code>, giving a <code>Vehicle[]</code>.</p>
+      <span class="net yes">Network: one Firestore query</span>
+    </li>
+
+    <li>
+      <h3>The data becomes components</h3>
+      <div class="files">VehicleList.tsx &rarr; VehicleCard.tsx &rarr; MaintenanceSection.tsx</div>
+      <p>When the query settles, <code>VehicleList</code> shows one of four things:</p>
+      <ul class="tight">
+        <li><b>Loading:</b> "Loading vehicles..."</li>
+        <li><b>Error:</b> an alert with the Firestore message (after TanStack's default 3 automatic retries)</li>
+        <li><b>Empty:</b> "No vehicles yet."</li>
+        <li><b>Data:</b> a grid with one <code>&lt;VehicleCard&gt;</code> per vehicle</li>
+      </ul>
+      <p>Each card renders the photo, name, year/make/model, a details grid (color, mileage, plus trim, VIN and plate when present), and a <code>&lt;MaintenanceSection&gt;</code>. That section never makes its own request: the maintenance records are already inside the vehicle document that was just fetched. It sorts them newest-first in the browser, shows the latest one as "Last: Oil change on ...", and opens the full list in a modal.</p>
+      <span class="net">Network: none, uses the cached result</span>
+    </li>
+  </ol>
+</section>
+
+<!-- ============================ SIGN-IN ============================ -->
+<section id="signin">
+  <h2>Signing in with Google</h2>
+  <p class="sub">The app never sees a password. It asks Firebase to run a Google sign-in popup and then reacts when Firebase says the user changed.</p>
+
+  <div class="diagram" role="img" aria-label="Sequence diagram of Google sign-in followed by the first Firestore query">
+  <svg viewBox="0 0 940 520" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="arrow-head" d="M0 0 L10 5 L0 10 z"/></marker>
+    </defs>
+    <!-- lane headers -->
+    <rect class="lane-box" x="40" y="10" width="180" height="40" rx="8"/><text class="lane-title" x="130" y="36">React app</text>
+    <rect class="lane-box" x="260" y="10" width="180" height="40" rx="8"/><text class="lane-title" x="350" y="36">Firebase Auth</text>
+    <rect class="lane-box" x="480" y="10" width="180" height="40" rx="8"/><text class="lane-title" x="570" y="36">Google popup</text>
+    <rect class="lane-box" x="720" y="10" width="180" height="40" rx="8"/><text class="lane-title" x="810" y="36">Firestore</text>
+    <!-- lifelines -->
+    <line class="lifeline" x1="130" y1="52" x2="130" y2="500"/>
+    <line class="lifeline" x1="350" y1="52" x2="350" y2="500"/>
+    <line class="lifeline" x1="570" y1="52" x2="570" y2="500"/>
+    <line class="lifeline" x1="810" y1="52" x2="810" y2="500"/>
+
+    <!-- 1 -->
+    <text class="num" x="8" y="96">1</text>
+    <line class="msg" x1="130" y1="100" x2="348" y2="100" marker-end="url(#ah)"/>
+    <text class="lbl" x="240" y="90">signIn() = signInWithPopup()</text>
+    <!-- 2 -->
+    <text class="num" x="8" y="146">2</text>
+    <line class="msg" x1="350" y1="150" x2="568" y2="150" marker-end="url(#ah)"/>
+    <text class="lbl" x="460" y="140">open popup: pick account</text>
+    <!-- 3 -->
+    <text class="num" x="8" y="196">3</text>
+    <line class="msg ret" x1="570" y1="200" x2="352" y2="200" marker-end="url(#ah)"/>
+    <text class="lbl" x="460" y="190">Google credential back</text>
+    <!-- 4 note -->
+    <text class="num" x="8" y="246">4</text>
+    <rect class="note" x="232" y="226" width="236" height="34" rx="6"/>
+    <text class="note-t" x="350" y="247">verify, create user, save in IndexedDB</text>
+    <!-- 5 -->
+    <text class="num" x="8" y="296">5</text>
+    <line class="msg ret" x1="350" y1="300" x2="132" y2="300" marker-end="url(#ah)"/>
+    <text class="lbl" x="240" y="290">onAuthStateChanged(user)</text>
+    <!-- 6 note -->
+    <text class="num" x="8" y="346">6</text>
+    <rect class="note" x="30" y="326" width="200" height="46" rx="6"/>
+    <text class="note-t" x="130" y="345">setUser(user): header swaps,</text>
+    <text class="note-t" x="130" y="362">redirect to /vehicles</text>
+    <!-- 7 -->
+    <text class="num" x="8" y="406">7</text>
+    <line class="msg" x1="130" y1="410" x2="808" y2="410" marker-end="url(#ah)"/>
+    <text class="lbl" x="470" y="400">getDocs( owners array-contains uid ) + Firebase token</text>
+    <!-- 8 -->
+    <text class="num" x="8" y="456">8</text>
+    <line class="msg ret" x1="810" y1="460" x2="132" y2="460" marker-end="url(#ah)"/>
+    <text class="lbl" x="470" y="450">matching vehicle documents</text>
+    <!-- 9 note -->
+    <text class="num" x="8" y="491">9</text>
+    <rect class="note" x="30" y="474" width="200" height="26" rx="6"/>
+    <text class="note-t" x="130" y="491">cache + render cards</text>
+  </svg>
+  </div>
+
+  <h3>The pieces that make it work</h3>
+  <ul class="tight">
+    <li><b><code>signIn</code></b> is <code>() =&gt; signInWithPopup(auth, googleProvider)</code>, defined in <code>AuthProvider</code> and exposed through <code>useAuth()</code>. The popup runs on Firebase's own domain and Google's pages.</li>
+    <li><b>The result is not returned to the button.</b> The app does not wait on that promise to update the screen. It relies on the <code>onAuthStateChanged</code> listener from step 3 of the journey, which fires for sign-in, sign-out and session restore alike. One code path handles all three.</li>
+    <li><b>Sign out</b> is <code>signOut(auth)</code>. The same listener fires with <code>null</code>, <code>RequireAuth</code> sends the visitor to <code>/</code>, and the header returns to its signed-out buttons.</li>
+    <li><b>Staying signed in:</b> Firebase keeps the session in the browser's IndexedDB, so a refresh or return visit restores the user without showing Google again.</li>
+    <li><b>Why Firestore trusts the request:</b> once signed in, every Firestore call carries the Firebase token. The rules (kept in the Firebase console, not in this repo) can read the user's <code>uid</code> from it.</li>
+  </ul>
+</section>
+
+<!-- ============================ NETWORK ============================ -->
+<section id="network">
+  <h2>Calls made on page load</h2>
+  <p class="sub">Everything the browser requests, by scenario. App code makes at most one database call on load.</p>
+
+  <h3>Any visit</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Request</th><th>To</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td class="k"><code>index.html</code></td><td>nezkos-garage.com (Amplify)</td><td>The empty shell and script tag</td></tr>
+      <tr><td class="k">JS and CSS bundles</td><td>Amplify</td><td>The compiled React app and styles</td></tr>
+      <tr><td class="k">Font stylesheet and files</td><td>fonts.googleapis.com, fonts.gstatic.com</td><td>Barlow and Barlow Condensed, pulled in by the theme CSS</td></tr>
+      <tr><td class="k">Session restore</td><td>Local IndexedDB (and Firebase auth servers if the token needs refreshing)</td><td>Find out whether someone is already signed in</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="two">
+    <div>
+      <h3>Signed out, landing page</h3>
+      <p>Nothing further. No Firestore request is made, because no component that reads vehicles is mounted.</p>
+    </div>
+    <div>
+      <h3>Signed in, vehicles page</h3>
+      <p>One extra call: the <code>getDocs</code> query for the user's vehicles, sent to Firestore with the Firebase token attached. It returns complete documents, including each vehicle's photo and its whole maintenance array.</p>
+    </div>
+  </div>
+
+  <h3>Later calls, on the same page</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Trigger</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Switching back to the tab</td><td>TanStack Query refetches the vehicles list (its default <code>refetchOnWindowFocus</code>) and updates the cards if anything changed.</td></tr>
+      <tr><td class="k">Add, edit or delete</td><td>A write to Firestore, then the list query is invalidated and refetched. See <a href="#writes">Writes</a>.</td></tr>
+      <tr><td class="k">Opening a modal or the maintenance list</td><td>No request; it reads data already in memory.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================ FIRESTORE ============================ -->
+<section id="firestore">
+  <h2>What's stored in Firestore</h2>
+  <p class="sub">One collection, <code>vehicles</code>. Each document is a whole vehicle, including its service history and its photo.</p>
+
+<pre><code>vehicles/{vehicleId}
+{
+  name: "Soupra",             year: 2026,
+  make: "Toyota",             model: "Supra",
+  color: "Absolute Zero",     mileage: 7800,
+  trim?, vin?, licensePlate?,                <span class="c">// optional</span>
+  photo?: "data:image/jpeg;base64,...",      <span class="c">// resized in the browser, stored inline</span>
+  owners: ["&lt;uid&gt;", ...],                    <span class="c">// who may see it; the query filters on this</span>
+  maintenance: [                             <span class="c">// embedded array, no sub-collection</span>
+    { id, type: "oil_change", date: "2026-07-13", mileage?, cost?, details? }
+  ],
+  createdAt, updatedAt                       <span class="c">// server timestamps</span>
+}</code></pre>
+
+  <ul class="tight">
+    <li><b>Ownership:</b> <code>owners</code> is an array of user ids. The app's query is <code>owners array-contains uid</code>, so each person only gets their own vehicles back.</li>
+    <li><b>Maintenance is embedded:</b> that is why the card needs no second request, and why adding a service is a single update to the vehicle document.</li>
+    <li><b>Dates are strings:</b> entries use <code>"YYYY-MM-DD"</code>, which sort correctly as text. That is how the list gets sorted newest-first with a plain string compare.</li>
+    <li><b>Photos live in the document:</b> <code>lib/image.ts</code> scales the chosen image to at most 800px, re-encodes it as a JPEG and rejects anything over about 600,000 characters. A Firestore document is limited to 1 MB and the photo shares that with the service records. There is no separate file storage.</li>
+    <li><b>Types:</b> the TypeScript shapes (<code>Vehicle</code>, <code>MaintenanceEntry</code>, the service-type list and labels) are in <code>src/types/vehicle.ts</code>. Entry ids come from <code>newId()</code> in <code>lib/id.ts</code>.</li>
+  </ul>
+</section>
+
+<!-- ============================ COMPONENTS ============================ -->
+<section id="components">
+  <h2>Component structure</h2>
+  <p class="sub">What is mounted when a signed-in user is on <code>/vehicles</code>. Signed out, the guard renders <code>LandingPage</code> in the same slot instead.</p>
+
+  <div class="legend">
+    <span><i style="background:#7fb4ff"></i>Providers (state and context)</span>
+    <span><i style="background:#f0b24a"></i>Layout and routing</span>
+    <span><i style="background:#52de8d"></i>Pages and feature components</span>
+  </div>
+
+<div class="tree" role="img" aria-label="Component tree">
+<div class="tl"><span class="t-prov" style="padding-left:0.0em">&lt;StrictMode&gt;</span><span class="t-note"></span></div>
+<div class="tl"><span class="t-prov" style="padding-left:1.1em">&lt;QueryClientProvider&gt;</span><span class="t-note">server-data cache (TanStack Query)</span></div>
+<div class="tl"><span class="t-prov" style="padding-left:2.2em">&lt;App&gt;</span><span class="t-note"></span></div>
+<div class="tl"><span class="t-prov" style="padding-left:3.3000000000000003em">&lt;AuthProvider&gt;</span><span class="t-note">user, loading, signIn, signOut</span></div>
+<div class="tl"><span class="t-layout" style="padding-left:4.4em">&lt;BrowserRouter&gt;</span><span class="t-note"></span></div>
+<div class="tl"><span class="t-layout" style="padding-left:5.5em">&lt;AppRoutes&gt;</span><span class="t-note">the &lt;Routes&gt; table</span></div>
+<div class="tl"><span class="t-layout" style="padding-left:6.6000000000000005em">&lt;AppLayout&gt;</span><span class="t-note">shell: &lt;Header/&gt; + &lt;Outlet/&gt;</span></div>
+<div class="tl"><span class="t-layout" style="padding-left:7.700000000000001em">&lt;Header&gt;</span><span class="t-note">brand, greeting, Sign in / Sign out</span></div>
+<div class="tl"><span class="t-layout" style="padding-left:7.700000000000001em">&lt;RequireAuth&gt;</span><span class="t-note">guard for /vehicles</span></div>
+<div class="tl"><span class="t-page" style="padding-left:8.8em">&lt;VehiclesPage&gt;</span><span class="t-note"></span></div>
+<div class="tl"><span class="t-page" style="padding-left:9.9em">&lt;AddVehicleModal&gt;</span><span class="t-note"></span></div>
+<div class="tl"><span class="t-page" style="padding-left:11.0em">&lt;Modal&gt; &lt;VehicleForm&gt;</span><span class="t-note">create a vehicle</span></div>
+<div class="tl"><span class="t-page" style="padding-left:9.9em">&lt;VehicleList&gt;</span><span class="t-note">useVehicles(uid): the one query</span></div>
+<div class="tl"><span class="t-page" style="padding-left:11.0em">&lt;VehicleCard&gt;</span><span class="t-note">one per vehicle</span></div>
+<div class="tl"><span class="t-page" style="padding-left:12.100000000000001em">&lt;Modal&gt; &lt;VehicleForm&gt;</span><span class="t-note">edit the vehicle</span></div>
+<div class="tl"><span class="t-page" style="padding-left:12.100000000000001em">&lt;MaintenanceSection&gt;</span><span class="t-note"></span></div>
+<div class="tl"><span class="t-page" style="padding-left:13.200000000000001em">&lt;Modal&gt; (records list)</span><span class="t-note">view / edit / delete a record</span></div>
+<div class="tl"><span class="t-page" style="padding-left:13.200000000000001em">&lt;Modal&gt; &lt;MaintenanceForm&gt;</span><span class="t-note">add / edit a record</span></div>
+<div class="tl"><span class="t-prov" style="padding-left:1.1em">&lt;ReactQueryDevtools&gt;</span><span class="t-note">sibling of App, dev only</span></div>
+</div>
+
+  <h3>How the folders map to this</h3>
+  <p class="sub">All folders are under <code>ui/src</code>.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Folder</th><th>Holds</th></tr></thead>
+    <tbody>
+      <tr><td class="k"><code>components/layout</code></td><td><code>AppLayout</code>, <code>Header</code>: the shell shown on every page</td></tr>
+      <tr><td class="k"><code>components/routing</code></td><td><code>RequireAuth</code>, <code>RedirectIfAuthed</code></td></tr>
+      <tr><td class="k"><code>components/common</code></td><td><code>Modal</code>: a wrapper around the native <code>&lt;dialog&gt;</code> element, reused everywhere</td></tr>
+      <tr><td class="k"><code>components/vehicles</code></td><td><code>VehicleList</code>, <code>VehicleCard</code>, <code>VehicleForm</code>, <code>MaintenanceSection</code>, <code>MaintenanceForm</code>, <code>AddVehicleModal</code></td></tr>
+      <tr><td class="k"><code>pages</code></td><td><code>LandingPage</code>, <code>VehiclesPage</code>: one component per route</td></tr>
+      <tr><td class="k"><code>context</code></td><td><code>AuthContext</code>, <code>AuthProvider</code></td></tr>
+      <tr><td class="k"><code>hooks</code></td><td><code>useAuth</code>, <code>useVehicles</code> (all the query and mutation hooks)</td></tr>
+      <tr><td class="k"><code>api</code></td><td><code>vehicles.ts</code>: every Firestore read and write</td></tr>
+      <tr><td class="k"><code>lib</code>, <code>types</code>, <code>styles</code></td><td>Firebase setup, id and image helpers; TypeScript types; CSS</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================ DATA LAYER ============================ -->
+<section id="data-layer">
+  <h2>The data layer</h2>
+  <p class="sub">Components never call Firestore directly. Each request passes down the same four layers, and the answer comes back up.</p>
+
+  <div class="layers">
+    <div class="layer"><b>Component</b><span><code>VehicleList</code>, <code>VehicleForm</code>, <code>MaintenanceSection</code>… Ask for data or trigger a change and render the result.</span></div>
+    <div class="layer"><b>Hook</b><span><code>hooks/useVehicles.ts</code>: <code>useVehicles(uid)</code> for reading, <code>useCreateVehicle</code>, <code>useUpdateVehicle</code>, <code>useDeleteVehicle</code>, <code>useSetVehiclePhoto</code> and the three maintenance hooks for writing. Wraps TanStack Query.</span></div>
+    <div class="layer"><b>API function</b><span><code>api/vehicles.ts</code>: plain async functions such as <code>getAllVehicles</code> and <code>addNewVehicle</code>. The only place Firestore calls are written.</span></div>
+    <div class="layer"><b>Firebase SDK</b><span><code>lib/firebase.ts</code> creates the Firestore and Auth instances. The SDK adds the user's token and talks to Firebase's servers.</span></div>
+  </div>
+
+  <h3>How TanStack Query behaves here</h3>
+  <ul class="tight">
+    <li><b>Cache key:</b> <code>["vehicles", uid]</code>. Everything about a user's vehicles sits under that one key, so two components asking for it share one request.</li>
+    <li><b>Settings:</b> the app uses the library defaults (<code>new QueryClient()</code> with no options): data counts as stale immediately, refetches when the window regains focus or a component remounts, and retries a failed request 3 times.</li>
+    <li><b>Reads use <code>getDocs</code>, not a live listener,</b> so the screen updates on a refetch, not the instant something changes elsewhere.</li>
+  </ul>
+</section>
+
+<!-- ============================ WRITES ============================ -->
+<section id="writes">
+  <h2>What happens when someone saves</h2>
+  <p class="sub">Every change follows the same loop: write to Firestore, then tell the cache its data is out of date so it fetches the fresh list.</p>
+
+  <ol class="steps">
+    <li>
+      <h3>Form validation, in the browser</h3>
+      <p><code>VehicleForm</code> and <code>MaintenanceForm</code> check the fields on submit and show an inline error. The six required vehicle fields are marked with an asterisk. Nothing is sent until the checks pass.</p>
+    </li>
+    <li>
+      <h3>A mutation hook calls the API function</h3>
+      <p>For example, <code>useCreateVehicle(uid).mutate(input)</code> calls <code>addNewVehicle</code>, which does <code>addDoc</code> on the <code>vehicles</code> collection with the form fields plus <code>owners: [uid]</code>, an empty <code>maintenance</code> array and server timestamps. While it runs, the button shows "Saving...".</p>
+    </li>
+    <li>
+      <h3>The cache is invalidated and refetched</h3>
+      <p>All the mutation hooks share one helper that, on success, calls <code>invalidateQueries({ queryKey: ["vehicles", uid] })</code>. TanStack Query immediately re-runs <code>getAllVehicles</code> for the list on screen, and the new card appears. The modal then closes.</p>
+    </li>
+  </ol>
+
+  <div class="scroll"><table>
+    <thead><tr><th>Action</th><th>Firestore operation</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Add vehicle</td><td><code>addDoc</code> on <code>vehicles</code></td></tr>
+      <tr><td class="k">Edit vehicle details</td><td><code>updateDoc</code>; cleared optional fields use <code>deleteField()</code> so they are removed, not saved as undefined</td></tr>
+      <tr><td class="k">Add / change / remove photo</td><td><code>updateDoc</code> on the <code>photo</code> field</td></tr>
+      <tr><td class="k">Delete vehicle</td><td><code>deleteDoc</code> (the maintenance records go with it, since they are inside the document)</td></tr>
+      <tr><td class="k">Add a service record</td><td><code>updateDoc</code> with <code>arrayUnion</code> of a new entry with a generated id</td></tr>
+      <tr><td class="k">Edit / delete a service record</td><td><code>runTransaction</code>: read the document, change the array in memory, write it back, so two quick edits cannot overwrite each other</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================ HOSTING ============================ -->
+<section id="hosting">
+  <h2>How it gets to the browser</h2>
+  <p class="sub">The path from a commit to the page someone loads.</p>
+  <ol class="steps">
+    <li><h3>Push to <code>main</code></h3><p>Amplify watches the repo and starts a build on every push.</p></li>
+    <li><h3>Build</h3><p>From <code>ui/</code>: <code>npm run build</code>, which type-checks with <code>tsc -b</code> and then bundles with Vite into <code>dist</code>. A failed build leaves the live site on the last good version.</p></li>
+    <li><h3>Serve</h3><p>Amplify serves <code>dist</code> at <code>nezkos-garage.com</code> (domain managed in Route 53).</p></li>
+  </ol>
+  <div class="callout"><b>Deep links need a rewrite rule.</b> The app has real URLs now (<code>/vehicles</code>), but only <code>index.html</code> exists as a file. For a refresh or a pasted link to work, Amplify needs a rewrite that sends unknown paths to <code>/index.html</code> with a 200 status. This is an Amplify console setting.</div>
+</section>
+
+<!-- ============================ NOTES ============================ -->
+<section id="notes">
+  <h2>Good to know</h2>
+  <ul class="tight">
+    <li><b>Access control lives in Firestore rules, not in the React code.</b> The <code>owners array-contains uid</code> filter selects the right documents, but the rules are what stop someone from asking for another user's. Those rules are configured in the Firebase console and are not in this repo, so this document does not describe their contents.</li>
+    <li><b>Whole vehicles are fetched every time.</b> Because photos and service history are inside each document, the list request grows with them. The 1 MB document limit is the ceiling, which is why photos are shrunk before saving.</li>
+    <li><b>Not live.</b> Changes made on another device show up on the next refetch (focus the tab, or make a change), not instantly.</li>
+    <li><b>A naming quirk:</b> in <code>lib/firebase.ts</code> the Firestore instance is exported as <code>vehicleCollection</code>, but it is the whole database object, which <code>api/vehicles.ts</code> then passes to <code>collection(...)</code> and <code>doc(...)</code>.</li>
+    <li><b>Firebase config in the code is not a secret.</b> The values in <code>lib/firebase.ts</code> identify the project to Firebase. What protects the data is sign-in plus the Firestore rules.</li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">Written from the code in <code>ui/src</code> as of the layer-based folder structure and React Router setup. If the files move or the data model changes, this page needs updating.</div>
+</footer>
+
+</body>
+</html>
