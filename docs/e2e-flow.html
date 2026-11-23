@@ -207,7 +207,7 @@
   <ol class="steps">
     <li>
       <h3>The browser fetches the app</h3>
-      <div class="files">ui/index.html &rarr; src/main.tsx</div>
+      <div class="files">index.html &rarr; src/main.tsx</div>
       <p>The browser requests the site. Amplify returns <code>index.html</code>, which is nearly empty: a <code>&lt;div id="root"&gt;</code> and one script tag. The script is the built JavaScript bundle, and the page's CSS and the Google Fonts stylesheet load alongside it. Nothing is drawn yet.</p>
       <span class="net yes">Network: static files only</span>
     </li>
@@ -452,7 +452,7 @@ getDocs(...)                                 <span class="c">// one request, ret
 </div>
 
   <h3>How the folders map to this</h3>
-  <p class="sub">All folders are under <code>ui/src</code>.</p>
+  <p class="sub">All folders are under <code>src</code>.</p>
   <div class="scroll"><table>
     <thead><tr><th>Folder</th><th>Holds</th></tr></thead>
     <tbody>
@@ -528,7 +528,7 @@ getDocs(...)                                 <span class="c">// one request, ret
   <p class="sub">The path from a commit to the page someone loads.</p>
   <ol class="steps">
     <li><h3>Push to <code>main</code></h3><p>Amplify watches the repo and starts a build on every push.</p></li>
-    <li><h3>Build</h3><p>From <code>ui/</code>: <code>npm run build</code>, which type-checks with <code>tsc -b</code> and then bundles with Vite into <code>dist</code>. A failed build leaves the live site on the last good version.</p></li>
+    <li><h3>Build</h3><p><code>npm run build</code>, which type-checks with <code>tsc -b</code> and then bundles with Vite into <code>dist</code>. A failed build leaves the live site on the last good version.</p></li>
     <li><h3>Serve</h3><p>Amplify serves <code>dist</code> at <code>nezkos-garage.com</code> (domain managed in Route 53).</p></li>
   </ol>
   <div class="callout"><b>Deep links need a rewrite rule.</b> The app has real URLs now (<code>/vehicles</code>), but only <code>index.html</code> exists as a file. For a refresh or a pasted link to work, Amplify needs a rewrite that sends unknown paths to <code>/index.html</code> with a 200 status. This is an Amplify console setting.</div>
@@ -549,7 +549,7 @@ getDocs(...)                                 <span class="c">// one request, ret
 </main>
 
 <footer>
-  <div class="wrap">Written from the code in <code>ui/src</code> as of the layer-based folder structure and React Router setup. If the files move or the data model changes, this page needs updating.</div>
+  <div class="wrap">Written from the code in <code>src</code> as of the layer-based folder structure and React Router setup. If the files move or the data model changes, this page needs updating.</div>
 </footer>
 
 </body>

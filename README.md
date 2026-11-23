@@ -33,13 +33,12 @@ Browser (React app on AWS Amplify)
  
 ## Run locally
 ```bash
-cd ui
 npm install
 npm run dev
 ```
  
 You'll need a Firebase project with Google sign-in and Firestore enabled. The
-Firebase web app config is set up in `ui/src/lib/firebase.ts`.
+Firebase web app config is set up in `src/lib/firebase.ts`.
  
 ## Deployment
 Pushes to `main` trigger an Amplify build (`amplify.yml`). The site started as a
