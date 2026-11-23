@@ -1,6 +1,6 @@
 ---
 name: add-service-type
-description: Add a new maintenance service type (e.g. "timing_belt") to the Garage Log app. Use when the user wants a new option in the service type dropdown.
+description: Add a new maintenance service type (e.g. "timing_belt") to the Nezko's Garage app. Use when the user wants a new option in the service type dropdown.
 ---
 
 # Add a new maintenance service type

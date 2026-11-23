@@ -1,4 +1,4 @@
-# Garage Log
+# Nezko's Garage
 
 Personal web app for tracking maintenance on family vehicles.
 

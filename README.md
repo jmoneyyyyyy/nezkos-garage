@@ -1,10 +1,10 @@
-# Garage Log
+# Nezko's Garage
  
 A personal web app for tracking maintenance on family vehicles.
  
 **Live demo:** https://nezkos-garage.com
  
-![Garage Log screenshot](docs/screenshot.png)
+![Nezko's Garage screenshot](docs/screenshot.png)
  
 ## Features
 - Google sign-in with Firebase Authentication
