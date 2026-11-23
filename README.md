@@ -2,7 +2,7 @@
  
 A personal web app for tracking maintenance on family vehicles.
  
-**Live demo:** https://nezkos-garage.com
+**Website:** https://nezkos-garage.com
  
 ![Nezko's Garage screenshot](docs/screenshot.png)
  
