@@ -10,7 +10,7 @@ Personal web app for tracking maintenance on family vehicles.
 - Routing: React Router (`src/routes.tsx`); `AppLayout` renders the shared
   `Header` plus the matched page via `<Outlet />`. Routes: `/` (landing,
   public), `/vehicles` (signed-in only); guards are in `src/components/routing/RouteGuards.tsx`
-- Hosting: AWS Amplify, auto-deploys on push to `main` (config in `amplify.yml`)
+- Hosting: AWS Amplify, auto-deploys on push to `main` (config in `amplify.yml`, managed in amplify)
 - Domain: `nezkos-garage.com`, registered and managed in Route 53
 
 ## Status
@@ -42,6 +42,4 @@ Personal web app for tracking maintenance on family vehicles.
 ## Deployment
 - Every push to `main` triggers an Amplify build; a failed build leaves the
   live site on the last good version
-- Build settings are in `amplify.yml` at the repo root (app root is the repo root,
-  output is `dist`)
-- DNS and the
+- Build settings are in `amplify.yml` managed in amplify

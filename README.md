@@ -41,7 +41,7 @@ You'll need a Firebase project with Google sign-in and Firestore enabled. The
 Firebase web app config is set up in `src/lib/firebase.ts`.
  
 ## Deployment
-Pushes to `main` trigger an Amplify build (`amplify.yml`). The site started as a
+Pushes to `main` trigger an Amplify build (`amplify.yml`, managed in amplify). The site started as a
 static site on S3 deployed with GitHub Actions, then moved to Amplify for managed
 HTTPS, custom domain support, and simpler CI/CD.
  
