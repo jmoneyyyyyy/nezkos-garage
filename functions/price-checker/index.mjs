@@ -58,7 +58,7 @@ function extractPrice(html) {
 async function checkItem(item) {
   const now = new Date().toISOString();
   try {
-    const res = await fetch(item.url, {
+    const res = await fetch(item.link, {
       headers: { "user-agent": "Mozilla/5.0 (compatible; GaragePriceCheck/1.0)" },
       signal: AbortSignal.timeout(10000),
     });
@@ -81,7 +81,7 @@ export const handler = async () => {
     const results = new Map();
 
     for (const item of items) {
-      if (!item.url) continue;
+      if (!item.link) continue;
       results.set(item.id, await checkItem(item));
       checked++;
     }
