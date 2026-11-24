@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, type ChangeEvent, type SyntheticEvent } from "react";
 import { useAddWishListItem } from "../../hooks/useVehicles";
 import { REQUIRED_FIELD } from "../../Constants";
 
@@ -21,7 +21,7 @@ export default function WishListItemForm({ uid, vehicleId, onSaved }: WishListIt
   const set = (key: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [key]: e.target.value });
 
-  const submit = (e: FormEvent) => {
+  const submit = (e: SyntheticEvent) => {
     e.preventDefault();
     const name = form.name.trim();
     const link = form.link.trim();
@@ -45,9 +45,18 @@ export default function WishListItemForm({ uid, vehicleId, onSaved }: WishListIt
     <form onSubmit={submit}>
       <h2>Add wish list item</h2>
       <div className="form-fields">
-        <input placeholder="Product name *" aria-required value={form.name} onChange={set("name")} />
-        <input placeholder="Product link * (https://...)" aria-required inputMode="url" value={form.link} onChange={set("link")} />
-        <input placeholder="Price *" aria-required inputMode="decimal" value={form.price} onChange={set("price")} />
+        <label>
+          Product name *
+          <input aria-required value={form.name} onChange={set("name")} />
+        </label>
+        <label>
+          Product link *
+          <input placeholder="https://..." aria-required inputMode="url" value={form.link} onChange={set("link")} />
+        </label>
+        <label>
+          Price *
+          <input aria-required inputMode="decimal" value={form.price} onChange={set("price")} />
+        </label>
       </div>
       <button type="submit" disabled={add.isPending}>
         {add.isPending ? "Saving..." : "Add item"}

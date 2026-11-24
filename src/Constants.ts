@@ -21,10 +21,12 @@ const FUNDS_TAB_TEXT = "Funds";
 const WISHLIST_TAB_TEXT = "Wish List";
 const FUNDS_PAGE_TITLE = "Funds";
 const WISHLIST_PAGE_TITLE = "Wish List";
-const COMING_SOON_TEXT = "Coming soon.";
+const COMING_SOON_TEXT = "I need more please... Coming soon!";
 const NO_WISHLIST_ITEMS_TEXT = "No items yet.";
 const ADD_WISHLIST_ITEM_BUTTON_TEXT = "Add item";
 const WISHLIST_ITEM_VIEW_TEXT = "View";
+const WISHLIST_ITEM_DELETE_TEXT = "Delete";
+const WISHLIST_ON_SALE_TEXT = "It's on sale, go get it!";
 const MAIN_NAV_LABEL = "Main";
 const REQUIRED_FIELD = "* Required Field";
 
@@ -60,6 +62,8 @@ export {
   NO_WISHLIST_ITEMS_TEXT,
   ADD_WISHLIST_ITEM_BUTTON_TEXT,
   WISHLIST_ITEM_VIEW_TEXT,
+  WISHLIST_ITEM_DELETE_TEXT,
+  WISHLIST_ON_SALE_TEXT,
   MAIN_NAV_LABEL,
   LOADING_VEHICLES_TEXT,
   COULDNT_LOAD_VEHICLES_TEXT,

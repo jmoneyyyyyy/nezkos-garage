@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type SyntheticEvent } from "react";
 import { PHOTO_READ_ERROR, photoFromInput } from "../../lib/image";
 import { useCreateVehicle, useUpdateVehicle } from "../../hooks/useVehicles";
 import type { Vehicle, VehicleDetailsInput } from "../../types/vehicle";
@@ -55,7 +55,7 @@ export default function VehicleForm({ uid, vehicle, onSaved }: Props) {
     }
   };
 
-  const submit = (e: FormEvent) => {
+  const submit = (e: SyntheticEvent) => {
     e.preventDefault();
     const year = Number(form.year);
     const mileage = Number(form.mileage);
@@ -121,14 +121,38 @@ export default function VehicleForm({ uid, vehicle, onSaved }: Props) {
       )}
       {photoError && <p role="alert">{photoError}</p>}
       <div className="form-fields">
-        <input placeholder="Name * (e.g. Justin's Civic)" aria-required value={form.name} onChange={set("name")} />
-        <input placeholder="Make *" aria-required value={form.make} onChange={set("make")} />
-        <input placeholder="Model *" aria-required value={form.model} onChange={set("model")} />
-        <input placeholder="Year *" aria-required inputMode="numeric" value={form.year} onChange={set("year")} />
-        <input placeholder="Approx. mileage *" aria-required inputMode="numeric" value={form.mileage} onChange={set("mileage")} />
-        <input placeholder="Color *" aria-required value={form.color} onChange={set("color")} />
-        <input placeholder="VIN (optional)" value={form.vin} onChange={set("vin")} />
-        <input placeholder="License plate (optional)" value={form.licensePlate} onChange={set("licensePlate")} />
+        <label>
+          Name *
+          <input placeholder="e.g. Justin's Civic" aria-required value={form.name} onChange={set("name")} />
+        </label>
+        <label>
+          Make *
+          <input aria-required value={form.make} onChange={set("make")} />
+        </label>
+        <label>
+          Model *
+          <input aria-required value={form.model} onChange={set("model")} />
+        </label>
+        <label>
+          Year *
+          <input aria-required inputMode="numeric" value={form.year} onChange={set("year")} />
+        </label>
+        <label>
+          Approx. mileage *
+          <input aria-required inputMode="numeric" value={form.mileage} onChange={set("mileage")} />
+        </label>
+        <label>
+          Color *
+          <input aria-required value={form.color} onChange={set("color")} />
+        </label>
+        <label>
+          VIN (optional)
+          <input value={form.vin} onChange={set("vin")} />
+        </label>
+        <label>
+          License plate (optional)
+          <input value={form.licensePlate} onChange={set("licensePlate")} />
+        </label>
       </div>
       <p className="muted">{REQUIRED_FIELD}</p>
       <button type="submit" disabled={isPending}>

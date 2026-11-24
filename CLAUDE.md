@@ -5,7 +5,8 @@ Personal web app for tracking maintenance on family vehicles.
 ## Stack
 - Repo root: React + TypeScript, built with Vite
 - Data and auth: Firebase (Firestore + Google sign-in), accessed directly
-  from the browser. There is no backend server.
+  from the browser. There is no backend server; the only server-side piece is
+  the daily price-checker Lambda (see Price checker)
 - Server state: TanStack Query
 - Routing: React Router (`src/components/routing/AppRoutes.tsx`); `AppLayout` renders the shared
   `Header` plus the matched page via `<Outlet />`. Routes: `/` (landing,
@@ -16,16 +17,21 @@ Personal web app for tracking maintenance on family vehicles.
 ## Status
 - Built: Google sign-in, vehicle list, add/edit/delete vehicles, vehicle photos,
   maintenance history (add/edit/delete)
+- Wish list per vehicle, with a daily Lambda price checker and a price drop notice
 - Not built yet: TBD
 
 ## Commands
 - `npm run dev`: local dev server
 - `npm run build`: type-check (`tsc -b`) and build; must pass before pushing
 - `npm run lint`
+- `npm test`: Vitest (jsdom + Testing Library); tests sit next to the code as `*.test.ts(x)`.
+  The Lambda's parsing tests are `functions/price-checker/price.test.mjs` (its runtime deps are
+  stubbed via `test.alias` in `vite.config.ts`)
 
 ## Data model
 - Firestore collection `vehicles`; each doc has an `owners` array of uids
-  and embedded `maintenance` and `wishlist` arrays (wishlist items: id, name, link, price)
+  and embedded `maintenance` and `wishlist` arrays (wishlist items: id, name, link, price, plus
+  checker-written optional `currentPrice`, `lastCheckedAt`, `priceError`)
 - Maintenance entry dates are `"YYYY-MM-DD"` strings, not Timestamps
 - Entry ids come from `newId()` in `src/lib/id.ts`
 - Service types live in `MAINTENANCE_TYPES` / `MAINTENANCE_LABELS`
@@ -33,8 +39,8 @@ Personal web app for tracking maintenance on family vehicles.
 
 ## Conventions
 - Code is organized by layer under `src/`:
-  `components/<area>/` (layout, common, routing, vehicles), `pages/` (one per
-  route), `hooks/`, `context/`, `api/` (Firestore calls), `types/`, `lib/`
+  `components/<area>/` (layout, common, routing, landing, funds, vehicles, wishlist;
+  each route's `*Page.tsx` lives in its area folder), `hooks/`, `context/`, `api/` (Firestore calls), `types/`, `lib/`
   (helpers, firebase), `styles/`. User-facing text lives in `Constants.ts`
 - Use `import type` for type-only imports (verbatimModuleSyntax is on)
 - Firestore rejects `undefined`; omit optional fields or rely on
@@ -44,3 +50,19 @@ Personal web app for tracking maintenance on family vehicles.
 - Every push to `main` triggers an Amplify build; a failed build leaves the
   live site on the last good version
 - Build settings are in `amplify.yml` managed in amplify
+
+## Price checker
+- AWS Lambda in `functions/price-checker/` (Node.js, ES modules, `firebase-admin`),
+  triggered daily by EventBridge Scheduler; not deployed by Amplify
+- Reads the Firebase service account JSON from Parameter Store (env var
+  `SA_PARAM`); never commit it
+- For each wishlist item with a link, fetches the page, reads the price from
+  JSON-LD, and writes `currentPrice` + `lastCheckedAt` (or `priceError`) back in
+  a transaction, merging by item id
+- `price` is what the user wants to pay; the UI shows a price drop notice when
+  `currentPrice < price`
+- `updateWishListItem` keeps the checker's fields unless the link changed
+- Deploy by hand: zip `index.mjs`, `package.json`, `node_modules`, upload in the
+  Lambda console
+- Admin SDK bypasses Firestore rules, so keep the Lambda role limited to
+  Parameter Store read and logs

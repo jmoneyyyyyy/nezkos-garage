@@ -1,4 +1,4 @@
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 import {
   GOOGLE_SIGN_IN_BUTTON_TEXT,
   LANDING_FINAL_SUBTEXT,
@@ -8,7 +8,7 @@ import {
   LANDING_STEPS,
   LANDING_STEPS_TITLE,
   NEZKOS_GARAGE,
-} from "../Constants";
+} from "../../Constants";
 import "./landing.css";
 
 function LandingPage() {

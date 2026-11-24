@@ -17,11 +17,13 @@ function scrollToHowItWorks() {
 export default function AppLayout() {
   const { user, loading, signIn, signOut } = useAuth();
   const { pathname } = useLocation();
+  const userSignedIn = !loading && user;
+  const userNotSignedIn = !loading && !user;
 
   return (
     <div>
       <Header>
-        {!loading && user && (
+        {userSignedIn && (
           <>
             <span className="site-header-user">
               {WELCOME_BACK_TEXT} {user.displayName ?? user.email}
@@ -29,7 +31,7 @@ export default function AppLayout() {
             <button onClick={signOut}>{SIGN_OUT_BUTTON_TEXT}</button>
           </>
         )}
-        {!loading && !user && (
+        {userNotSignedIn && (
           <>
             {pathname === "/" && (
               <button className="site-header-link" onClick={scrollToHowItWorks}>

@@ -19,7 +19,7 @@ async function getDb() {
 }
 
 // Walk JSON-LD (including @graph) looking for offers.price / lowPrice.
-function findPrice(node) {
+export function findPrice(node) {
   if (!node || typeof node !== "object") return null;
   if (Array.isArray(node)) {
     for (const n of node) {
@@ -41,7 +41,7 @@ function findPrice(node) {
   return null;
 }
 
-function extractPrice(html) {
+export function extractPrice(html) {
   const re = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
   for (const m of html.matchAll(re)) {
     try {

@@ -1,4 +1,4 @@
-import { COMING_SOON_TEXT, FUNDS_PAGE_TITLE } from "../Constants";
+import { COMING_SOON_TEXT, FUNDS_PAGE_TITLE } from "../../Constants";
 
 export default function FundsPage() {
   return (

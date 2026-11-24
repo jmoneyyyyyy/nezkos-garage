@@ -1,10 +1,10 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { RedirectIfAuthed, RequireAuth } from "./RouteGuards";
 import AppLayout from "../layout/AppLayout";
-import LandingPage from "../../pages/LandingPage";
-import VehiclesPage from "../../pages/VehiclesPage";
-import FundsPage from "../../pages/FundsPage";
-import WishListPage from "../../pages/WishListPage";
+import LandingPage from "../landing/LandingPage";
+import VehiclesPage from "../vehicles/VehiclesPage";
+import FundsPage from "../funds/FundsPage";
+import WishListPage from "../wishlist/WishListPage";
 
 export default function AppRoutes() {
   return (
