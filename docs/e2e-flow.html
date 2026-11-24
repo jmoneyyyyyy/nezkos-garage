@@ -154,7 +154,7 @@
   <div class="wrap">
     <div class="eyebrow">Nezko's Garage &middot; How it works</div>
     <h1>End-to-end flow</h1>
-    <p class="lede">What happens from the moment someone opens <code>nezkos-garage.com</code>: how the page loads, how Google sign-in and Firebase Auth work, what the app asks Firestore for, and how the data turns into components on screen.</p>
+    <p class="lede">What happens from the moment someone opens <code>nezkos-garage.com</code>: how the page loads, how Google sign-in and Firebase Auth work, what the app asks Firestore for, how the data turns into components on screen, and how the daily price checker keeps wish list prices fresh.</p>
   </div>
 </header>
 
@@ -168,6 +168,7 @@
     <a href="#components">Components</a>
     <a href="#data-layer">Data layer</a>
     <a href="#writes">Writes</a>
+    <a href="#price-checker">Price checker</a>
     <a href="#hosting">Hosting</a>
     <a href="#notes">Good to know</a>
   </div>
@@ -406,6 +407,10 @@ getDocs(...)                                 <span class="c">// one request, ret
   maintenance: [                             <span class="c">// embedded array, no sub-collection</span>
     { id, type: "oil_change", date: "2026-07-13", mileage?, cost?, details? }
   ],
+  wishlist: [                                <span class="c">// embedded array, like maintenance</span>
+    { id, name, link, price,                 <span class="c">// price = what you want to pay</span>
+      currentPrice?, lastCheckedAt?, priceError? }  <span class="c">// written only by the price checker</span>
+  ],
   createdAt, updatedAt                       <span class="c">// server timestamps</span>
 }</code></pre>
 
@@ -460,7 +465,7 @@ getDocs(...)                                 <span class="c">// one request, ret
       <tr><td class="k"><code>components/routing</code></td><td><code>RequireAuth</code>, <code>RedirectIfAuthed</code></td></tr>
       <tr><td class="k"><code>components/common</code></td><td><code>Modal</code>: a wrapper around the native <code>&lt;dialog&gt;</code> element, reused everywhere</td></tr>
       <tr><td class="k"><code>components/vehicles</code></td><td><code>VehicleList</code>, <code>VehicleCard</code>, <code>VehicleForm</code>, <code>MaintenanceSection</code>, <code>MaintenanceForm</code>, <code>AddVehicleModal</code></td></tr>
-      <tr><td class="k"><code>pages</code></td><td><code>LandingPage</code>, <code>VehiclesPage</code>: one component per route</td></tr>
+      <tr><td class="k"><code>components/landing</code>, <code>funds</code>, <code>wishlist</code></td><td><code>LandingPage</code>, <code>FundsPage</code>, <code>WishListPage</code> and the wish list cards and forms. Each route's <code>*Page.tsx</code> lives in its own area folder (<code>VehiclesPage</code> is in <code>components/vehicles</code>).</td></tr>
       <tr><td class="k"><code>context</code></td><td><code>AuthContext</code>, <code>AuthProvider</code></td></tr>
       <tr><td class="k"><code>hooks</code></td><td><code>useAuth</code>, <code>useVehicles</code> (all the query and mutation hooks)</td></tr>
       <tr><td class="k"><code>api</code></td><td><code>vehicles.ts</code>: every Firestore read and write</td></tr>
@@ -517,9 +522,80 @@ getDocs(...)                                 <span class="c">// one request, ret
       <tr><td class="k">Add / change / remove photo</td><td><code>updateDoc</code> on the <code>photo</code> field</td></tr>
       <tr><td class="k">Delete vehicle</td><td><code>deleteDoc</code> (the maintenance records go with it, since they are inside the document)</td></tr>
       <tr><td class="k">Add a service record</td><td><code>updateDoc</code> with <code>arrayUnion</code> of a new entry with a generated id</td></tr>
+      <tr><td class="k">Add a wish list item</td><td><code>updateDoc</code> with <code>arrayUnion</code> of a new item with a generated id</td></tr>
+      <tr><td class="k">Edit / delete a wish list item</td><td><code>runTransaction</code>, like service records. On edit, the checker's fields (<code>currentPrice</code>, <code>lastCheckedAt</code>, <code>priceError</code>) are kept unless the link changed, because an old price no longer applies to a new link.</td></tr>
       <tr><td class="k">Edit / delete a service record</td><td><code>runTransaction</code>: read the document, change the array in memory, write it back, so two quick edits cannot overwrite each other</td></tr>
     </tbody>
   </table></div>
+</section>
+
+<!-- ============================ PRICE CHECKER ============================ -->
+<section id="price-checker">
+  <h2>The daily price checker</h2>
+  <p class="sub">The one piece that runs without anyone opening the app. A small AWS Lambda visits every wish list link once a day and writes what it finds back onto the item.</p>
+
+  <div class="arch">
+    <div class="node">
+      <h4>EventBridge Scheduler</h4>
+      <p>Invokes the Lambda once a day. Nothing in the app triggers it.</p>
+    </div>
+    <div class="node">
+      <h4>Lambda <code>price-checker</code></h4>
+      <p>Node.js, in <code>functions/price-checker/</code>. Not deployed by Amplify: it is zipped and uploaded by hand in the Lambda console.</p>
+    </div>
+    <div class="node auth">
+      <h4>Parameter Store</h4>
+      <p>Holds the Firebase service account JSON (SecureString). Read once per container; never committed to the repo.</p>
+    </div>
+    <div class="node data">
+      <h4>Cloud Firestore</h4>
+      <p>Read and written through the Admin SDK, which bypasses security rules. That is why the Lambda's AWS role is limited to Parameter Store read and logs.</p>
+    </div>
+  </div>
+
+  <h3>One run, step by step</h3>
+  <ol class="steps">
+    <li>
+      <h3>The schedule fires</h3>
+      <p class="files">EventBridge Scheduler &rarr; <code>handler</code> in <code>index.mjs</code></p>
+      <p>The Lambda loads the service account from Parameter Store, starts the Admin SDK and opens Firestore.</p>
+    </li>
+    <li>
+      <h3>It fetches each item's page</h3>
+      <p class="files"><code>checkItem</code></p>
+      <p>For every vehicle, every wish list item that has a <code>link</code> is fetched (10 second timeout, a browser-like user agent). A non-2xx response is recorded as <code>"HTTP &lt;status&gt;"</code>, for example <code>"HTTP 403"</code>.</p>
+      <span class="net yes">Network: one request per wish list item</span>
+    </li>
+    <li>
+      <h3>It reads the price from the page</h3>
+      <p class="files"><code>extractPrice</code>, <code>findPrice</code></p>
+      <p>The page's <code>application/ld+json</code> blocks are parsed and searched (including <code>@graph</code> and arrays) for <code>offers.price</code> or <code>lowPrice</code>. Malformed blocks are skipped. If nothing usable is found the item gets <code>priceError: "no price found"</code>. Only sites that publish structured data work.</p>
+    </li>
+    <li>
+      <h3>It writes the result back safely</h3>
+      <p>Fetching is slow, so the user may have edited the vehicle in the meantime. The Lambda re-reads the document inside a transaction and merges results into the current <code>wishlist</code> array by item id, so those edits are not overwritten. A success sets <code>currentPrice</code> and <code>lastCheckedAt</code> and clears any old <code>priceError</code>; a failure sets <code>priceError</code> and <code>lastCheckedAt</code>.</p>
+      <span class="net yes">Network: one Firestore transaction per vehicle</span>
+    </li>
+    <li>
+      <h3>The app shows it</h3>
+      <p class="files"><code>WishListItemCard</code>, <code>lib/priceError.ts</code></p>
+      <p>Nothing is pushed to the browser. The next time the vehicles query runs (page load, tab focus or after a change), the wish list reads the updated fields. See the table below.</p>
+    </li>
+  </ol>
+
+  <h3>What the wish list shows</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Item's data</th><th>On the card</th></tr></thead>
+    <tbody>
+      <tr><td class="k"><code>currentPrice &lt; price</code></td><td>Green price drop notice with the amount saved and percent off.</td></tr>
+      <tr><td class="k"><code>currentPrice &ge; price</code></td><td>Both prices are shown, no notice.</td></tr>
+      <tr><td class="k"><code>priceError</code> is <code>HTTP 401</code>, <code>403</code> or <code>429</code></td><td>Red notice: this website blocks automated price checks, so the price can't be tracked automatically. <code>statusFromPriceError</code> reads the number out of the saved text; <code>isPriceCheckBlocked</code> decides.</td></tr>
+      <tr><td class="k">Any other <code>priceError</code> (404, 500, "no price found")</td><td>Nothing shown yet. The old <code>currentPrice</code>, if any, stays.</td></tr>
+      <tr><td class="k">No check has run yet</td><td>Only the price you want to pay is shown.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout"><b>Known limits.</b> Many retailers block bots or don't publish JSON-LD, so some items will show the red notice or stay unchecked. Links are fetched as given, so a hardened version would restrict which hosts the Lambda may call. Items are checked one after another, and there is no alert if a run fails; the only trace is the CloudWatch log line with the number of items checked.</div>
 </section>
 
 <!-- ============================ HOSTING ============================ -->

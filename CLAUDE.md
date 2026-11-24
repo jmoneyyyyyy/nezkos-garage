@@ -60,7 +60,8 @@ Personal web app for tracking maintenance on family vehicles.
   JSON-LD, and writes `currentPrice` + `lastCheckedAt` (or `priceError`) back in
   a transaction, merging by item id
 - `price` is what the user wants to pay; the UI shows a price drop notice when
-  `currentPrice < price`
+  `currentPrice < price`, and a red "blocks automated checks" notice when
+  `priceError` is HTTP 401/403/429 (`src/lib/priceError.ts`)
 - `updateWishListItem` keeps the checker's fields unless the link changed
 - Deploy by hand: zip `index.mjs`, `package.json`, `node_modules`, upload in the
   Lambda console

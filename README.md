@@ -12,7 +12,7 @@ A personal web app for tracking maintenance on family vehicles.
 - Per-owner access: each vehicle can only be read or changed by the users listed as its owners
 - Maintenance history per vehicle (service type, date, mileage, cost, details) with add, edit, and delete
 - Wish list per vehicle (item name, link, the price you want to pay)
-- Automatic price tracking: a scheduled AWS Lambda checks each wish list link once a day, and the wish list shows a "price drop" notice when the current price is below your price
+- Automatic price tracking: a scheduled AWS Lambda checks each wish list link once a day, and the wish list shows a "price drop" notice when the current price is below your price, or a red notice when the site blocks automated checks (HTTP 401, 403 or 429)
 
 ## Tech stack
 - **Frontend:** React, TypeScript, Vite, TanStack Query
@@ -50,7 +50,7 @@ EventBridge Scheduler (daily)
 3. The Lambda loads the Firebase service account from Parameter Store, reads every vehicle, and fetches each item's link (10 second timeout).
 4. It reads the price from the page's JSON-LD (`offers.price`) and saves `currentPrice` and `lastCheckedAt` on the item, or `priceError` if no price could be read.
 5. Writes happen in a Firestore transaction that merges by item id, so edits made while the checker was running are not overwritten.
-6. The app reads the updated vehicle through TanStack Query. When `currentPrice < price`, the wish list shows a price drop notice with the difference.
+6. The app reads the updated vehicle through TanStack Query. When `currentPrice < price`, the wish list shows a price drop notice with the difference. If the site refused the checker (`priceError` of HTTP 401, 403 or 429), the item shows a red "this website blocks automated price checks" notice instead.
 
 The Lambda uses the Firebase Admin SDK, which bypasses Firestore security rules, so its credentials are kept in Parameter Store and never committed to the repo.
 
@@ -62,6 +62,12 @@ npm run dev
 
 You'll need a Firebase project with Google sign-in and Firestore enabled. The
 Firebase web app config is set up in `src/lib/firebase.ts`.
+
+## Tests
+```bash
+npm test
+```
+Vitest with jsdom and Testing Library. Tests sit next to the code as `*.test.ts(x)` and cover the Firestore API functions, route guards and routes, the TanStack Query hooks, the wish list card, and the Lambda's price parsing (`functions/price-checker/price.test.mjs`).
 
 ## Deployment
 Pushes to `main` trigger an Amplify build (`amplify.yml`, managed in amplify). The site started as a
