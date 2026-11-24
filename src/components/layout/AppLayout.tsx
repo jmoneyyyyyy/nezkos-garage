@@ -7,6 +7,7 @@ import {
   WELCOME_BACK_TEXT,
 } from "../../Constants";
 import Header from "./Header";
+import TabNav from "./TabNav";
 
 function scrollToHowItWorks() {
   document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
@@ -39,6 +40,7 @@ export default function AppLayout() {
           </>
         )}
       </Header>
+      {!loading && user && <TabNav />}
       <Outlet />
     </div>
   );

@@ -7,15 +7,16 @@ Personal web app for tracking maintenance on family vehicles.
 - Data and auth: Firebase (Firestore + Google sign-in), accessed directly
   from the browser. There is no backend server.
 - Server state: TanStack Query
-- Routing: React Router (`src/routes.tsx`); `AppLayout` renders the shared
+- Routing: React Router (`src/components/routing/AppRoutes.tsx`); `AppLayout` renders the shared
   `Header` plus the matched page via `<Outlet />`. Routes: `/` (landing,
-  public), `/vehicles` (signed-in only); guards are in `src/components/routing/RouteGuards.tsx`
+  public), `/vehicles`, `/funds`, `/wishlist` (signed-in only; `TabNav` shows them as tabs); guards are in `src/components/routing/RouteGuards.tsx`
 - Hosting: AWS Amplify, auto-deploys on push to `main` (config in `amplify.yml`, managed in amplify)
 - Domain: `nezkos-garage.com`, registered and managed in Route 53
 
 ## Status
-- Built: Google sign-in, add vehicle form, vehicle list
-- Not built yet: vehicle detail page and maintenance history (add/edit/delete)
+- Built: Google sign-in, vehicle list, add/edit/delete vehicles, vehicle photos,
+  maintenance history (add/edit/delete)
+- Not built yet: TBD
 
 ## Commands
 - `npm run dev`: local dev server

@@ -286,6 +286,22 @@ textarea {
   margin: auto;
 }
 
+/* Vehicle list status (loading, error, empty) */
+
+.list-status {
+  width: min(560px, calc(100% - 48px));
+  margin: 32px auto 0;
+  text-align: center;
+  font-size: 15px;
+  color: var(--garage-gray);
+}
+
+.list-status[role="alert"] {
+  padding: 14px 18px;
+  text-align: left;
+  color: #ff9b9b;
+}
+
 /* Header -------------------------------------------------------------- */
 
 .page-title {

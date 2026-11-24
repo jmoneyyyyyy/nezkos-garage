@@ -230,7 +230,7 @@
 
     <li>
       <h3>The router picks a page</h3>
-      <div class="files">src/routes.tsx &middot; src/components/routing/RouteGuards.tsx &middot; src/components/layout/AppLayout.tsx</div>
+      <div class="files">src/components/routing/AppRoutes.tsx &middot; src/components/routing/RouteGuards.tsx &middot; src/components/layout/AppLayout.tsx</div>
       <p><code>AppLayout</code> wraps every route. It always draws the sticky <code>Header</code> and an <code>&lt;Outlet /&gt;</code> where the matched page goes. Inside it, two guard components decide what the visitor may see. While <code>loading</code> is true both show <code>Loading...</code> instead of guessing, so there is no flash of the wrong page.</p>
       <div class="scroll"><table>
         <thead><tr><th>URL</th><th>Still loading</th><th>Signed out</th><th>Signed in</th></tr></thead>

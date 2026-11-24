@@ -23,7 +23,11 @@ A personal web app for tracking maintenance on family vehicles.
 ## Architecture
 The browser talks directly to Firebase. There is no backend server of my own, and
 access is enforced by Firestore security rules: each vehicle document has an
-`owners` list, and only those users can read or change it.
+`owners` list, and only those users can read or change it. These are the rules:
+- Require sign-in for every read and write
+- Only allow access to vehicles where the user's ID is in the owners list
+- Validate required fields, types, and limits (name, make, model, year, mileage) on create and update
+- Prevent changing a vehicle's owners after creation
  
 ```
 Browser (React app on AWS Amplify)
