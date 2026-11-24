@@ -5,7 +5,7 @@ import {
 import { vehicleCollection } from "../lib/firebase";
 import { newId } from "../lib/id";
 import type {
-  MaintenanceEntry, NewMaintenanceInput, NewVehicleInput, Vehicle, VehicleDetailsInput,
+  MaintenanceEntry, NewMaintenanceInput, NewVehicleInput, NewWishListItemInput, Vehicle, VehicleDetailsInput, WishListItem,
 } from "../types/vehicle";
 
 export async function getAllVehicles(uid: string): Promise<Vehicle[]> {
@@ -19,6 +19,7 @@ export async function addNewVehicle(uid: string, input: NewVehicleInput): Promis
     ...input,
     owners: [uid],
     maintenance: [],
+    wishlist: [],
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -53,18 +54,28 @@ export async function addMaintenanceEntry(vehicleId: string, input: NewMaintenan
   });
 }
 
-async function editMaintenanceRecord(
+type ListField = "maintenance" | "wishlist";
+
+/** Read-modify-write one of a vehicle's embedded arrays inside a transaction. */
+async function editVehicleList<T extends { id: string }>(
   vehicleId: string,
-  edit: (entries: MaintenanceEntry[]) => MaintenanceEntry[]
+  field: ListField,
+  edit: (items: T[]) => T[]
 ) {
   const ref = doc(vehicleCollection, "vehicles", vehicleId);
   await runTransaction(vehicleCollection, async (transaction) => {
     const snap = await transaction.get(ref);
     if (!snap.exists()) throw new Error("This vehicle no longer exists.");
-    const { maintenance = [] } = snap.data() as Vehicle;
-    transaction.update(ref, { maintenance: edit(maintenance), updatedAt: serverTimestamp() });
+    const items = (snap.data()[field] ?? []) as T[];
+    transaction.update(ref, { [field]: edit(items), updatedAt: serverTimestamp() });
   });
 }
+
+const editMaintenanceRecord = (vehicleId: string, edit: (entries: MaintenanceEntry[]) => MaintenanceEntry[]) =>
+  editVehicleList(vehicleId, "maintenance", edit);
+
+const editWishList = (vehicleId: string, edit: (items: WishListItem[]) => WishListItem[]) =>
+  editVehicleList(vehicleId, "wishlist", edit);
 
 export async function updateMaintenanceEntry(vehicleId: string, entry: MaintenanceEntry) {
   await editMaintenanceRecord(vehicleId, (entries) =>
@@ -74,4 +85,34 @@ export async function updateMaintenanceEntry(vehicleId: string, entry: Maintenan
 
 export async function deleteMaintenanceEntry(vehicleId: string, entryId: string) {
   await editMaintenanceRecord(vehicleId, (entries) => entries.filter((entryItem) => entryItem.id !== entryId));
+}
+
+export async function addWishListItem(vehicleId: string, input: NewWishListItemInput) {
+  await updateDoc(doc(vehicleCollection, "vehicles", vehicleId), {
+    wishlist: arrayUnion({ id: newId(), ...input }),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function updateWishListItem(vehicleId: string, item: WishListItem) {
+  await editWishList(vehicleId, (items) =>
+    items.map((existing) => {
+      if (existing.id !== item.id) return existing;
+
+      // The link changed, so the old price no longer applies; let the next check refill it.
+      if (existing.link !== item.link) return item;
+
+      // Otherwise keep what the price checker wrote (omit undefined; Firestore rejects it).
+      return {
+        ...item,
+        ...(existing.currentPrice !== undefined ? { currentPrice: existing.currentPrice } : {}),
+        ...(existing.lastCheckedAt !== undefined ? { lastCheckedAt: existing.lastCheckedAt } : {}),
+        ...(existing.priceError !== undefined ? { priceError: existing.priceError } : {}),
+      };
+    })
+  );
+}
+
+export async function deleteWishListItem(vehicleId: string, itemId: string) {
+  await editWishList(vehicleId, (items) => items.filter((existing) => existing.id !== itemId));
 }

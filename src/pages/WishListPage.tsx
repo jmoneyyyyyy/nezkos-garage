@@ -1,10 +1,15 @@
-import { COMING_SOON_TEXT, WISHLIST_PAGE_TITLE } from "../Constants";
+import { useAuth } from "../hooks/useAuth";
+import { WISHLIST_PAGE_TITLE } from "../Constants";
+import WishList from "../components/wishlist/WishList";
 
 export default function WishListPage() {
+  const { user } = useAuth();
+  if (!user) return null; // RequireAuth guarantees a user; this narrows the type
+
   return (
-    <main className="placeholder-page">
+    <main className="wishlist-page">
       <h1 className="page-title">{WISHLIST_PAGE_TITLE}</h1>
-      <p className="list-status">{COMING_SOON_TEXT}</p>
+      <WishList uid={user.uid} />
     </main>
   );
 }

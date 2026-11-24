@@ -6,7 +6,7 @@ const SIGN_OUT_BUTTON_TEXT = "Sign out";
 const ADD_VEHICLE_BUTTON_TEXT = "Add Vehicle";
 const LOADING_TEXT = "Loading...";
 const LOADING_VEHICLES_TEXT = "Loading vehicles...";
-const COULDNT_LOAD_VEHICLES_TEXT = "Couldn't load vehicles.";
+const COULDNT_LOAD_VEHICLES_TEXT = "Couldn't load vehicles";
 const NO_VEHICLES_YET_TEXT = "No vehicles yet. Get started now!";
 const WELCOME_BACK_TEXT = "Welcome back:";
 const HOW_IT_WORKS_LINK_TEXT = "How it works";
@@ -22,6 +22,9 @@ const WISHLIST_TAB_TEXT = "Wish List";
 const FUNDS_PAGE_TITLE = "Funds";
 const WISHLIST_PAGE_TITLE = "Wish List";
 const COMING_SOON_TEXT = "Coming soon.";
+const NO_WISHLIST_ITEMS_TEXT = "No items yet.";
+const ADD_WISHLIST_ITEM_BUTTON_TEXT = "Add item";
+const WISHLIST_ITEM_VIEW_TEXT = "View";
 const MAIN_NAV_LABEL = "Main";
 const REQUIRED_FIELD = "* Required Field";
 
@@ -54,6 +57,9 @@ export {
   FUNDS_PAGE_TITLE,
   WISHLIST_PAGE_TITLE,
   COMING_SOON_TEXT,
+  NO_WISHLIST_ITEMS_TEXT,
+  ADD_WISHLIST_ITEM_BUTTON_TEXT,
+  WISHLIST_ITEM_VIEW_TEXT,
   MAIN_NAV_LABEL,
   LOADING_VEHICLES_TEXT,
   COULDNT_LOAD_VEHICLES_TEXT,

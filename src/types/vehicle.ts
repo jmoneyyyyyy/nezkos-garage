@@ -51,6 +51,16 @@ export interface MaintenanceEntry {
   details?: string;
 }
 
+export interface WishListItem {
+  id: string;
+  name: string;
+  link: string;
+  price: number;
+  currentPrice?: number;
+  lastCheckedAt?: string;
+  priceError?: string;
+}
+
 export interface Vehicle {
   id: string;
   name: string;
@@ -65,15 +75,18 @@ export interface Vehicle {
   photo?: string;
   owners: string[];
   maintenance: MaintenanceEntry[];
+  wishlist?: WishListItem[];
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 }
 
 export type NewVehicleInput = Omit<
   Vehicle,
-  "id" | "owners" | "maintenance" | "createdAt" | "updatedAt"
+  "id" | "owners" | "maintenance" | "wishlist" | "createdAt" | "updatedAt"
 >;
 
 export type VehicleDetailsInput = Omit<NewVehicleInput, "photo">;
 
 export type NewMaintenanceInput = Omit<MaintenanceEntry, "id">;
+
+export type NewWishListItemInput = Omit<WishListItem, "id" | "currentPrice" | "lastCheckedAt" | "priceError">;

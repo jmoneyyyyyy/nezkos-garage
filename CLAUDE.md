@@ -25,7 +25,7 @@ Personal web app for tracking maintenance on family vehicles.
 
 ## Data model
 - Firestore collection `vehicles`; each doc has an `owners` array of uids
-  and an embedded `maintenance` array
+  and embedded `maintenance` and `wishlist` arrays (wishlist items: id, name, link, price)
 - Maintenance entry dates are `"YYYY-MM-DD"` strings, not Timestamps
 - Entry ids come from `newId()` in `src/lib/id.ts`
 - Service types live in `MAINTENANCE_TYPES` / `MAINTENANCE_LABELS`
