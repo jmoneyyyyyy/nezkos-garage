@@ -1,6 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { WISHLIST_ITEM_DELETE_TEXT, WISHLIST_ON_SALE_TEXT } from "../../Constants";
+import {
+  WISHLIST_ITEM_DELETE_TEXT,
+  WISHLIST_ON_SALE_TEXT,
+  WISHLIST_PRICE_CHECK_BLOCKED_TEXT,
+} from "../../Constants";
 import type { WishListItem } from "../../types/vehicle";
 import WishListItemCard from "./WishListItemCard";
 
@@ -57,5 +61,22 @@ describe("WishListItemCard delete", () => {
     renderCard();
     await userEvent.click(screen.getByRole("button", { name: WISHLIST_ITEM_DELETE_TEXT }));
     expect(mutate).not.toHaveBeenCalled();
+  });
+});
+
+describe("WishListItemCard blocked price check", () => {
+  it("shows a red notice when the site refused the request (HTTP 403)", () => {
+    renderCard({ priceError: "HTTP 403" });
+    expect(screen.getByRole("alert")).toHaveTextContent(WISHLIST_PRICE_CHECK_BLOCKED_TEXT);
+  });
+
+  it.each(["HTTP 404", "no price found"])("shows no blocked notice for %s", (priceError) => {
+    renderCard({ priceError });
+    expect(screen.queryByText(WISHLIST_PRICE_CHECK_BLOCKED_TEXT)).not.toBeInTheDocument();
+  });
+
+  it("shows no blocked notice when there is no error", () => {
+    renderCard();
+    expect(screen.queryByText(WISHLIST_PRICE_CHECK_BLOCKED_TEXT)).not.toBeInTheDocument();
   });
 });

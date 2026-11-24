@@ -132,6 +132,19 @@
   border-radius: 6px;
 }
 
+.wishlist-item-blocked {
+  box-sizing: border-box;
+  flex: 0 0 100%;
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--garage-red);
+  background: rgba(240, 90, 90, 0.12);
+  border-left: 3px solid var(--garage-red);
+  border-radius: 6px;
+}
+
 .wishlist-item button {
   font-size: 13px;
   line-height: 1;

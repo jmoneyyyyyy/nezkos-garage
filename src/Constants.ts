@@ -27,6 +27,8 @@ const ADD_WISHLIST_ITEM_BUTTON_TEXT = "Add item";
 const WISHLIST_ITEM_VIEW_TEXT = "View";
 const WISHLIST_ITEM_DELETE_TEXT = "Delete";
 const WISHLIST_ON_SALE_TEXT = "It's on sale, go get it!";
+const WISHLIST_PRICE_CHECK_BLOCKED_TEXT =
+  "This website blocks automated price checks, so the price can't be tracked automatically.";
 const MAIN_NAV_LABEL = "Main";
 const REQUIRED_FIELD = "* Required Field";
 
@@ -64,6 +66,7 @@ export {
   WISHLIST_ITEM_VIEW_TEXT,
   WISHLIST_ITEM_DELETE_TEXT,
   WISHLIST_ON_SALE_TEXT,
+  WISHLIST_PRICE_CHECK_BLOCKED_TEXT,
   MAIN_NAV_LABEL,
   LOADING_VEHICLES_TEXT,
   COULDNT_LOAD_VEHICLES_TEXT,

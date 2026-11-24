@@ -1,6 +1,12 @@
-import { WISHLIST_ITEM_DELETE_TEXT, WISHLIST_ITEM_VIEW_TEXT, WISHLIST_ON_SALE_TEXT } from "../../Constants";
+import {
+  WISHLIST_ITEM_DELETE_TEXT,
+  WISHLIST_ITEM_VIEW_TEXT,
+  WISHLIST_ON_SALE_TEXT,
+  WISHLIST_PRICE_CHECK_BLOCKED_TEXT,
+} from "../../Constants";
 import { useDeleteWishListItem } from "../../hooks/useVehicles";
 import { formatPrice } from "../../lib/format";
+import { isPriceCheckBlocked } from "../../lib/priceError";
 import type { WishListItem } from "../../types/vehicle";
 
 /** One wish list row: name, wanted and current price, a link, a delete button, and a price drop notice. */
@@ -17,6 +23,8 @@ export default function WishListItemCard({
   const onSale = item.currentPrice !== undefined && item.currentPrice < item.price;
   const saved = onSale ? item.price - item.currentPrice! : 0;
   const percentOff = onSale ? Math.round((saved / item.price) * 100) : 0;
+
+  const blocked = isPriceCheckBlocked(item.priceError);
 
   const deleteItem = () => {
     if (confirm(`Remove ${item.name} from the wish list?`)) {
@@ -44,6 +52,11 @@ export default function WishListItemCard({
       {remove.isError && (
         <p className="wishlist-item-error" role="alert">
           Couldn't delete: {remove.error.message}
+        </p>
+      )}
+      {blocked && (
+        <p className="wishlist-item-blocked" role="alert">
+          {WISHLIST_PRICE_CHECK_BLOCKED_TEXT}
         </p>
       )}
       {onSale && (
