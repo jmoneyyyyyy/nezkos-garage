@@ -1,6 +1,6 @@
-import { useAuth } from "../../hooks/useAuth";
-import { WISHLIST_PAGE_TITLE } from "../../Constants";
-import WishList from "./WishList";
+import { useAuth } from "../hooks/useAuth";
+import { WISHLIST_PAGE_TITLE } from "../Constants";
+import WishList from "../components/wishlist/WishList";
 
 export default function WishListPage() {
   const { user } = useAuth();
