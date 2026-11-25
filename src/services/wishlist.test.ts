@@ -2,7 +2,7 @@ import { arrayUnion, runTransaction, updateDoc } from "firebase/firestore";
 import { addWishListItem, deleteWishListItem, updateWishListItem } from "./wishlist";
 
 vi.mock("../lib/firebase", () => ({ vehicleCollection: {} }));
-vi.mock("../utils/id", () => ({ newId: vi.fn(() => "new-id") }));
+vi.mock("../utils/newId", () => ({ newId: vi.fn(() => "new-id") }));
 vi.mock("firebase/firestore", () => ({
   arrayUnion: vi.fn((v) => v),
   doc: vi.fn(() => "doc-ref"),

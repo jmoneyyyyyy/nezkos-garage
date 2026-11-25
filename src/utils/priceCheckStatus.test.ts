@@ -1,4 +1,4 @@
-import { priceErrorKind, statusFromPriceError } from "./priceError";
+import { priceErrorKind, statusFromPriceError } from "./priceCheckStatus";
 
 describe("statusFromPriceError", () => {
   it("reads the status code from an HTTP error", () => {

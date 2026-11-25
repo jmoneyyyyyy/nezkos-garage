@@ -33,7 +33,7 @@ Personal web app for tracking maintenance on family vehicles.
   and embedded `maintenance` and `wishlist` arrays (wishlist items: id, name, link, price, plus
   checker-written optional `currentPrice`, `lastCheckedAt`, `priceError`)
 - Maintenance entry dates are `"YYYY-MM-DD"` strings, not Timestamps
-- Entry ids come from `newId()` in `src/utils/id.ts`
+- Entry ids come from `newId()` in `src/utils/newId.ts`
 - Service types live in `MAINTENANCE_TYPES` / `MAINTENANCE_LABELS`
   in `src/types/vehicle.ts`
 
@@ -62,7 +62,7 @@ Personal web app for tracking maintenance on family vehicles.
   a transaction, merging by item id
 - `price` is what the user wants to pay; the UI shows a price drop notice when
   `currentPrice < price`, and a red notice from `priceError`:
-  HTTP 401/403/429 = "blocks automated checks", HTTP 404/410 = "page is gone" (`src/utils/priceError.ts`)
+  HTTP 401/403/429 = "blocks automated checks", HTTP 404/410 = "page is gone" (`src/utils/priceCheckStatus.ts`)
 - `updateWishListItem` keeps the checker's fields unless the link changed
 - Deploy by hand: zip `index.mjs`, `package.json`, `node_modules`, upload in the
   Lambda console

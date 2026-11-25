@@ -418,8 +418,8 @@ getDocs(...)                                 <span class="c">// one request, ret
     <li><b>Ownership:</b> <code>owners</code> is an array of user ids. The app's query is <code>owners array-contains uid</code>, so each person only gets their own vehicles back.</li>
     <li><b>Maintenance is embedded:</b> that is why the card needs no second request, and why adding a service is a single update to the vehicle document.</li>
     <li><b>Dates are strings:</b> entries use <code>"YYYY-MM-DD"</code>, which sort correctly as text. That is how the list gets sorted newest-first with a plain string compare.</li>
-    <li><b>Photos live in the document:</b> <code>utils/image.ts</code> scales the chosen image to at most 800px, re-encodes it as a JPEG and rejects anything over about 600,000 characters. A Firestore document is limited to 1 MB and the photo shares that with the service records. There is no separate file storage.</li>
-    <li><b>Types:</b> the TypeScript shapes (<code>Vehicle</code>, <code>MaintenanceEntry</code>, the service-type list and labels) are in <code>src/types/vehicle.ts</code>. Entry ids come from <code>newId()</code> in <code>utils/id.ts</code>.</li>
+    <li><b>Photos live in the document:</b> <code>utils/photoUpload.ts</code> scales the chosen image to at most 800px, re-encodes it as a JPEG and rejects anything over about 600,000 characters. A Firestore document is limited to 1 MB and the photo shares that with the service records. There is no separate file storage.</li>
+    <li><b>Types:</b> the TypeScript shapes (<code>Vehicle</code>, <code>MaintenanceEntry</code>, the service-type list and labels) are in <code>src/types/vehicle.ts</code>. Entry ids come from <code>newId()</code> in <code>utils/newId.ts</code>.</li>
   </ul>
 </section>
 
@@ -580,7 +580,7 @@ getDocs(...)                                 <span class="c">// one request, ret
     </li>
     <li>
       <h3>The app shows it</h3>
-      <p class="files"><code>WishListItemCard</code>, <code>utils/priceError.ts</code></p>
+      <p class="files"><code>WishListItemCard</code>, <code>utils/priceCheckStatus.ts</code></p>
       <p>Nothing is pushed to the browser. The next time the vehicles query runs (page load, tab focus or after a change), the wish list reads the updated fields. See the table below.</p>
     </li>
   </ol>

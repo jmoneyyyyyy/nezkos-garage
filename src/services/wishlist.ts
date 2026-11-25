@@ -1,6 +1,6 @@
 import { arrayUnion, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { vehicleCollection } from "../lib/firebase";
-import { newId } from "../utils/id";
+import { newId } from "../utils/newId";
 import type { NewWishListItemInput, WishListItem } from "../types/vehicle";
 import { editVehicleList } from "./vehicles";
 

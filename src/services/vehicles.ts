@@ -4,7 +4,7 @@ import {
 } from "firebase/firestore";
 import { VEHICLE_NOT_FOUND_ERROR } from "../Constants";
 import { vehicleCollection } from "../lib/firebase";
-import { newId } from "../utils/id";
+import { newId } from "../utils/newId";
 import type {
   MaintenanceEntry, NewMaintenanceInput, NewVehicleInput, Vehicle, VehicleDetailsInput,
 } from "../types/vehicle";

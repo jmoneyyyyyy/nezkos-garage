@@ -1,4 +1,4 @@
-import { newId } from "./id";
+import { newId } from "./newId";
 
 describe("newId", () => {
   it("returns 24 lowercase hex characters", () => {

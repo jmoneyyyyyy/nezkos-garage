@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent, type SyntheticEvent } from "react";
-import { photoFromInput } from "../../utils/image";
+import { photoFromInput } from "../../utils/photoUpload";
 import { useCreateVehicle, useUpdateVehicle } from "../../hooks/useVehicles";
 import type { Vehicle, VehicleDetailsInput } from "../../types/vehicle";
 import {

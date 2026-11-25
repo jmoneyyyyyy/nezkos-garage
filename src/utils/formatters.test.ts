@@ -1,4 +1,4 @@
-import { formatCost, formatDate, formatMileage, formatPrice } from "./format";
+import { formatCost, formatDate, formatMileage, formatPrice } from "./formatters";
 
 describe("formatPrice", () => {
   it("formats as USD", () => {
