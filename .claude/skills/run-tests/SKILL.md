@@ -20,4 +20,4 @@ description: Run the Vitest suite with `npm test` and report the result. Use whe
 5. Do not use `npm run test:watch`; it never exits.
 
 Tests sit next to the code as `*.test.ts(x)`. The Lambda's parsing tests are
-`functions/price-checker/price.test.mjs`.
+`lambda/price-checker/price.test.mjs`.

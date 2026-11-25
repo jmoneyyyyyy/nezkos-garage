@@ -67,14 +67,14 @@ Firebase web app config is set up in `src/lib/firebase.ts`.
 ```bash
 npm test
 ```
-Vitest with jsdom and Testing Library. Tests sit next to the code as `*.test.ts(x)` and cover the Firestore service functions, route guards and routes, the TanStack Query hooks, the wish list card, and the Lambda's price parsing (`functions/price-checker/price.test.mjs`).
+Vitest with jsdom and Testing Library. Tests sit next to the code as `*.test.ts(x)` and cover the Firestore service functions, route guards and routes, the TanStack Query hooks, the wish list card, and the Lambda's price parsing (`lambda/price-checker/price.test.mjs`).
 
 ## Deployment
 Pushes to `main` trigger an Amplify build (`amplify.yml`, managed in amplify). The site started as a
 static site on S3 deployed with GitHub Actions, then moved to Amplify for managed
 HTTPS, custom domain support, and simpler CI/CD.
 
-The price checker is not deployed by Amplify. It lives in `functions/price-checker/`; to change it, zip `index.mjs`, `package.json` and `node_modules` and upload the zip in the Lambda console.
+The price checker is not deployed by Amplify. It lives in `lambda/price-checker/`; to change it, zip `index.mjs`, `package.json` and `node_modules` and upload the zip in the Lambda console.
 
 The custom domain (`nezkos-garage.com`) is registered in Route 53. Amplify
 manages the DNS records and certificate in the domain's hosted zone.

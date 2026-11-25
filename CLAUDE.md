@@ -25,7 +25,7 @@ Personal web app for tracking maintenance on family vehicles.
 - `npm run build`: type-check (`tsc -b`) and build; must pass before pushing
 - `npm run lint`
 - `npm test`: Vitest (jsdom + Testing Library); tests sit next to the code as `*.test.ts(x)`.
-  The Lambda's parsing tests are `functions/price-checker/price.test.mjs` (its runtime deps are
+  The Lambda's parsing tests are `lambda/price-checker/price.test.mjs` (its runtime deps are
   stubbed via `test.alias` in `vite.config.ts`)
 
 ## Data model
@@ -53,7 +53,7 @@ Personal web app for tracking maintenance on family vehicles.
 - Build settings are in `amplify.yml` managed in amplify
 
 ## Price checker
-- AWS Lambda in `functions/price-checker/` (Node.js, ES modules, `firebase-admin`),
+- AWS Lambda in `lambda/price-checker/` (Node.js, ES modules, `firebase-admin`),
   triggered daily by EventBridge Scheduler; not deployed by Amplify
 - Reads the Firebase service account JSON from Parameter Store (env var
   `SA_PARAM`); never commit it

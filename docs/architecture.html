@@ -276,7 +276,7 @@
       <tr><td class="k">Amplify Hosting</td><td>Builds on every push to <code>main</code>, serves the static bundle over HTTPS</td><td>Amplify console (<code>amplify.yml</code>)</td></tr>
       <tr><td class="k">Route 53</td><td>Domain registration and hosted zone for <code>nezkos-garage.com</code></td><td>AWS console</td></tr>
       <tr><td class="k">EventBridge Scheduler</td><td>Invokes the price checker once a day</td><td>AWS console</td></tr>
-      <tr><td class="k">Lambda <code>price-checker</code></td><td>Fetches each wish list link, reads the price from JSON-LD, writes results back</td><td><code>functions/price-checker/index.mjs</code></td></tr>
+      <tr><td class="k">Lambda <code>price-checker</code></td><td>Fetches each wish list link, reads the price from JSON-LD, writes results back</td><td><code>lambda/price-checker/index.mjs</code></td></tr>
       <tr><td class="k">SSM Parameter Store</td><td>Holds the Firebase service account JSON, encrypted with KMS; the Lambda reads it by name from <code>SA_PARAM</code></td><td>AWS console</td></tr>
       <tr><td class="k">CloudWatch Logs</td><td>Lambda output, including the <code>{"checked": N}</code> line per run</td><td>AWS console</td></tr>
     </tbody>
@@ -294,7 +294,7 @@
     <div class="layer"><b>Services</b><span><code>services/vehicles.ts</code> and <code>services/wishlist.ts</code> hold every Firestore call. Adds use <code>arrayUnion</code>; edits and deletes go through <code>editVehicleList</code>, a transaction that does read-modify-write so concurrent edits aren't lost.</span></div>
     <div class="layer"><b>Lib, utils and types</b><span><code>lib/firebase.ts</code> (SDK setup), <code>utils/photoUpload.ts</code> (resize photos under the 1 MB document limit), <code>utils/priceCheckStatus.ts</code>, <code>utils/formatters.ts</code>, <code>utils/newId.ts</code>. <code>types/vehicle.ts</code> is the single source of truth for the data model.</span></div>
   </div>
-  <p>Tests sit next to the code as <code>*.test.ts(x)</code> and run with Vitest and Testing Library (<code>npm test</code>). The Lambda's price parsing is tested in <code>functions/price-checker/price.test.mjs</code>.</p>
+  <p>Tests sit next to the code as <code>*.test.ts(x)</code> and run with Vitest and Testing Library (<code>npm test</code>). The Lambda's price parsing is tested in <code>lambda/price-checker/price.test.mjs</code>.</p>
 </section>
 
 <!-- ============================ FLOWS ============================ -->

@@ -8,7 +8,7 @@ const lambdaStub = fileURLToPath(new URL('./src/test/lambda-stub.ts', import.met
 export default defineConfig({
   plugins: [react()],
   test: {
-    // Lambda deps live in functions/price-checker, not the root; stub them for its parsing tests.
+    // Lambda deps live in lambda/price-checker, not the root; stub them for its parsing tests.
     alias: {
       'firebase-admin/app': lambdaStub,
       'firebase-admin/firestore': lambdaStub,
@@ -17,6 +17,6 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/test/setup.ts',
-    include: ['src/**/*.test.{ts,tsx}', 'functions/**/*.test.mjs'],
+    include: ['src/**/*.test.{ts,tsx}', 'lambda/**/*.test.mjs'],
   },
 })
