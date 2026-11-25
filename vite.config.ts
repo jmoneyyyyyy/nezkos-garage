@@ -2,7 +2,7 @@ import react from '@vitejs/plugin-react'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
-const lambdaStub = fileURLToPath(new URL('./src/test/lambda-stub.ts', import.meta.url))
+const lambdaStub = fileURLToPath(new URL('./lambda/price-checker/stub.mjs', import.meta.url))
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -16,7 +16,7 @@ export default defineConfig({
     },
     environment: 'jsdom',
     globals: true,
-    setupFiles: './src/test/setup.ts',
+    setupFiles: ['@testing-library/jest-dom/vitest'],
     include: ['src/**/*.test.{ts,tsx}', 'lambda/**/*.test.mjs'],
   },
 })
