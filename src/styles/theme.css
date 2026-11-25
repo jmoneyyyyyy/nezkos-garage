@@ -408,8 +408,6 @@ textarea {
 
 /* Spec readouts, styled like little dash gauges */
 .vehicle-details {
-  gap: 8px;
-
   > div {
     padding: 8px 10px;
     background: var(--garage-black);

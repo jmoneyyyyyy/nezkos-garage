@@ -330,11 +330,20 @@
 }
 
 .vehicle-details {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 8px 16px;
+  --details-gap: 8px;
+  /* Two tiles per row; flex (not grid) so a lone last tile is centered under the pair. */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--details-gap);
   margin: 0;
   text-align: center;
+
+  > div {
+    box-sizing: border-box;
+    flex: 0 0 calc((100% - var(--details-gap)) / 2);
+    min-width: 0;
+  }
 
   dt {
     font-size: 13px;
