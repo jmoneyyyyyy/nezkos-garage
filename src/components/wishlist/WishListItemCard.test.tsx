@@ -10,7 +10,7 @@ import type { WishListItem } from "../../types/vehicle";
 import WishListItemCard from "./WishListItemCard";
 
 const mutate = vi.fn();
-vi.mock("../../hooks/useVehicles", () => ({
+vi.mock("../../hooks/useWishlist", () => ({
   useDeleteWishListItem: () => ({ mutate, isPending: false, isError: false, error: null }),
 }));
 

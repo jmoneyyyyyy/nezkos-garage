@@ -1,12 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  addMaintenanceEntry, addNewVehicle, addWishListItem, deleteMaintenanceEntry, deleteVehicle,
-  deleteWishListItem, getAllVehicles, setVehiclePhoto, updateMaintenanceEntry, updateVehicleInformation,
-  updateWishListItem,
-} from "../api/vehicles";
-import type {
-  MaintenanceEntry, NewMaintenanceInput, NewVehicleInput, NewWishListItemInput, VehicleDetailsInput, WishListItem,
-} from "../types/vehicle";
+  addMaintenanceEntry, addNewVehicle, deleteMaintenanceEntry, deleteVehicle,
+  getAllVehicles, setVehiclePhoto, updateMaintenanceEntry, updateVehicleInformation,
+} from "../services/vehicles";
+import type { MaintenanceEntry, NewMaintenanceInput, NewVehicleInput, VehicleDetailsInput } from "../types/vehicle";
 
 export function useVehicles(uid: string) {
   return useQuery({
@@ -15,7 +12,7 @@ export function useVehicles(uid: string) {
   });
 }
 
-function useVehicleMutation<TInput>(uid: string, mutationFn: (input: TInput) => Promise<unknown>) {
+export function useVehicleMutation<TInput>(uid: string, mutationFn: (input: TInput) => Promise<unknown>) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn,
@@ -58,23 +55,5 @@ export function useUpdateMaintenance(uid: string) {
 export function useDeleteMaintenance(uid: string) {
   return useVehicleMutation(uid, ({ vehicleId, entryId }: { vehicleId: string; entryId: string }) =>
     deleteMaintenanceEntry(vehicleId, entryId)
-  );
-}
-
-export function useAddWishListItem(uid: string) {
-  return useVehicleMutation(uid, ({ vehicleId, input }: { vehicleId: string; input: NewWishListItemInput }) =>
-    addWishListItem(vehicleId, input)
-  );
-}
-
-export function useUpdateWishListItem(uid: string) {
-  return useVehicleMutation(uid, ({ vehicleId, item }: { vehicleId: string; item: WishListItem }) =>
-    updateWishListItem(vehicleId, item)
-  );
-}
-
-export function useDeleteWishListItem(uid: string) {
-  return useVehicleMutation(uid, ({ vehicleId, itemId }: { vehicleId: string; itemId: string }) =>
-    deleteWishListItem(vehicleId, itemId)
   );
 }

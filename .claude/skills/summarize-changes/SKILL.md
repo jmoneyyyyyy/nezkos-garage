@@ -15,4 +15,8 @@ description: Summarize all uncommitted changes into a single-line commit message
    name the main one and don't enumerate the rest.
 5. Match the repo's style: `git log --oneline -5` shows short, plain,
    sentence-case messages.
-6. Output only the line. Do not commit, stage, or push unless asked.
+6. Output the line alone inside a plain fenced code block (no language tag) so
+   it can be copied and pasted as-is. No quotes, backticks, bullets, or labels
+   inside the block, and no `git commit -m` wrapper. Add no other text before or
+   after the block.
+7. Do not commit, stage, or push unless asked.

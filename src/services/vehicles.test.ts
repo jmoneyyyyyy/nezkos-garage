@@ -1,11 +1,9 @@
 import { deleteField, getDocs, runTransaction, updateDoc } from "firebase/firestore";
 import {
   deleteMaintenanceEntry,
-  deleteWishListItem,
   getAllVehicles,
   updateMaintenanceEntry,
   updateVehicleInformation,
-  updateWishListItem,
 } from "./vehicles";
 
 vi.mock("../lib/firebase", () => ({ vehicleCollection: {} }));
@@ -98,47 +96,5 @@ describe("maintenance list edits", () => {
   it("throws if the vehicle no longer exists", async () => {
     fakeTransaction(null);
     await expect(deleteMaintenanceEntry("v1", "a")).rejects.toThrow("no longer exists");
-  });
-});
-
-describe("wish list edits", () => {
-  const checked = {
-    id: "w1", name: "Jack", link: "https://shop.test/a", price: 100,
-    currentPrice: 80, lastCheckedAt: "2026-01-01T00:00:00Z", priceError: "old error",
-  };
-  const other = { id: "w2", name: "Wax", link: "https://shop.test/b", price: 20 };
-
-  it("keeps the checker's fields when the link is unchanged", async () => {
-    const update = fakeTransaction({ wishlist: [checked, other] });
-    await updateWishListItem("v1", { id: "w1", name: "Better jack", link: checked.link, price: 90 });
-
-    const [, payload] = update.mock.calls[0];
-    expect(payload.wishlist[0]).toEqual({
-      id: "w1", name: "Better jack", link: checked.link, price: 90,
-      currentPrice: 80, lastCheckedAt: "2026-01-01T00:00:00Z", priceError: "old error",
-    });
-    expect(payload.wishlist[1]).toBe(other);
-  });
-
-  it("drops the checker's fields when the link changes", async () => {
-    const update = fakeTransaction({ wishlist: [checked] });
-    const edited = { id: "w1", name: "Jack", link: "https://other.test/a", price: 100 };
-    await updateWishListItem("v1", edited);
-
-    expect(update.mock.calls[0][1].wishlist[0]).toEqual(edited);
-  });
-
-  it("does not write undefined checker fields", async () => {
-    const update = fakeTransaction({ wishlist: [other] });
-    await updateWishListItem("v1", { ...other, price: 25 });
-
-    expect(update.mock.calls[0][1].wishlist[0]).toEqual({ ...other, price: 25 });
-    expect(Object.keys(update.mock.calls[0][1].wishlist[0])).not.toContain("currentPrice");
-  });
-
-  it("deleteWishListItem removes only the matching item", async () => {
-    const update = fakeTransaction({ wishlist: [checked, other] });
-    await deleteWishListItem("v1", "w1");
-    expect(update.mock.calls[0][1].wishlist).toEqual([other]);
   });
 });

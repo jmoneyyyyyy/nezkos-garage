@@ -6,7 +6,7 @@ import { VEHICLE_NOT_FOUND_ERROR } from "../Constants";
 import { vehicleCollection } from "../lib/firebase";
 import { newId } from "../utils/id";
 import type {
-  MaintenanceEntry, NewMaintenanceInput, NewVehicleInput, NewWishListItemInput, Vehicle, VehicleDetailsInput, WishListItem,
+  MaintenanceEntry, NewMaintenanceInput, NewVehicleInput, Vehicle, VehicleDetailsInput,
 } from "../types/vehicle";
 
 export async function getAllVehicles(uid: string): Promise<Vehicle[]> {
@@ -55,10 +55,10 @@ export async function addMaintenanceEntry(vehicleId: string, input: NewMaintenan
   });
 }
 
-type ListField = "maintenance" | "wishlist";
+export type ListField = "maintenance" | "wishlist";
 
 /** Read-modify-write one of a vehicle's embedded arrays inside a transaction. */
-async function editVehicleList<T extends { id: string }>(
+export async function editVehicleList<T extends { id: string }>(
   vehicleId: string,
   field: ListField,
   edit: (items: T[]) => T[]
@@ -75,9 +75,6 @@ async function editVehicleList<T extends { id: string }>(
 const editMaintenanceRecord = (vehicleId: string, edit: (entries: MaintenanceEntry[]) => MaintenanceEntry[]) =>
   editVehicleList(vehicleId, "maintenance", edit);
 
-const editWishList = (vehicleId: string, edit: (items: WishListItem[]) => WishListItem[]) =>
-  editVehicleList(vehicleId, "wishlist", edit);
-
 export async function updateMaintenanceEntry(vehicleId: string, entry: MaintenanceEntry) {
   await editMaintenanceRecord(vehicleId, (entries) =>
     entries.map((entryItem) => (entryItem.id === entry.id ? entry : entryItem))
@@ -86,34 +83,4 @@ export async function updateMaintenanceEntry(vehicleId: string, entry: Maintenan
 
 export async function deleteMaintenanceEntry(vehicleId: string, entryId: string) {
   await editMaintenanceRecord(vehicleId, (entries) => entries.filter((entryItem) => entryItem.id !== entryId));
-}
-
-export async function addWishListItem(vehicleId: string, input: NewWishListItemInput) {
-  await updateDoc(doc(vehicleCollection, "vehicles", vehicleId), {
-    wishlist: arrayUnion({ id: newId(), ...input }),
-    updatedAt: serverTimestamp(),
-  });
-}
-
-export async function updateWishListItem(vehicleId: string, item: WishListItem) {
-  await editWishList(vehicleId, (items) =>
-    items.map((existing) => {
-      if (existing.id !== item.id) return existing;
-
-      // The link changed, so the old price no longer applies; let the next check refill it.
-      if (existing.link !== item.link) return item;
-
-      // Otherwise keep what the price checker wrote (omit undefined; Firestore rejects it).
-      return {
-        ...item,
-        ...(existing.currentPrice !== undefined ? { currentPrice: existing.currentPrice } : {}),
-        ...(existing.lastCheckedAt !== undefined ? { lastCheckedAt: existing.lastCheckedAt } : {}),
-        ...(existing.priceError !== undefined ? { priceError: existing.priceError } : {}),
-      };
-    })
-  );
-}
-
-export async function deleteWishListItem(vehicleId: string, itemId: string) {
-  await editWishList(vehicleId, (items) => items.filter((existing) => existing.id !== itemId));
 }

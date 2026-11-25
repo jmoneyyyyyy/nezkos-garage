@@ -10,7 +10,7 @@ import {
   confirmRemoveWishListItemText,
   wishListSavingsText,
 } from "../../Constants";
-import { useDeleteWishListItem } from "../../hooks/useVehicles";
+import { useDeleteWishListItem } from "../../hooks/useWishlist";
 import { formatPrice } from "../../utils/format";
 import { priceErrorKind } from "../../utils/priceError";
 import type { WishListItem } from "../../types/vehicle";

@@ -1,5 +1,5 @@
 import { useState, type ChangeEvent, type SyntheticEvent } from "react";
-import { useAddWishListItem } from "../../hooks/useVehicles";
+import { useAddWishListItem } from "../../hooks/useWishlist";
 import {
   ADD_WISHLIST_ITEM_BUTTON_TEXT,
   ADD_WISHLIST_ITEM_TITLE,

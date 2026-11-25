@@ -7,10 +7,10 @@ vi.mock("../../hooks/useAuth", () => ({ useAuth: () => mockUseAuth() }));
 
 // Stub the pages and layout so these tests only exercise routing.
 vi.mock("../layout/AppLayout", () => ({ default: () => <Outlet /> }));
-vi.mock("../landing/LandingPage", () => ({ default: () => <p>landing page</p> }));
-vi.mock("../vehicles/VehiclesPage", () => ({ default: () => <p>vehicles page</p> }));
-vi.mock("../funds/FundsPage", () => ({ default: () => <p>funds page</p> }));
-vi.mock("../wishlist/WishListPage", () => ({ default: () => <p>wishlist page</p> }));
+vi.mock("../../pages/LandingPage", () => ({ default: () => <p>landing page</p> }));
+vi.mock("../../pages/VehiclesPage", () => ({ default: () => <p>vehicles page</p> }));
+vi.mock("../../pages/FundsPage", () => ({ default: () => <p>funds page</p> }));
+vi.mock("../../pages/WishListPage", () => ({ default: () => <p>wishlist page</p> }));
 
 const renderAt = (path: string) =>
   render(

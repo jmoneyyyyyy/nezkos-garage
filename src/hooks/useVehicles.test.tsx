@@ -1,10 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
-import * as api from "../api/vehicles";
-import { useAddWishListItem, useDeleteMaintenance, useVehicles } from "./useVehicles";
+import * as api from "../services/vehicles";
+import { useDeleteMaintenance, useVehicles } from "./useVehicles";
 
-vi.mock("../api/vehicles");
+vi.mock("../services/vehicles");
 
 function setup() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -50,15 +50,13 @@ describe("mutation hooks", () => {
   });
 
   it("does not invalidate when the api call fails", async () => {
-    vi.mocked(api.addWishListItem).mockRejectedValue(new Error("nope"));
+    vi.mocked(api.deleteMaintenanceEntry).mockRejectedValue(new Error("nope"));
     const { client, wrapper } = setup();
     const invalidate = vi.spyOn(client, "invalidateQueries");
 
-    const { result } = renderHook(() => useAddWishListItem("u1"), { wrapper });
+    const { result } = renderHook(() => useDeleteMaintenance("u1"), { wrapper });
     await act(async () => {
-      await result.current
-        .mutateAsync({ vehicleId: "v1", input: { name: "Jack", link: "https://x.test", price: 50 } })
-        .catch(() => {});
+      await result.current.mutateAsync({ vehicleId: "v1", entryId: "e1" }).catch(() => {});
     });
 
     expect(invalidate).not.toHaveBeenCalled();
