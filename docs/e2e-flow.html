@@ -247,16 +247,16 @@
 
     <li>
       <h3>Signed out: the landing page</h3>
-      <div class="files">src/components/landing/LandingPage.tsx &middot; src/Constants.ts</div>
+      <div class="files">src/pages/LandingPage.tsx &middot; src/Constants.ts</div>
       <p>A signed-out visitor sees the hero, the "how it works" steps and a closing prompt. All of the text comes from <code>Constants.ts</code>. Both "Sign in with Google" buttons call <code>signIn</code> from <code>useAuth()</code>. No database is touched, so this whole path makes no Firestore requests. Sign-in is covered in <a href="#signin">its own section</a>.</p>
       <span class="net">Network: none beyond step 1</span>
     </li>
 
     <li>
       <h3>Signed in: the vehicles page asks for data</h3>
-      <div class="files">src/components/vehicles/VehiclesPage.tsx &rarr; components/vehicles/VehicleList.tsx &rarr; hooks/useVehicles.ts</div>
+      <div class="files">src/pages/VehiclesPage.tsx &rarr; components/vehicles/VehicleList.tsx &rarr; hooks/useVehicles.ts</div>
       <p><code>VehiclesPage</code> reads the user from <code>useAuth()</code> and renders the title, the Add Vehicle button, and <code>&lt;VehicleList uid=...&gt;</code>. The list calls <code>useVehicles(uid)</code>, which is a TanStack <code>useQuery</code> with the key <code>["vehicles", uid]</code>. The cache has nothing under that key yet, so it runs the query function and the list shows "Loading vehicles..." meanwhile.</p>
-      <p>The query function, <code>getAllVehicles(uid)</code> in <code>api/vehicles.ts</code>, is where the app finally talks to Firestore:</p>
+      <p>The query function, <code>getAllVehicles(uid)</code> in <code>services/vehicles.ts</code>, is where the app finally talks to Firestore:</p>
 <pre><code>query(
   collection(db, "vehicles"),
   where("owners", "array-contains", uid)   <span class="c">// only vehicles this user owns</span>
@@ -418,8 +418,8 @@ getDocs(...)                                 <span class="c">// one request, ret
     <li><b>Ownership:</b> <code>owners</code> is an array of user ids. The app's query is <code>owners array-contains uid</code>, so each person only gets their own vehicles back.</li>
     <li><b>Maintenance is embedded:</b> that is why the card needs no second request, and why adding a service is a single update to the vehicle document.</li>
     <li><b>Dates are strings:</b> entries use <code>"YYYY-MM-DD"</code>, which sort correctly as text. That is how the list gets sorted newest-first with a plain string compare.</li>
-    <li><b>Photos live in the document:</b> <code>lib/image.ts</code> scales the chosen image to at most 800px, re-encodes it as a JPEG and rejects anything over about 600,000 characters. A Firestore document is limited to 1 MB and the photo shares that with the service records. There is no separate file storage.</li>
-    <li><b>Types:</b> the TypeScript shapes (<code>Vehicle</code>, <code>MaintenanceEntry</code>, the service-type list and labels) are in <code>src/types/vehicle.ts</code>. Entry ids come from <code>newId()</code> in <code>lib/id.ts</code>.</li>
+    <li><b>Photos live in the document:</b> <code>utils/image.ts</code> scales the chosen image to at most 800px, re-encodes it as a JPEG and rejects anything over about 600,000 characters. A Firestore document is limited to 1 MB and the photo shares that with the service records. There is no separate file storage.</li>
+    <li><b>Types:</b> the TypeScript shapes (<code>Vehicle</code>, <code>MaintenanceEntry</code>, the service-type list and labels) are in <code>src/types/vehicle.ts</code>. Entry ids come from <code>newId()</code> in <code>utils/id.ts</code>.</li>
   </ul>
 </section>
 
@@ -465,10 +465,12 @@ getDocs(...)                                 <span class="c">// one request, ret
       <tr><td class="k"><code>components/routing</code></td><td><code>RequireAuth</code>, <code>RedirectIfAuthed</code></td></tr>
       <tr><td class="k"><code>components/common</code></td><td><code>Modal</code>: a wrapper around the native <code>&lt;dialog&gt;</code> element, reused everywhere</td></tr>
       <tr><td class="k"><code>components/vehicles</code></td><td><code>VehicleList</code>, <code>VehicleCard</code>, <code>VehicleForm</code>, <code>MaintenanceSection</code>, <code>MaintenanceRecordList</code>, <code>MaintenanceRecordRow</code>, <code>MaintenanceForm</code>, <code>AddVehicleModal</code></td></tr>
-      <tr><td class="k"><code>components/landing</code>, <code>funds</code>, <code>wishlist</code></td><td><code>LandingPage</code>, <code>FundsPage</code>, <code>WishListPage</code> and the wish list cards and forms. Each route's <code>*Page.tsx</code> lives in its own area folder (<code>VehiclesPage</code> is in <code>components/vehicles</code>).</td></tr>
+      <tr><td class="k"><code>components/wishlist</code></td><td>The wish list cards, forms and modal</td></tr>
+      <tr><td class="k"><code>pages</code></td><td>Each route's page: <code>LandingPage</code>, <code>VehiclesPage</code>, <code>FundsPage</code>, <code>WishListPage</code></td></tr>
       <tr><td class="k"><code>context</code></td><td><code>AuthContext</code>, <code>AuthProvider</code></td></tr>
-      <tr><td class="k"><code>hooks</code></td><td><code>useAuth</code>, <code>useVehicles</code> (all the query and mutation hooks)</td></tr>
-      <tr><td class="k"><code>api</code></td><td><code>vehicles.ts</code>: every Firestore read and write</td></tr>
+      <tr><td class="k"><code>hooks</code></td><td><code>useAuth</code>, <code>useVehicles</code> (vehicle and maintenance query and mutation hooks), <code>useWishlist</code> (wish list mutation hooks)</td></tr>
+      <tr><td class="k"><code>services</code></td><td><code>vehicles.ts</code> and <code>wishlist.ts</code>: every Firestore read and write</td></tr>
+      <tr><td class="k"><code>utils</code></td><td>Helpers: <code>format</code>, <code>id</code>, <code>image</code>, <code>priceError</code></td></tr>
       <tr><td class="k"><code>lib</code>, <code>types</code>, <code>styles</code></td><td>Firebase setup, id and image helpers; TypeScript types; CSS</td></tr>
     </tbody>
   </table></div>
@@ -482,7 +484,7 @@ getDocs(...)                                 <span class="c">// one request, ret
   <div class="layers">
     <div class="layer"><b>Component</b><span><code>VehicleList</code>, <code>VehicleForm</code>, <code>MaintenanceSection</code>… Ask for data or trigger a change and render the result.</span></div>
     <div class="layer"><b>Hook</b><span><code>hooks/useVehicles.ts</code>: <code>useVehicles(uid)</code> for reading, <code>useCreateVehicle</code>, <code>useUpdateVehicle</code>, <code>useDeleteVehicle</code>, <code>useSetVehiclePhoto</code> and the three maintenance hooks for writing. Wraps TanStack Query.</span></div>
-    <div class="layer"><b>API function</b><span><code>api/vehicles.ts</code>: plain async functions such as <code>getAllVehicles</code> and <code>addNewVehicle</code>. The only place Firestore calls are written.</span></div>
+    <div class="layer"><b>API function</b><span><code>services/vehicles.ts</code> (and <code>services/wishlist.ts</code> for wish list items): plain async functions such as <code>getAllVehicles</code> and <code>addNewVehicle</code>. The only place Firestore calls are written.</span></div>
     <div class="layer"><b>Firebase SDK</b><span><code>lib/firebase.ts</code> creates the Firestore and Auth instances. The SDK adds the user's token and talks to Firebase's servers.</span></div>
   </div>
 
@@ -578,7 +580,7 @@ getDocs(...)                                 <span class="c">// one request, ret
     </li>
     <li>
       <h3>The app shows it</h3>
-      <p class="files"><code>WishListItemCard</code>, <code>lib/priceError.ts</code></p>
+      <p class="files"><code>WishListItemCard</code>, <code>utils/priceError.ts</code></p>
       <p>Nothing is pushed to the browser. The next time the vehicles query runs (page load, tab focus or after a change), the wish list reads the updated fields. See the table below.</p>
     </li>
   </ol>
@@ -618,7 +620,7 @@ getDocs(...)                                 <span class="c">// one request, ret
     <li><b>Access control lives in Firestore rules, not in the React code.</b> The <code>owners array-contains uid</code> filter selects the right documents, but the rules are what stop someone from asking for another user's. Those rules are configured in the Firebase console and are not in this repo, so this document does not describe their contents.</li>
     <li><b>Whole vehicles are fetched every time.</b> Because photos and service history are inside each document, the list request grows with them. The 1 MB document limit is the ceiling, which is why photos are shrunk before saving.</li>
     <li><b>Not live.</b> Changes made on another device show up on the next refetch (focus the tab, or make a change), not instantly.</li>
-    <li><b>A naming quirk:</b> in <code>lib/firebase.ts</code> the Firestore instance is exported as <code>vehicleCollection</code>, but it is the whole database object, which <code>api/vehicles.ts</code> then passes to <code>collection(...)</code> and <code>doc(...)</code>.</li>
+    <li><b>A naming quirk:</b> in <code>lib/firebase.ts</code> the Firestore instance is exported as <code>vehicleCollection</code>, but it is the whole database object, which <code>services/vehicles.ts</code> then passes to <code>collection(...)</code> and <code>doc(...)</code>.</li>
     <li><b>Firebase config in the code is not a secret.</b> The values in <code>lib/firebase.ts</code> identify the project to Firebase. What protects the data is sign-in plus the Firestore rules.</li>
   </ul>
 </section>

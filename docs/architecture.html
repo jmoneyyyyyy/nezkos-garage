@@ -271,7 +271,7 @@
     <tbody>
       <tr><td class="k">React app</td><td>Screens, routing, form validation, photo resizing, server-state caching</td><td><code>src/</code> (React 19, TypeScript, Vite, React Router, TanStack Query)</td></tr>
       <tr><td class="k">Firebase Auth</td><td>Google sign-in; issues the ID token every Firestore request carries</td><td><code>src/lib/firebase.ts</code>, <code>src/context/AuthProvider.tsx</code></td></tr>
-      <tr><td class="k">Cloud Firestore</td><td>The database: one <code>vehicles</code> collection with embedded maintenance and wish list arrays</td><td><code>src/api/vehicles.ts</code>; rules in the Firebase console</td></tr>
+      <tr><td class="k">Cloud Firestore</td><td>The database: one <code>vehicles</code> collection with embedded maintenance and wish list arrays</td><td><code>src/services/vehicles.ts</code>, <code>src/services/wishlist.ts</code>; rules in the Firebase console</td></tr>
       <tr><td class="k">Firestore security rules</td><td>The authorization boundary: sign-in required, owner-only access, field validation, owners can't change</td><td>Firebase console</td></tr>
       <tr><td class="k">Amplify Hosting</td><td>Builds on every push to <code>main</code>, serves the static bundle over HTTPS</td><td>Amplify console (<code>amplify.yml</code>)</td></tr>
       <tr><td class="k">Route 53</td><td>Domain registration and hosted zone for <code>nezkos-garage.com</code></td><td>AWS console</td></tr>
@@ -288,11 +288,11 @@
   <h2>Code layout</h2>
   <p class="sub">The front end is organized by layer. Each layer only talks to the one below it, so UI components never call Firebase directly.</p>
   <div class="layers">
-    <div class="layer"><b>Components</b><span>Pages and feature UI, grouped by area: <code>components/vehicles</code>, <code>wishlist</code>, <code>layout</code>, <code>routing</code>, <code>landing</code>, <code>funds</code>, <code>common</code>. User-facing text lives in <code>Constants.ts</code>.</span></div>
-    <div class="layer"><b>Hooks</b><span><code>hooks/useVehicles.ts</code> wraps every read and write in TanStack Query. Mutations invalidate the <code>["vehicles", uid]</code> cache so the UI refreshes on its own. <code>useAuth</code> exposes the auth context.</span></div>
+    <div class="layer"><b>Components</b><span>Pages and feature UI, grouped by area: <code>components/vehicles</code>, <code>wishlist</code>, <code>layout</code>, <code>routing</code>, <code>common</code>. Route pages live in <code>pages/</code>. User-facing text lives in <code>Constants.ts</code>.</span></div>
+    <div class="layer"><b>Hooks</b><span><code>hooks/useVehicles.ts</code> and <code>hooks/useWishlist.ts</code> wrap every read and write in TanStack Query. Mutations invalidate the <code>["vehicles", uid]</code> cache so the UI refreshes on its own. <code>useAuth</code> exposes the auth context.</span></div>
     <div class="layer"><b>Context</b><span><code>AuthProvider</code> subscribes to <code>onAuthStateChanged</code> and provides <code>user</code>, <code>loading</code>, <code>signIn</code>, <code>signOut</code>. Route guards use it to decide which pages render.</span></div>
-    <div class="layer"><b>API</b><span><code>api/vehicles.ts</code> holds every Firestore call. Adds use <code>arrayUnion</code>; edits and deletes go through <code>editVehicleList</code>, a transaction that does read-modify-write so concurrent edits aren't lost.</span></div>
-    <div class="layer"><b>Lib and types</b><span><code>lib/firebase.ts</code> (SDK setup), <code>lib/image.ts</code> (resize photos under the 1 MB document limit), <code>lib/priceError.ts</code>, <code>lib/format.ts</code>. <code>types/vehicle.ts</code> is the single source of truth for the data model.</span></div>
+    <div class="layer"><b>Services</b><span><code>services/vehicles.ts</code> and <code>services/wishlist.ts</code> hold every Firestore call. Adds use <code>arrayUnion</code>; edits and deletes go through <code>editVehicleList</code>, a transaction that does read-modify-write so concurrent edits aren't lost.</span></div>
+    <div class="layer"><b>Lib, utils and types</b><span><code>lib/firebase.ts</code> (SDK setup), <code>utils/image.ts</code> (resize photos under the 1 MB document limit), <code>utils/priceError.ts</code>, <code>utils/format.ts</code>, <code>utils/id.ts</code>. <code>types/vehicle.ts</code> is the single source of truth for the data model.</span></div>
   </div>
   <p>Tests sit next to the code as <code>*.test.ts(x)</code> and run with Vitest and Testing Library (<code>npm test</code>). The Lambda's price parsing is tested in <code>functions/price-checker/price.test.mjs</code>.</p>
 </section>
@@ -306,7 +306,7 @@
       <h3>A user logs maintenance</h3>
       <ol class="steps">
         <li><h3>Sign in</h3><p>Google sign-in through Firebase Auth gives the browser an ID token.</p></li>
-        <li><h3>Submit</h3><p>The form calls a mutation hook, which calls <code>addMaintenanceEntry</code> in <code>api/vehicles.ts</code>.</p></li>
+        <li><h3>Submit</h3><p>The form calls a mutation hook, which calls <code>addMaintenanceEntry</code> in <code>services/vehicles.ts</code>.</p></li>
         <li><h3>Rules check</h3><p>Firestore checks the token against the rules: signed in, UID in <code>owners</code>, fields valid.</p></li>
         <li><h3>Refresh</h3><p>The write succeeds, TanStack Query invalidates the cache, and the list refetches.</p></li>
       </ol>

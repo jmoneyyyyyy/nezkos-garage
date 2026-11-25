@@ -33,14 +33,15 @@ Personal web app for tracking maintenance on family vehicles.
   and embedded `maintenance` and `wishlist` arrays (wishlist items: id, name, link, price, plus
   checker-written optional `currentPrice`, `lastCheckedAt`, `priceError`)
 - Maintenance entry dates are `"YYYY-MM-DD"` strings, not Timestamps
-- Entry ids come from `newId()` in `src/lib/id.ts`
+- Entry ids come from `newId()` in `src/utils/id.ts`
 - Service types live in `MAINTENANCE_TYPES` / `MAINTENANCE_LABELS`
   in `src/types/vehicle.ts`
 
 ## Conventions
 - Code is organized by layer under `src/`:
-  `components/<area>/` (layout, common, routing, landing, funds, vehicles, wishlist;
-  each route's `*Page.tsx` lives in its area folder), `hooks/`, `context/`, `api/` (Firestore calls), `types/`, `lib/`
+  `components/<area>/` (layout, common, routing, vehicles, wishlist), `pages/` (each route's
+  `*Page.tsx`), `hooks/` (`useVehicles`, `useWishlist`, `useAuth`), `context/`, `services/` (Firestore calls:
+  `vehicles.ts`, `wishlist.ts`), `types/`, `lib/` (Firebase setup), `utils/`
   (helpers, firebase), `styles/`. User-facing text lives in `Constants.ts`
 - Use `import type` for type-only imports (verbatimModuleSyntax is on)
 - Firestore rejects `undefined`; omit optional fields or rely on
@@ -61,7 +62,7 @@ Personal web app for tracking maintenance on family vehicles.
   a transaction, merging by item id
 - `price` is what the user wants to pay; the UI shows a price drop notice when
   `currentPrice < price`, and a red notice from `priceError`:
-  HTTP 401/403/429 = "blocks automated checks", HTTP 404/410 = "page is gone" (`src/lib/priceError.ts`)
+  HTTP 401/403/429 = "blocks automated checks", HTTP 404/410 = "page is gone" (`src/utils/priceError.ts`)
 - `updateWishListItem` keeps the checker's fields unless the link changed
 - Deploy by hand: zip `index.mjs`, `package.json`, `node_modules`, upload in the
   Lambda console
