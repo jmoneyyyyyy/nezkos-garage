@@ -55,6 +55,8 @@ export default function VehicleForm({ uid, vehicle, onSaved }: Props) {
     }
   };
 
+  //SyntheticEvent is used here to prevent the default form submission behavior
+  //It wraps around the browser's native event and provides a consistent interface across different browsers
   const submit = (e: SyntheticEvent) => {
     e.preventDefault();
     const year = Number(form.year);

@@ -42,7 +42,7 @@ export default function AppLayout() {
           </>
         )}
       </Header>
-      {!loading && user && <TabNav />}
+      {userSignedIn && <TabNav />}
       <Outlet />
     </div>
   );

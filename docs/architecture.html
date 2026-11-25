@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nezko's Garage: Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,800&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Shares its look with e2e-flow.html: racing green on gunmetal,
+     condensed italic headings. */
+  :root {
+    --bg: #f5f7f6;
+    --surface: #ffffff;
+    --surface-2: #eaefec;
+    --line: #d3dbd7;
+    --ink: #17201b;
+    --muted: #55645b;
+    --accent: #0f8a47;
+    --accent-soft: rgba(15, 138, 71, 0.12);
+    --auth: #2a6fdb;
+    --data: #b8710a;
+    --code-bg: #0f1512;
+    --code-ink: #dbe6df;
+    --head: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+    --body: "Barlow", system-ui, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0a0c0b;
+      --surface: #131815;
+      --surface-2: #1b221e;
+      --line: #2b322e;
+      --ink: #e7ece9;
+      --muted: #98a29c;
+      --accent: #34c770;
+      --accent-soft: rgba(52, 199, 112, 0.14);
+      --auth: #6aa2ff;
+      --data: #f0b24a;
+      --code-bg: #0d110f;
+      --code-ink: #dbe6df;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 17px/1.6 var(--body);
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+  a { color: var(--accent); }
+
+  /* Masthead */
+  header.top { border-bottom: 1px solid var(--line); padding: 56px 0 28px; }
+  .eyebrow { font: 600 13px/1 var(--head); text-transform: uppercase; letter-spacing: .2em; color: var(--accent); }
+  h1 { margin: 14px 0 12px; font: italic 800 clamp(40px, 7vw, 68px)/1 var(--head); text-transform: uppercase; text-wrap: balance; }
+  .lede { max-width: 66ch; font-size: 19px; color: var(--muted); margin: 0; }
+  nav.toc { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  nav.toc .wrap { display: flex; gap: 6px 18px; flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; }
+  nav.toc a { font: 600 13px/1 var(--head); text-transform: uppercase; letter-spacing: .1em; text-decoration: none; color: var(--muted); padding: 6px 0; }
+  nav.toc a:hover { color: var(--accent); }
+
+  section { padding: 56px 0 8px; scroll-margin-top: 48px; }
+  h2 { margin: 0 0 8px; font: 700 clamp(28px, 4vw, 38px)/1.05 var(--head); text-transform: uppercase; letter-spacing: .01em; text-wrap: balance; }
+  h2::after { content: ""; display: block; width: 72px; height: 4px; margin-top: 12px; background: var(--accent); transform: skewX(-20deg); }
+  h3 { margin: 28px 0 6px; font: 700 22px/1.2 var(--head); text-transform: uppercase; letter-spacing: .04em; }
+  p { margin: 10px 0; }
+  .sub { color: var(--muted); max-width: 70ch; margin-bottom: 20px; }
+  code { font: 500 .88em var(--mono); background: var(--surface-2); padding: 1px 6px; border-radius: 4px; }
+  pre { margin: 14px 0; padding: 16px 18px; background: var(--code-bg); color: var(--code-ink); border-radius: 8px; overflow-x: auto; font: 400 14px/1.55 var(--mono); }
+  pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+  .c { color: #7d8b83; }
+
+  /* Architecture strip */
+  .arch { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin: 22px 0; }
+  .node { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--accent); border-radius: 10px; padding: 16px 18px; }
+  .node.auth { border-top-color: var(--auth); }
+  .node.data { border-top-color: var(--data); }
+  .node h4 { margin: 0 0 4px; font: 700 20px/1.1 var(--head); text-transform: uppercase; letter-spacing: .04em; }
+  .node p { margin: 0; font-size: 15px; color: var(--muted); }
+
+  /* Numbered timeline: this one is a true sequence */
+  ol.steps { list-style: none; margin: 26px 0 0; padding: 0; counter-reset: step; }
+  ol.steps > li { position: relative; counter-increment: step; padding: 0 0 30px 62px; }
+  ol.steps > li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 42px; height: 42px; display: grid; place-items: center; font: 700 20px/1 var(--head); color: var(--accent); background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 50%; }
+  ol.steps > li::after { content: ""; position: absolute; left: 20px; top: 48px; bottom: 6px; width: 2px; background: var(--line); }
+  ol.steps > li:last-child::after { display: none; }
+  ol.steps h3 { margin: 0 0 4px; font-size: 24px; }
+  .files { font: 500 13px/1.4 var(--mono); color: var(--muted); margin: 0 0 6px; }
+  .net { display: inline-block; margin-top: 4px; font: 600 12px/1 var(--head); text-transform: uppercase; letter-spacing: .12em; padding: 5px 9px; border-radius: 4px; background: var(--surface-2); color: var(--muted); }
+  .net.yes { background: var(--accent-soft); color: var(--accent); }
+
+  /* Tables */
+  .scroll { overflow-x: auto; margin: 16px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 640px; }
+  th, td { text-align: left; vertical-align: top; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: none; }
+  th { font: 600 12px/1.2 var(--head); text-transform: uppercase; letter-spacing: .14em; color: var(--muted); background: var(--surface-2); }
+  td.k { font-weight: 600; white-space: nowrap; }
+
+  /* Diagram */
+  .diagram { overflow-x: auto; margin: 18px 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  .diagram svg { display: block; min-width: 760px; width: 100%; height: auto; }
+  .lane-box { fill: var(--surface-2); stroke: var(--line); }
+  .lane-title { font: 700 15px var(--head); text-transform: uppercase; letter-spacing: .06em; fill: var(--ink); text-anchor: middle; }
+  .lifeline { stroke: var(--line); stroke-dasharray: 4 5; }
+  .msg { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+  .msg.ret { stroke-dasharray: 5 4; }
+  .arrow-head { fill: var(--muted); }
+  .lbl { font: 500 13px var(--body); fill: var(--ink); text-anchor: middle; }
+  .note { fill: var(--accent-soft); stroke: var(--accent); }
+  .note-t { font: 500 12.5px var(--body); fill: var(--ink); text-anchor: middle; }
+  .num { font: 700 12px var(--head); fill: var(--accent); }
+
+  /* Component tree */
+  .tree { margin: 18px 0; padding: 18px 20px; background: var(--code-bg); color: var(--code-ink); border-radius: 10px; overflow-x: auto; font: 400 14px/1.75 var(--mono); }
+  .tl { display: grid; grid-template-columns: 440px 1fr; gap: 0 16px; white-space: nowrap; }
+  .tree .t-prov { color: #7fb4ff; }
+  .tree .t-layout { color: #f0b24a; }
+  .tree .t-page { color: #52de8d; font-weight: 500; }
+  .tree .t-note { color: #7d8b83; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; color: var(--muted); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
+
+  /* Layer stack */
+  .layers { display: grid; gap: 0; margin: 20px 0; }
+  .layer { display: grid; grid-template-columns: minmax(130px, 200px) 1fr; gap: 6px 20px; padding: 14px 18px; background: var(--surface); border: 1px solid var(--line); border-bottom: none; }
+  .layer:first-child { border-radius: 10px 10px 0 0; }
+  .layer:last-child { border-bottom: 1px solid var(--line); border-radius: 0 0 10px 10px; }
+  .layer b { font: 700 18px/1.2 var(--head); text-transform: uppercase; letter-spacing: .05em; }
+  .layer span { color: var(--muted); font-size: 15px; }
+  .layer code { font-size: 12.5px; }
+  @media (max-width: 560px) { .layer { grid-template-columns: 1fr; } }
+
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .two > div { min-width: 0; }
+  .callout { margin: 18px 0; padding: 14px 18px; background: var(--accent-soft); border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; }
+  .callout b { font-family: var(--head); text-transform: uppercase; letter-spacing: .06em; }
+  ul.tight { margin: 8px 0; padding-left: 20px; }
+  ul.tight li { margin: 6px 0; }
+  footer { margin-top: 64px; padding: 24px 0 48px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  /* Architecture diagram boxes */
+  .ab { stroke-width: 1.5; fill: var(--surface); }
+  .ab-host { stroke: var(--muted); }
+  .ab-app { stroke: var(--auth); fill: color-mix(in srgb, var(--auth) 10%, var(--surface)); }
+  .ab-store { stroke: var(--accent); fill: var(--accent-soft); }
+  .ab-job { stroke: var(--data); fill: color-mix(in srgb, var(--data) 10%, var(--surface)); }
+  .ab-t { font: 700 17px var(--head); text-transform: uppercase; letter-spacing: .04em; fill: var(--ink); text-anchor: middle; }
+  .ab-s { font: 500 13px var(--body); fill: var(--muted); text-anchor: middle; }
+  .lg { font: 500 13px var(--body); fill: var(--muted); }
+  .lbl { text-anchor: start; fill: var(--muted); }
+  .two ol.steps h3 { font-size: 19px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Nezko's Garage &middot; Architecture</div>
+    <h1>System architecture</h1>
+    <p class="lede">The pieces that make up <code>nezkos-garage.com</code>, how they connect, where the security boundary sits, and the design decisions behind them. For a step-by-step walk through a page load, see the <a href="e2e-flow.html">end-to-end flow</a>.</p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <div class="wrap">
+    <a href="#overview">Overview</a>
+    <a href="#components">Components</a>
+    <a href="#code">Code layout</a>
+    <a href="#flows">Key flows</a>
+    <a href="#security">Security</a>
+    <a href="#decisions">Decisions</a>
+    <a href="#scaling">Scaling</a>
+    <a href="#deploy">Deployment</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============================ OVERVIEW ============================ -->
+<section id="overview">
+  <h2>Overview</h2>
+  <p class="sub">There are two halves. The <b>user-facing app</b> is a static React app on AWS Amplify that talks straight to Firebase, with no backend server. The <b>scheduled job</b> is an AWS Lambda that checks wish list prices once a day. Firestore is where the two meet.</p>
+
+  <div class="diagram" role="img" aria-label="Architecture diagram. GitHub pushes trigger Amplify builds; Route 53 points the domain at Amplify, which serves the React app. The app signs in with Firebase Auth and reads and writes Firestore, checked by security rules. A daily EventBridge schedule invokes the price-checker Lambda, which reads a service account from Parameter Store, fetches product pages, and writes prices to Firestore through the Admin SDK.">
+  <svg viewBox="0 0 940 580" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="arrow-head" d="M0 0 L10 5 L0 10 z"/></marker>
+    </defs>
+
+    <!-- Row 1: delivery -->
+    <rect class="ab ab-host" x="40" y="30" width="220" height="70" rx="10"/>
+    <text class="ab-t" x="150" y="60">Route 53</text>
+    <text class="ab-s" x="150" y="82">DNS for nezkos-garage.com</text>
+
+    <rect class="ab ab-host" x="360" y="30" width="220" height="70" rx="10"/>
+    <text class="ab-t" x="470" y="60">Amplify Hosting</text>
+    <text class="ab-s" x="470" y="82">Static build, CDN, HTTPS</text>
+
+    <rect class="ab ab-host" x="680" y="30" width="220" height="70" rx="10"/>
+    <text class="ab-t" x="790" y="60">GitHub</text>
+    <text class="ab-s" x="790" y="82">Push to main triggers build</text>
+
+    <line class="msg" x1="260" y1="65" x2="356" y2="65" marker-end="url(#ah)"/>
+    <line class="msg" x1="680" y1="65" x2="584" y2="65" marker-end="url(#ah)"/>
+    <line class="msg" x1="470" y1="100" x2="470" y2="156" marker-end="url(#ah)"/>
+
+    <!-- Row 2: browser -->
+    <rect class="ab ab-app" x="360" y="160" width="220" height="70" rx="10"/>
+    <text class="ab-t" x="470" y="190">React app</text>
+    <text class="ab-s" x="470" y="212">Runs in the browser</text>
+
+    <!-- Row 3: Firebase -->
+    <rect class="ab ab-app" x="40" y="300" width="220" height="70" rx="10"/>
+    <text class="ab-t" x="150" y="330">Firebase Auth</text>
+    <text class="ab-s" x="150" y="352">Google sign-in, ID token</text>
+
+    <rect class="ab ab-store" x="360" y="300" width="220" height="70" rx="10"/>
+    <text class="ab-t" x="470" y="330">Cloud Firestore</text>
+    <text class="ab-s" x="470" y="352">vehicles + security rules</text>
+
+    <rect class="ab ab-job" x="680" y="300" width="220" height="70" rx="10"/>
+    <text class="ab-t" x="790" y="330">Product sites</text>
+    <text class="ab-s" x="790" y="352">Wish list links</text>
+
+    <path class="msg" d="M360 195 L150 195 L150 296" marker-end="url(#ah)"/>
+    <line class="msg" x1="470" y1="230" x2="470" y2="296" marker-end="url(#ah)"/>
+    <text class="lbl" x="482" y="268">reads / writes + token</text>
+
+    <!-- Row 4: scheduled job -->
+    <rect class="ab ab-job" x="40" y="440" width="220" height="70" rx="10"/>
+    <text class="ab-t" x="150" y="470">EventBridge</text>
+    <text class="ab-s" x="150" y="492">Scheduler, once a day</text>
+
+    <rect class="ab ab-job" x="360" y="440" width="220" height="70" rx="10"/>
+    <text class="ab-t" x="470" y="470">Lambda</text>
+    <text class="ab-s" x="470" y="492">price-checker, Admin SDK</text>
+
+    <rect class="ab ab-job" x="680" y="440" width="220" height="70" rx="10"/>
+    <text class="ab-t" x="790" y="470">Parameter Store</text>
+    <text class="ab-s" x="790" y="492">Service account (SecureString)</text>
+
+    <line class="msg" x1="260" y1="475" x2="356" y2="475" marker-end="url(#ah)"/>
+    <line class="msg" x1="470" y1="440" x2="470" y2="374" marker-end="url(#ah)"/>
+    <text class="lbl" x="482" y="410">Admin SDK writes</text>
+    <line class="msg" x1="580" y1="490" x2="676" y2="490" marker-end="url(#ah)"/>
+    <path class="msg" d="M580 455 L630 455 L630 335 L676 335" marker-end="url(#ah)"/>
+
+    <!-- Legend -->
+    <rect class="ab ab-host" x="40" y="542" width="14" height="14" rx="3"/><text class="lg" x="62" y="554">Delivery</text>
+    <rect class="ab ab-app" x="160" y="542" width="14" height="14" rx="3"/><text class="lg" x="182" y="554">User request path</text>
+    <rect class="ab ab-store" x="340" y="542" width="14" height="14" rx="3"/><text class="lg" x="362" y="554">Shared data store</text>
+    <rect class="ab ab-job" x="520" y="542" width="14" height="14" rx="3"/><text class="lg" x="542" y="554">Scheduled job</text>
+  </svg>
+  </div>
+</section>
+
+<!-- ============================ COMPONENTS ============================ -->
+<section id="components">
+  <h2>Components</h2>
+  <p class="sub">Every moving part, what it is responsible for, and where it lives.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Component</th><th>Responsibility</th><th>Where</th></tr></thead>
+    <tbody>
+      <tr><td class="k">React app</td><td>Screens, routing, form validation, photo resizing, server-state caching</td><td><code>src/</code> (React 19, TypeScript, Vite, React Router, TanStack Query)</td></tr>
+      <tr><td class="k">Firebase Auth</td><td>Google sign-in; issues the ID token every Firestore request carries</td><td><code>src/lib/firebase.ts</code>, <code>src/context/AuthProvider.tsx</code></td></tr>
+      <tr><td class="k">Cloud Firestore</td><td>The database: one <code>vehicles</code> collection with embedded maintenance and wish list arrays</td><td><code>src/api/vehicles.ts</code>; rules in the Firebase console</td></tr>
+      <tr><td class="k">Firestore security rules</td><td>The authorization boundary: sign-in required, owner-only access, field validation, owners can't change</td><td>Firebase console</td></tr>
+      <tr><td class="k">Amplify Hosting</td><td>Builds on every push to <code>main</code>, serves the static bundle over HTTPS</td><td>Amplify console (<code>amplify.yml</code>)</td></tr>
+      <tr><td class="k">Route 53</td><td>Domain registration and hosted zone for <code>nezkos-garage.com</code></td><td>AWS console</td></tr>
+      <tr><td class="k">EventBridge Scheduler</td><td>Invokes the price checker once a day</td><td>AWS console</td></tr>
+      <tr><td class="k">Lambda <code>price-checker</code></td><td>Fetches each wish list link, reads the price from JSON-LD, writes results back</td><td><code>functions/price-checker/index.mjs</code></td></tr>
+      <tr><td class="k">SSM Parameter Store</td><td>Holds the Firebase service account JSON, encrypted with KMS; the Lambda reads it by name from <code>SA_PARAM</code></td><td>AWS console</td></tr>
+      <tr><td class="k">CloudWatch Logs</td><td>Lambda output, including the <code>{"checked": N}</code> line per run</td><td>AWS console</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================ CODE LAYOUT ============================ -->
+<section id="code">
+  <h2>Code layout</h2>
+  <p class="sub">The front end is organized by layer. Each layer only talks to the one below it, so UI components never call Firebase directly.</p>
+  <div class="layers">
+    <div class="layer"><b>Components</b><span>Pages and feature UI, grouped by area: <code>components/vehicles</code>, <code>wishlist</code>, <code>layout</code>, <code>routing</code>, <code>landing</code>, <code>funds</code>, <code>common</code>. User-facing text lives in <code>Constants.ts</code>.</span></div>
+    <div class="layer"><b>Hooks</b><span><code>hooks/useVehicles.ts</code> wraps every read and write in TanStack Query. Mutations invalidate the <code>["vehicles", uid]</code> cache so the UI refreshes on its own. <code>useAuth</code> exposes the auth context.</span></div>
+    <div class="layer"><b>Context</b><span><code>AuthProvider</code> subscribes to <code>onAuthStateChanged</code> and provides <code>user</code>, <code>loading</code>, <code>signIn</code>, <code>signOut</code>. Route guards use it to decide which pages render.</span></div>
+    <div class="layer"><b>API</b><span><code>api/vehicles.ts</code> holds every Firestore call. Adds use <code>arrayUnion</code>; edits and deletes go through <code>editVehicleList</code>, a transaction that does read-modify-write so concurrent edits aren't lost.</span></div>
+    <div class="layer"><b>Lib and types</b><span><code>lib/firebase.ts</code> (SDK setup), <code>lib/image.ts</code> (resize photos under the 1 MB document limit), <code>lib/priceError.ts</code>, <code>lib/format.ts</code>. <code>types/vehicle.ts</code> is the single source of truth for the data model.</span></div>
+  </div>
+  <p>Tests sit next to the code as <code>*.test.ts(x)</code> and run with Vitest and Testing Library (<code>npm test</code>). The Lambda's price parsing is tested in <code>functions/price-checker/price.test.mjs</code>.</p>
+</section>
+
+<!-- ============================ FLOWS ============================ -->
+<section id="flows">
+  <h2>Key flows</h2>
+  <p class="sub">The two paths data takes through the system. The <a href="e2e-flow.html">end-to-end flow</a> covers page load and sign-in in more detail.</p>
+  <div class="two">
+    <div>
+      <h3>A user logs maintenance</h3>
+      <ol class="steps">
+        <li><h3>Sign in</h3><p>Google sign-in through Firebase Auth gives the browser an ID token.</p></li>
+        <li><h3>Submit</h3><p>The form calls a mutation hook, which calls <code>addMaintenanceEntry</code> in <code>api/vehicles.ts</code>.</p></li>
+        <li><h3>Rules check</h3><p>Firestore checks the token against the rules: signed in, UID in <code>owners</code>, fields valid.</p></li>
+        <li><h3>Refresh</h3><p>The write succeeds, TanStack Query invalidates the cache, and the list refetches.</p></li>
+      </ol>
+    </div>
+    <div>
+      <h3>The nightly price check</h3>
+      <ol class="steps">
+        <li><h3>Schedule fires</h3><p>EventBridge Scheduler invokes the Lambda once a day.</p></li>
+        <li><h3>Load credentials</h3><p>The Lambda reads the service account from Parameter Store and starts the Admin SDK (cached per container).</p></li>
+        <li><h3>Fetch prices</h3><p>Each wish list link is fetched with a 10 second timeout and the price is read from JSON-LD.</p></li>
+        <li><h3>Merge safely</h3><p>Results are written in a transaction that merges by item ID, so edits made during the run aren't overwritten.</p></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ SECURITY ============================ -->
+<section id="security">
+  <h2>Security model</h2>
+  <p class="sub">With no backend, the security boundary is the Firestore rules, not the React code. Anything in the browser can be bypassed, so the browser is never trusted.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Concern</th><th>How it's handled</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Authentication</td><td>Google sign-in through Firebase Auth. The app never sees a password; Firestore requests carry the Firebase ID token.</td></tr>
+      <tr><td class="k">Authorization</td><td>Firestore rules: every request must be signed in, and a vehicle can only be read or changed by users in its <code>owners</code> array. Route guards are only for user experience.</td></tr>
+      <tr><td class="k">Data validation</td><td>Rules validate required fields, types and limits on create and update, and prevent changing <code>owners</code> after creation. Forms validate too, for a better experience.</td></tr>
+      <tr><td class="k">Querying</td><td>Rules aren't filters. The <code>owners array-contains uid</code> query is what lets list requests pass the rules.</td></tr>
+      <tr><td class="k">Firebase web config</td><td>The values in <code>lib/firebase.ts</code> identify the project and aren't secrets. Every browser downloads them.</td></tr>
+      <tr><td class="k">Privileged access</td><td>Only the Lambda uses the Admin SDK, which bypasses rules. Its service account is a SecureString in Parameter Store, read by name from <code>SA_PARAM</code>, and never committed.</td></tr>
+      <tr><td class="k">Transport</td><td>HTTPS everywhere, with an Amplify-managed certificate from AWS Certificate Manager.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout"><b>Hardening next.</b> Keep the rules in the repo with emulator tests; restrict the API key to the site's domains and add App Check; limit the Lambda to <code>https:</code> links and block private IP ranges (SSRF); narrow the service account's role or replace the key with Workload Identity Federation.</div>
+</section>
+
+<!-- ============================ DECISIONS ============================ -->
+<section id="decisions">
+  <h2>Design decisions</h2>
+  <p class="sub">Each choice, what it cost, and when it would change.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Decision</th><th>Why</th><th>Trade-off</th><th>Revisit when</th></tr></thead>
+    <tbody>
+      <tr><td class="k">No backend; browser talks to Firebase</td><td>No server to run or pay for at household scale</td><td>Business logic and security live in the rules</td><td>Shared logic or third-party integrations are needed (add a BFF)</td></tr>
+      <tr><td class="k">Maintenance and wish list embedded in the vehicle document</td><td>One read loads a whole vehicle; edits are transactional</td><td>1 MB document limit; whole documents are fetched every time</td><td>History grows or photos get bigger (move to subcollections)</td></tr>
+      <tr><td class="k">Photos stored inline as resized JPEG</td><td>No second storage service</td><td>Large documents, slower list loads</td><td>More users or photos (move to Cloud Storage or S3)</td></tr>
+      <tr><td class="k">S3 + GitHub Actions, then Amplify</td><td>Managed HTTPS, custom domain, automatic deploys</td><td>Less control over the build</td><td>Multiple environments or custom pipeline steps are needed</td></tr>
+      <tr><td class="k">Price checker on AWS Lambda</td><td>Learn AWS; simple scheduled compute</td><td>A cross-cloud credential to protect</td><td>Workload grows (queue-based fan-out) or the stack consolidates</td></tr>
+      <tr><td class="k">TanStack Query for server state</td><td>Caching, loading and error states, cache invalidation</td><td>Default settings refetch often</td><td>Read costs matter (tune <code>staleTime</code>, update the cache directly)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================ SCALING ============================ -->
+<section id="scaling">
+  <h2>Scaling</h2>
+  <p class="sub">Sized for a household. The managed pieces scale on their own; the limits are in the app's own choices.</p>
+  <div class="two">
+    <div>
+      <h3>Scales without changes</h3>
+      <ul class="tight">
+        <li>Static hosting on Amplify's CDN</li>
+        <li>Firebase Auth</li>
+        <li>Firestore capacity, with random document IDs avoiding write hotspots</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Would need to change</h3>
+      <ul class="tight">
+        <li><b>Page loads:</b> whole vehicles, photos included, come back on every list fetch. Move photos to object storage and paginate history in a subcollection.</li>
+        <li><b>Refetching:</b> default TanStack settings refetch on focus and after every change. Tune <code>staleTime</code> or use real-time listeners.</li>
+        <li><b>Price checker:</b> one run reads every vehicle and checks links one at a time, within Lambda's 15 minute limit. Move to a queue (SQS) with parallel workers, retries and a dead-letter queue.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ DEPLOY ============================ -->
+<section id="deploy">
+  <h2>Deployment</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Piece</th><th>How it ships</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Front end</td><td>Push to <code>main</code> &rarr; Amplify runs <code>npm run build</code> (<code>tsc -b</code> then Vite) &rarr; serves <code>dist</code>. A failed build leaves the last good version live.</td></tr>
+      <tr><td class="k">Price checker</td><td>Zipped and uploaded in the Lambda console. Not part of the Amplify build.</td></tr>
+      <tr><td class="k">Security rules</td><td>Edited and published in the Firebase console.</td></tr>
+      <tr><td class="k">Domain</td><td>Registered in Route 53; Amplify writes its DNS records and certificate into that hosted zone.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">Written from the code in this repo. See also the <a href="e2e-flow.html">end-to-end flow</a>. If the architecture changes, this page needs updating.</div>
+</footer>
+
+</body>
+</html>

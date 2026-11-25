@@ -21,6 +21,8 @@ export default function WishListItemForm({ uid, vehicleId, onSaved }: WishListIt
   const set = (key: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [key]: e.target.value });
 
+  //SyntheticEvent is used here to prevent the default form submission behavior
+  //It wraps around the browser's native event and provides a consistent interface across different browsers
   const submit = (e: SyntheticEvent) => {
     e.preventDefault();
     const name = form.name.trim();

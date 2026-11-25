@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, type ChangeEvent, type SyntheticEvent } from "react";
 import { useAddMaintenance, useUpdateMaintenance } from "../../hooks/useVehicles";
 import {
   MAINTENANCE_LABELS, MAINTENANCE_TYPES,
@@ -33,7 +33,9 @@ export default function MaintenanceForm({ uid, vehicleId, entry, onSaved }: Main
     (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
       setForm({ ...form, [key]: e.target.value });
 
-  const submit = (e: FormEvent) => {
+  //SyntheticEvent is used here to prevent the default form submission behavior
+  //It wraps around the browser's native event and provides a consistent interface across different browsers
+  const submit = (e: SyntheticEvent) => {
     e.preventDefault();
     const mileage = form.mileage === "" ? undefined : Number(form.mileage);
     const cost = form.cost === "" ? undefined : Number(form.cost);
