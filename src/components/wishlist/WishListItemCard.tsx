@@ -11,8 +11,8 @@ import {
   wishListSavingsText,
 } from "../../Constants";
 import { useDeleteWishListItem } from "../../hooks/useVehicles";
-import { formatPrice } from "../../lib/format";
-import { priceErrorKind } from "../../lib/priceError";
+import { formatPrice } from "../../utils/format";
+import { priceErrorKind } from "../../utils/priceError";
 import type { WishListItem } from "../../types/vehicle";
 
 /** One wish list row: name, wanted and current price, a link, a delete button, and a price drop notice. */

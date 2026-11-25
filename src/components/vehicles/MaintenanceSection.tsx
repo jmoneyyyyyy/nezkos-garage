@@ -9,7 +9,7 @@ import {
   VIEW_MAINTENANCE_HISTORY_TEXT,
   maintenanceLastText,
 } from "../../Constants";
-import { formatDate } from "../../lib/format";
+import { formatDate } from "../../utils/format";
 import { MAINTENANCE_LABELS, type MaintenanceEntry, type Vehicle } from "../../types/vehicle";
 
 export default function MaintenanceSection({ uid, vehicle }: { uid: string; vehicle: Vehicle }) {

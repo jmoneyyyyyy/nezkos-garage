@@ -1,7 +1,7 @@
 import AddWishListItemModal from "./AddWishListItemModal";
 import WishListItemCard from "./WishListItemCard";
 import { NO_WISHLIST_ITEMS_TEXT } from "../../Constants";
-import { formatPrice } from "../../lib/format";
+import { formatPrice } from "../../utils/format";
 import type { Vehicle } from "../../types/vehicle";
 import "./wishlist.css";
 

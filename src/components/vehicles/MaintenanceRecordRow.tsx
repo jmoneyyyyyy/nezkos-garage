@@ -5,7 +5,7 @@ import {
   confirmDeleteMaintenanceText,
 } from "../../Constants";
 import { useDeleteMaintenance } from "../../hooks/useVehicles";
-import { formatCost, formatDate, formatMileage } from "../../lib/format";
+import { formatCost, formatDate, formatMileage } from "../../utils/format";
 import { MAINTENANCE_LABELS, type MaintenanceEntry } from "../../types/vehicle";
 
 type MaintenanceRecordRowProps = {

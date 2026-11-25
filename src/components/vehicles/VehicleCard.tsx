@@ -18,8 +18,8 @@ import {
   VIN_LABEL,
   confirmDeleteVehicleText,
 } from "../../Constants";
-import { formatMileage } from "../../lib/format";
-import { photoFromInput } from "../../lib/image";
+import { formatMileage } from "../../utils/format";
+import { photoFromInput } from "../../utils/image";
 import MaintenanceSection from "./MaintenanceSection";
 import VehicleForm from "./VehicleForm";
 import { useDeleteVehicle, useSetVehiclePhoto } from "../../hooks/useVehicles";
