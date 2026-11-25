@@ -67,7 +67,7 @@ Firebase web app config is set up in `src/lib/firebase.ts`.
 ```bash
 npm test
 ```
-Vitest with jsdom and Testing Library. Tests sit next to the code as `*.test.ts(x)` and cover the Firestore service functions, route guards and routes, the TanStack Query hooks, the wish list card, and the Lambda's price parsing (`lambda/price-checker/price.test.mjs`).
+Vitest with jsdom and Testing Library. Tests sit next to the code as `*.test.ts(x)` and cover the Firestore service functions, route guards and routes, the TanStack Query hooks, the wish list card, the confirm dialog, and the Lambda's price parsing (`lambda/price-checker/price.test.mjs`).
 
 ## Deployment
 Pushes to `main` trigger an Amplify build (`amplify.yml`, managed in amplify). The site started as a

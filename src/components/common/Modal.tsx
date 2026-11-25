@@ -1,9 +1,9 @@
 import { CLOSE_LABEL } from "../../Constants";
 import { useEffect, useRef, type ReactNode } from "react";
 
-type ModalProps = { open: boolean; onClose: () => void; children: ReactNode };
+type ModalProps = { open: boolean; onClose: () => void; className?: string; children: ReactNode };
 
-export default function Modal({ open, onClose, children }: ModalProps) {
+export default function Modal({ open, onClose, className, children }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export default function Modal({ open, onClose, children }: ModalProps) {
   return (
     <dialog
       ref={dialogRef}
-      className="modal"
+      className={className ? `modal ${className}` : "modal"}
       onClose={onClose}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >

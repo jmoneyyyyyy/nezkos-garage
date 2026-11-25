@@ -1,4 +1,5 @@
 import { useRef, useState, type ChangeEvent } from "react";
+import ConfirmModal from "../common/ConfirmModal";
 import Modal from "../common/Modal";
 import {
   ADD_PHOTO_TEXT,
@@ -30,6 +31,7 @@ export default function VehicleCard({ uid, vehicle }: { uid: string; vehicle: Ve
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const closeEdit = () => setEditing(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const setPhoto = useSetVehiclePhoto(uid);
   const remove = useDeleteVehicle(uid);
 
@@ -46,9 +48,8 @@ export default function VehicleCard({ uid, vehicle }: { uid: string; vehicle: Ve
   };
 
   const deleteVehicle = () => {
-    if (confirm(confirmDeleteVehicleText(vehicle.name))) {
-      remove.mutate(vehicle.id);
-    }
+    setConfirmingDelete(false);
+    remove.mutate(vehicle.id);
   };
 
   const details: [string, string | undefined][] = [
@@ -113,9 +114,20 @@ export default function VehicleCard({ uid, vehicle }: { uid: string; vehicle: Ve
 
         <MaintenanceSection uid={uid} vehicle={vehicle} />
 
-        <button className="danger vehicle-delete" onClick={deleteVehicle} disabled={remove.isPending}>
+        <button
+          className="danger vehicle-delete"
+          onClick={() => setConfirmingDelete(true)}
+          disabled={remove.isPending}
+        >
           {remove.isPending ? DELETING_TEXT : DELETE_VEHICLE_BUTTON_TEXT}
         </button>
+        <ConfirmModal
+          open={confirmingDelete}
+          message={confirmDeleteVehicleText(vehicle.name)}
+          confirmLabel={DELETE_VEHICLE_BUTTON_TEXT}
+          onConfirm={deleteVehicle}
+          onCancel={() => setConfirmingDelete(false)}
+        />
         {remove.isError && <p role="alert">{COULDNT_DELETE_TEXT}: {remove.error.message}</p>}
       </div>
     </article>

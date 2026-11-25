@@ -514,6 +514,21 @@ textarea {
   padding: 28px;
 }
 
+.modal.confirm-dialog {
+  width: min(400px, calc(100% - 32px));
+}
+
+.confirm-modal {
+  padding-top: 8px;
+}
+
+.confirm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
 .modal-close {
   top: 12px;
   right: 12px;

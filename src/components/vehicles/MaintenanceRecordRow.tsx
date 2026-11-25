@@ -1,3 +1,5 @@
+import { useState } from "react";
+import ConfirmModal from "../common/ConfirmModal";
 import {
   COULDNT_DELETE_TEXT,
   DELETE_BUTTON_TEXT,
@@ -18,6 +20,7 @@ type MaintenanceRecordRowProps = {
 /** One service record: what was done and when, with its own Edit and Delete buttons. */
 export default function MaintenanceRecordRow({ uid, vehicleId, entry, onEdit }: MaintenanceRecordRowProps) {
   const remove = useDeleteMaintenance(uid);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const meta = [
     entry.mileage !== undefined && formatMileage(entry.mileage),
@@ -25,10 +28,8 @@ export default function MaintenanceRecordRow({ uid, vehicleId, entry, onEdit }: 
   ].filter(Boolean).join(" · ");
 
   const deleteEntry = () => {
-    const label = MAINTENANCE_LABELS[entry.type].toLowerCase();
-    if (confirm(confirmDeleteMaintenanceText(label, formatDate(entry.date)))) {
-      remove.mutate({ vehicleId, entryId: entry.id });
-    }
+    setConfirmingDelete(false);
+    remove.mutate({ vehicleId, entryId: entry.id });
   };
 
   return (
@@ -41,10 +42,20 @@ export default function MaintenanceRecordRow({ uid, vehicleId, entry, onEdit }: 
       {entry.details && <p>{entry.details}</p>}
       <div className="service-record-actions">
         <button onClick={() => onEdit(entry)}>{EDIT_BUTTON_TEXT}</button>
-        <button className="danger" onClick={deleteEntry} disabled={remove.isPending}>
+        <button className="danger" onClick={() => setConfirmingDelete(true)} disabled={remove.isPending}>
           {DELETE_BUTTON_TEXT}
         </button>
       </div>
+      <ConfirmModal
+        open={confirmingDelete}
+        message={confirmDeleteMaintenanceText(
+          MAINTENANCE_LABELS[entry.type].toLowerCase(),
+          formatDate(entry.date)
+        )}
+        confirmLabel={DELETE_BUTTON_TEXT}
+        onConfirm={deleteEntry}
+        onCancel={() => setConfirmingDelete(false)}
+      />
       {remove.isError && <p role="alert">{COULDNT_DELETE_TEXT}: {remove.error.message}</p>}
     </li>
   );

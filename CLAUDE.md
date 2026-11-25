@@ -43,6 +43,9 @@ Personal web app for tracking maintenance on family vehicles.
   `*Page.tsx`), `hooks/` (`useVehicles`, `useWishlist`, `useAuth`), `context/`, `services/` (Firestore calls:
   `vehicles.ts`, `wishlist.ts`), `types/`, `lib/` (Firebase setup), `utils/`
   (helpers, firebase), `styles/`. User-facing text lives in `Constants.ts`
+- Confirmations (e.g. deletes) use `ConfirmModal` (`components/common/`, built on `Modal`), not
+  `window.confirm`; the caller keeps the open state. jsdom lacks `<dialog>.showModal()`, so tests
+  that render a `Modal` shim it at the top of the test file
 - Use `import type` for type-only imports (verbatimModuleSyntax is on)
 - Firestore rejects `undefined`; omit optional fields or rely on
   `ignoreUndefinedProperties`

@@ -1,3 +1,5 @@
+import { useState } from "react";
+import ConfirmModal from "../common/ConfirmModal";
 import {
   COULDNT_DELETE_TEXT,
   DELETE_BUTTON_TEXT,
@@ -26,6 +28,7 @@ export default function WishListItemCard({
   item: WishListItem;
 }) {
   const remove = useDeleteWishListItem(uid);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const onSale = item.currentPrice !== undefined && item.currentPrice < item.price;
   const saved = onSale ? item.price - item.currentPrice! : 0;
   const percentOff = onSale ? Math.round((saved / item.price) * 100) : 0;
@@ -33,9 +36,8 @@ export default function WishListItemCard({
   const errorKind = priceErrorKind(item.priceError);
 
   const deleteItem = () => {
-    if (confirm(confirmRemoveWishListItemText(item.name))) {
-      remove.mutate({ vehicleId, itemId: item.id });
-    }
+    setConfirmingDelete(false);
+    remove.mutate({ vehicleId, itemId: item.id });
   };
 
   return (
@@ -52,9 +54,16 @@ export default function WishListItemCard({
       <a className="wishlist-item-view" href={item.link} target="_blank" rel="noopener noreferrer">
         {WISHLIST_ITEM_VIEW_TEXT}
       </a>
-      <button className="danger" onClick={deleteItem} disabled={remove.isPending}>
+      <button className="danger" onClick={() => setConfirmingDelete(true)} disabled={remove.isPending}>
         {DELETE_BUTTON_TEXT}
       </button>
+      <ConfirmModal
+        open={confirmingDelete}
+        message={confirmRemoveWishListItemText(item.name)}
+        confirmLabel={DELETE_BUTTON_TEXT}
+        onConfirm={deleteItem}
+        onCancel={() => setConfirmingDelete(false)}
+      />
       {remove.isError && (
         <p className="wishlist-item-error" role="alert">
           {COULDNT_DELETE_TEXT}: {remove.error.message}

@@ -35,6 +35,7 @@ const NO_MAINTENANCE_RECORDS_TEXT = "No maintenance records yet.";
 const EDIT_BUTTON_TEXT = "Edit";
 const DELETE_BUTTON_TEXT = "Delete";
 const COULDNT_DELETE_TEXT = "Couldn't delete";
+const CANCEL_BUTTON_TEXT = "Cancel";
 const ADD_SERVICE_RECORD_TEXT = "Add service record";
 const EDIT_SERVICE_RECORD_TEXT = "Edit service record";
 const SAVE_CHANGES_BUTTON_TEXT = "Save changes";
@@ -149,6 +150,7 @@ export {
   EDIT_BUTTON_TEXT,
   DELETE_BUTTON_TEXT,
   COULDNT_DELETE_TEXT,
+  CANCEL_BUTTON_TEXT,
   maintenanceLastText,
   maintenanceRecordsTitle,
   confirmDeleteMaintenanceText,

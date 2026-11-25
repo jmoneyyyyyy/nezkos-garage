@@ -1,6 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
+  CANCEL_BUTTON_TEXT,
   DELETE_BUTTON_TEXT,
   WISHLIST_ON_SALE_TEXT,
   WISHLIST_PAGE_GONE_TEXT,
@@ -8,6 +9,15 @@ import {
 } from "../../Constants";
 import type { WishListItem } from "../../types/wishlist";
 import WishListItemCard from "./WishListItemCard";
+
+// jsdom doesn't implement the <dialog> methods that Modal relies on.
+HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+  this.setAttribute("open", "");
+};
+HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+  this.removeAttribute("open");
+  this.dispatchEvent(new Event("close"));
+};
 
 const mutate = vi.fn();
 vi.mock("../../hooks/useWishlist", () => ({
@@ -51,16 +61,19 @@ describe("WishListItemCard price drop notice", () => {
 
 describe("WishListItemCard delete", () => {
   it("deletes after the user confirms", async () => {
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     renderCard();
     await userEvent.click(screen.getByRole("button", { name: DELETE_BUTTON_TEXT }));
+    expect(mutate).not.toHaveBeenCalled();
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByRole("button", { name: DELETE_BUTTON_TEXT }));
     expect(mutate).toHaveBeenCalledWith({ vehicleId: "v1", itemId: "i1" });
   });
 
   it("does nothing if the user cancels", async () => {
-    vi.spyOn(window, "confirm").mockReturnValue(false);
     renderCard();
     await userEvent.click(screen.getByRole("button", { name: DELETE_BUTTON_TEXT }));
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByRole("button", { name: CANCEL_BUTTON_TEXT }));
     expect(mutate).not.toHaveBeenCalled();
   });
 });
