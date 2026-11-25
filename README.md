@@ -52,7 +52,14 @@ EventBridge Scheduler (daily)
 5. Writes happen in a Firestore transaction that merges by item id, so edits made while the checker was running are not overwritten.
 6. The app reads the updated vehicle through TanStack Query. When `currentPrice < price`, the wish list shows a price drop notice with the difference. If the site refused the checker (`priceError` of HTTP 401, 403 or 429), the item shows a red "this website blocks automated price checks" notice instead; for HTTP 404 or 410 it says the page seems to be gone.
 
-The Lambda uses the Firebase Admin SDK, which bypasses Firestore security rules, so its credentials are kept in Parameter Store and never committed to the repo.
+### Why the Lambda needs a Google service account
+The browser app talks to Firestore as a signed-in user (Google sign-in), and Firestore security rules decide what that user can read or write. Lambda is just a serverless runtime with no signed-in user, so it needs an identity of its own to reach Firestore. A Google service account provides that identity for server-side code: its key (a JSON file generated in Firebase Console, Project Settings, Service accounts) is stored in Parameter Store, and the Lambda loads it at startup and passes it to the Firebase Admin SDK.
+
+Two separate permission systems are involved:
+- **AWS IAM** controls what the Lambda can do in AWS: read that one parameter and write logs.
+- **The Google service account** controls what it can do in Firebase. The Admin SDK bypasses Firestore security rules, so anyone who can read that key has full access to the data.
+
+For that reason the key is kept in Parameter Store, never committed to the repo, and the Lambda's IAM role is limited to reading the parameter and writing logs.
 
 ## Run locally
 ```bash
