@@ -1,45 +1,24 @@
 import { useState } from "react";
 import Modal from "../common/Modal";
 import MaintenanceForm from "./MaintenanceForm";
+import MaintenanceRecordList from "./MaintenanceRecordList";
 import {
   ADD_SERVICE_BUTTON_TEXT,
-  COULDNT_DELETE_TEXT,
-  DELETE_BUTTON_TEXT,
-  EDIT_BUTTON_TEXT,
   MAINTENANCE_HISTORY_TITLE,
   NO_MAINTENANCE_RECORDS_TEXT,
   VIEW_MAINTENANCE_HISTORY_TEXT,
-  confirmDeleteMaintenanceText,
   maintenanceLastText,
-  maintenanceRecordsTitle,
 } from "../../Constants";
-import { useDeleteMaintenance } from "../../hooks/useVehicles";
-import { formatMileage } from "../../lib/format";
+import { formatDate } from "../../lib/format";
 import { MAINTENANCE_LABELS, type MaintenanceEntry, type Vehicle } from "../../types/vehicle";
-
-function formatDate(date: string) {
-  const [y, m, d] = date.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString();
-}
-
-function formatCost(cost: number) {
-  return cost.toLocaleString(undefined, { style: "currency", currency: "USD" });
-}
 
 export default function MaintenanceSection({ uid, vehicle }: { uid: string; vehicle: Vehicle }) {
   const [showList, setShowList] = useState(false);
   const [editing, setEditing] = useState<MaintenanceEntry | "new" | null>(null);
-  const remove = useDeleteMaintenance(uid);
   const closeForm = () => setEditing(null);
   const entries = [...vehicle.maintenance].sort((a, b) => b.date.localeCompare(a.date));
   const latest = entries[0];
-
-  const deleteEntry = (entry: MaintenanceEntry) => {
-    const label = MAINTENANCE_LABELS[entry.type].toLowerCase();
-    if (confirm(confirmDeleteMaintenanceText(label, formatDate(entry.date)))) {
-      remove.mutate({ vehicleId: vehicle.id, entryId: entry.id });
-    }
-  };
+  const maintenanceHistoryPresent = entries.length > 0;
 
   return (
     <section className="service-records">
@@ -52,46 +31,14 @@ export default function MaintenanceSection({ uid, vehicle }: { uid: string; vehi
           ? maintenanceLastText(MAINTENANCE_LABELS[latest.type], formatDate(latest.date))
           : NO_MAINTENANCE_RECORDS_TEXT}
       </p>
-      {entries.length > 0 && (
+      {maintenanceHistoryPresent && (
         <button className="service-records-view" onClick={() => setShowList(true)}>
           {VIEW_MAINTENANCE_HISTORY_TEXT}
         </button>
       )}
 
       <Modal open={showList} onClose={() => setShowList(false)}>
-        <div className="service-records-modal">
-          <h2>{maintenanceRecordsTitle(vehicle.name)}</h2>
-          {entries.length === 0 ? (
-            <p className="muted">{NO_MAINTENANCE_RECORDS_TEXT}</p>
-          ) : (
-            <ul>
-              {entries.map((entry) => {
-                const meta = [
-                  entry.mileage !== undefined && formatMileage(entry.mileage),
-                  entry.cost !== undefined && formatCost(entry.cost),
-                ].filter(Boolean).join(" · ");
-
-                return (
-                  <li key={entry.id}>
-                    <div className="service-record-title">
-                      <strong>{MAINTENANCE_LABELS[entry.type]}</strong>
-                      <span>{formatDate(entry.date)}</span>
-                    </div>
-                    {meta && <div className="muted">{meta}</div>}
-                    {entry.details && <p>{entry.details}</p>}
-                    <div className="service-record-actions">
-                      <button onClick={() => setEditing(entry)}>{EDIT_BUTTON_TEXT}</button>
-                      <button className="danger" onClick={() => deleteEntry(entry)} disabled={remove.isPending}>
-                        {DELETE_BUTTON_TEXT}
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-          {remove.isError && <p role="alert">{COULDNT_DELETE_TEXT}: {remove.error.message}</p>}
-        </div>
+        <MaintenanceRecordList uid={uid} vehicle={vehicle} entries={entries} onEdit={setEditing} />
       </Modal>
 
       {/* A sibling of the list modal, not inside it, so it opens on top of the list.
