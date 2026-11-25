@@ -247,14 +247,14 @@
 
     <li>
       <h3>Signed out: the landing page</h3>
-      <div class="files">src/pages/LandingPage.tsx &middot; src/Constants.ts</div>
+      <div class="files">src/components/landing/LandingPage.tsx &middot; src/Constants.ts</div>
       <p>A signed-out visitor sees the hero, the "how it works" steps and a closing prompt. All of the text comes from <code>Constants.ts</code>. Both "Sign in with Google" buttons call <code>signIn</code> from <code>useAuth()</code>. No database is touched, so this whole path makes no Firestore requests. Sign-in is covered in <a href="#signin">its own section</a>.</p>
       <span class="net">Network: none beyond step 1</span>
     </li>
 
     <li>
       <h3>Signed in: the vehicles page asks for data</h3>
-      <div class="files">src/pages/VehiclesPage.tsx &rarr; components/vehicles/VehicleList.tsx &rarr; hooks/useVehicles.ts</div>
+      <div class="files">src/components/vehicles/VehiclesPage.tsx &rarr; components/vehicles/VehicleList.tsx &rarr; hooks/useVehicles.ts</div>
       <p><code>VehiclesPage</code> reads the user from <code>useAuth()</code> and renders the title, the Add Vehicle button, and <code>&lt;VehicleList uid=...&gt;</code>. The list calls <code>useVehicles(uid)</code>, which is a TanStack <code>useQuery</code> with the key <code>["vehicles", uid]</code>. The cache has nothing under that key yet, so it runs the query function and the list shows "Loading vehicles..." meanwhile.</p>
       <p>The query function, <code>getAllVehicles(uid)</code> in <code>api/vehicles.ts</code>, is where the app finally talks to Firestore:</p>
 <pre><code>query(
@@ -563,7 +563,7 @@ getDocs(...)                                 <span class="c">// one request, ret
     <li>
       <h3>It fetches each item's page</h3>
       <p class="files"><code>checkItem</code></p>
-      <p>For every vehicle, every wish list item that has a <code>link</code> is fetched (10 second timeout, a browser-like user agent). A non-2xx response is recorded as <code>"HTTP &lt;status&gt;"</code>, for example <code>"HTTP 403"</code>.</p>
+      <p>For every vehicle, every wish list item that has a <code>link</code> is fetched (10 second timeout, a browser-like user agent). The items of one vehicle are fetched in parallel with <code>Promise.all</code>, so a vehicle takes about as long as its slowest page; vehicles are processed one after another. A non-2xx response is recorded as <code>"HTTP &lt;status&gt;"</code>, for example <code>"HTTP 403"</code>.</p>
       <span class="net yes">Network: one request per wish list item</span>
     </li>
     <li>
@@ -589,13 +589,14 @@ getDocs(...)                                 <span class="c">// one request, ret
     <tbody>
       <tr><td class="k"><code>currentPrice &lt; price</code></td><td>Green price drop notice with the amount saved and percent off.</td></tr>
       <tr><td class="k"><code>currentPrice &ge; price</code></td><td>Both prices are shown, no notice.</td></tr>
-      <tr><td class="k"><code>priceError</code> is <code>HTTP 401</code>, <code>403</code> or <code>429</code></td><td>Red notice: this website blocks automated price checks, so the price can't be tracked automatically. <code>statusFromPriceError</code> reads the number out of the saved text; <code>isPriceCheckBlocked</code> decides.</td></tr>
-      <tr><td class="k">Any other <code>priceError</code> (404, 500, "no price found")</td><td>Nothing shown yet. The old <code>currentPrice</code>, if any, stays.</td></tr>
+      <tr><td class="k"><code>priceError</code> is <code>HTTP 401</code>, <code>403</code> or <code>429</code></td><td>Red notice: this website blocks automated price checks, so the price can't be tracked automatically. <code>statusFromPriceError</code> reads the number out of the saved text; <code>priceErrorKind</code> decides between "blocked" and "gone".</td></tr>
+      <tr><td class="k"><code>priceError</code> is <code>HTTP 404</code> or <code>410</code></td><td>Red notice: the page seems to be gone, so the price can't be tracked. Check the link.</td></tr>
+      <tr><td class="k">Any other <code>priceError</code> (500, "no price found")</td><td>Nothing shown yet. The old <code>currentPrice</code>, if any, stays.</td></tr>
       <tr><td class="k">No check has run yet</td><td>Only the price you want to pay is shown.</td></tr>
     </tbody>
   </table></div>
 
-  <div class="callout"><b>Known limits.</b> Many retailers block bots or don't publish JSON-LD, so some items will show the red notice or stay unchecked. Links are fetched as given, so a hardened version would restrict which hosts the Lambda may call. Items are checked one after another, and there is no alert if a run fails; the only trace is the CloudWatch log line with the number of items checked.</div>
+  <div class="callout"><b>Known limits.</b> Many retailers block bots or don't publish JSON-LD, so some items will show the red notice or stay unchecked. Links are fetched as given, so a hardened version would restrict which hosts the Lambda may call. Items within a vehicle are checked in parallel, but vehicles are handled one at a time, and there is no alert if a run fails; the only trace is the CloudWatch log line with the number of items checked.</div>
 </section>
 
 <!-- ============================ HOSTING ============================ -->

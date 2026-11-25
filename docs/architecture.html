@@ -377,7 +377,7 @@
       <ul class="tight">
         <li><b>Page loads:</b> whole vehicles, photos included, come back on every list fetch. Move photos to object storage and paginate history in a subcollection.</li>
         <li><b>Refetching:</b> default TanStack settings refetch on focus and after every change. Tune <code>staleTime</code> or use real-time listeners.</li>
-        <li><b>Price checker:</b> one run reads every vehicle and checks links one at a time, within Lambda's 15 minute limit. Move to a queue (SQS) with parallel workers, retries and a dead-letter queue.</li>
+        <li><b>Price checker:</b> one run reads every vehicle, checks each vehicle's links in parallel and moves through the vehicles one at a time, all within Lambda's 15 minute limit. There is no dead-letter queue or alarm today.</li>
       </ul>
     </div>
   </div>

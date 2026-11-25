@@ -5,13 +5,14 @@ import {
   WISHLIST_ITEM_VIEW_TEXT,
   WISHLIST_ON_SALE_TEXT,
   WISHLIST_ORIGINAL_PRICE_LABEL,
+  WISHLIST_PAGE_GONE_TEXT,
   WISHLIST_PRICE_CHECK_BLOCKED_TEXT,
   confirmRemoveWishListItemText,
   wishListSavingsText,
 } from "../../Constants";
 import { useDeleteWishListItem } from "../../hooks/useVehicles";
 import { formatPrice } from "../../lib/format";
-import { isPriceCheckBlocked } from "../../lib/priceError";
+import { priceErrorKind } from "../../lib/priceError";
 import type { WishListItem } from "../../types/vehicle";
 
 /** One wish list row: name, wanted and current price, a link, a delete button, and a price drop notice. */
@@ -29,7 +30,7 @@ export default function WishListItemCard({
   const saved = onSale ? item.price - item.currentPrice! : 0;
   const percentOff = onSale ? Math.round((saved / item.price) * 100) : 0;
 
-  const blocked = isPriceCheckBlocked(item.priceError);
+  const errorKind = priceErrorKind(item.priceError);
 
   const deleteItem = () => {
     if (confirm(confirmRemoveWishListItemText(item.name))) {
@@ -59,9 +60,9 @@ export default function WishListItemCard({
           {COULDNT_DELETE_TEXT}: {remove.error.message}
         </p>
       )}
-      {blocked && (
+      {errorKind && (
         <p className="wishlist-item-blocked" role="alert">
-          {WISHLIST_PRICE_CHECK_BLOCKED_TEXT}
+          {errorKind === "gone" ? WISHLIST_PAGE_GONE_TEXT : WISHLIST_PRICE_CHECK_BLOCKED_TEXT}
         </p>
       )}
       {onSale && (

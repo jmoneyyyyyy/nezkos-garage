@@ -12,7 +12,7 @@ A personal web app for tracking maintenance on family vehicles.
 - Per-owner access: each vehicle can only be read or changed by the users listed as its owners
 - Maintenance history per vehicle (service type, date, mileage, cost, details) with add, edit, and delete
 - Wish list per vehicle (item name, link, the price you want to pay)
-- Automatic price tracking: a scheduled AWS Lambda checks each wish list link once a day, and the wish list shows a "price drop" notice when the current price is below your price, or a red notice when the site blocks automated checks (HTTP 401, 403 or 429)
+- Automatic price tracking: a scheduled AWS Lambda checks each wish list link once a day, and the wish list shows a "price drop" notice when the current price is below your price, or a red notice when the site blocks automated checks (HTTP 401, 403 or 429) or the page is gone (404 or 410)
 
 ## Tech stack
 - **Frontend:** React, TypeScript, Vite, TanStack Query
@@ -47,10 +47,10 @@ EventBridge Scheduler (daily)
 ### Price tracking flow
 1. You add a wish list item with a link and the price you want to pay (`price`).
 2. Once a day, EventBridge Scheduler invokes the `price-checker` Lambda.
-3. The Lambda loads the Firebase service account from Parameter Store, reads every vehicle, and fetches each item's link (10 second timeout).
+3. The Lambda loads the Firebase service account from Parameter Store, reads every vehicle, and fetches each item's link (10 second timeout). The items of one vehicle are fetched in parallel; vehicles are handled one at a time.
 4. It reads the price from the page's JSON-LD (`offers.price`) and saves `currentPrice` and `lastCheckedAt` on the item, or `priceError` if no price could be read.
 5. Writes happen in a Firestore transaction that merges by item id, so edits made while the checker was running are not overwritten.
-6. The app reads the updated vehicle through TanStack Query. When `currentPrice < price`, the wish list shows a price drop notice with the difference. If the site refused the checker (`priceError` of HTTP 401, 403 or 429), the item shows a red "this website blocks automated price checks" notice instead.
+6. The app reads the updated vehicle through TanStack Query. When `currentPrice < price`, the wish list shows a price drop notice with the difference. If the site refused the checker (`priceError` of HTTP 401, 403 or 429), the item shows a red "this website blocks automated price checks" notice instead; for HTTP 404 or 410 it says the page seems to be gone.
 
 The Lambda uses the Firebase Admin SDK, which bypasses Firestore security rules, so its credentials are kept in Parameter Store and never committed to the repo.
 

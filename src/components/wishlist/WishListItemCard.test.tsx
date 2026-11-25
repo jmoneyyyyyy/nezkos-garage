@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import {
   DELETE_BUTTON_TEXT,
   WISHLIST_ON_SALE_TEXT,
+  WISHLIST_PAGE_GONE_TEXT,
   WISHLIST_PRICE_CHECK_BLOCKED_TEXT,
 } from "../../Constants";
 import type { WishListItem } from "../../types/vehicle";
@@ -70,9 +71,16 @@ describe("WishListItemCard blocked price check", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(WISHLIST_PRICE_CHECK_BLOCKED_TEXT);
   });
 
-  it.each(["HTTP 500", "no price found"])("shows no blocked notice for %s", (priceError) => {
+  it.each(["HTTP 404", "HTTP 410"])("shows the page-gone notice for %s", (priceError) => {
+    renderCard({ priceError });
+    expect(screen.getByRole("alert")).toHaveTextContent(WISHLIST_PAGE_GONE_TEXT);
+    expect(screen.queryByText(WISHLIST_PRICE_CHECK_BLOCKED_TEXT)).not.toBeInTheDocument();
+  });
+
+  it.each(["HTTP 500", "no price found"])("shows no notice for %s", (priceError) => {
     renderCard({ priceError });
     expect(screen.queryByText(WISHLIST_PRICE_CHECK_BLOCKED_TEXT)).not.toBeInTheDocument();
+    expect(screen.queryByText(WISHLIST_PAGE_GONE_TEXT)).not.toBeInTheDocument();
   });
 
   it("shows no blocked notice when there is no error", () => {

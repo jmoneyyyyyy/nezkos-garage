@@ -89,6 +89,8 @@ const PRICE_INVALID_ERROR = "Price must be 0 or more.";
 const WISHLIST_ORIGINAL_PRICE_LABEL = "Original Price:";
 const WISHLIST_CURRENT_PRICE_LABEL = "Current Price:";
 const VEHICLE_NOT_FOUND_ERROR = "This vehicle no longer exists.";
+const WISHLIST_PAGE_GONE_TEXT =
+  "This page seems to be gone, so the price can't be tracked. Check the link.";
 const MAIN_NAV_LABEL = "Main";
 const REQUIRED_FIELD = "* Required Field";
 
@@ -139,6 +141,7 @@ export {
   WISHLIST_ITEM_VIEW_TEXT,
   WISHLIST_ON_SALE_TEXT,
   WISHLIST_PRICE_CHECK_BLOCKED_TEXT,
+  WISHLIST_PAGE_GONE_TEXT,
   MAINTENANCE_HISTORY_TITLE,
   ADD_SERVICE_BUTTON_TEXT,
   VIEW_MAINTENANCE_HISTORY_TEXT,

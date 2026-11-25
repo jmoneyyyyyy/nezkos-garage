@@ -1,4 +1,4 @@
-import { isPriceCheckBlocked, statusFromPriceError } from "./priceError";
+import { priceErrorKind, statusFromPriceError } from "./priceError";
 
 describe("statusFromPriceError", () => {
   it("reads the status code from an HTTP error", () => {
@@ -13,12 +13,16 @@ describe("statusFromPriceError", () => {
   });
 });
 
-describe("isPriceCheckBlocked", () => {
-  it.each(["HTTP 401", "HTTP 403", "HTTP 404", "HTTP 410", "HTTP 429"])("is true for %s", (error) => {
-    expect(isPriceCheckBlocked(error)).toBe(true);
+describe("priceErrorKind", () => {
+  it.each(["HTTP 401", "HTTP 403", "HTTP 429"])("is blocked for %s", (error) => {
+    expect(priceErrorKind(error)).toBe("blocked");
   });
 
-  it.each(["HTTP 500", "HTTP 503", "no price found", undefined])("is false for %s", (error) => {
-    expect(isPriceCheckBlocked(error)).toBe(false);
+  it.each(["HTTP 404", "HTTP 410"])("is gone for %s", (error) => {
+    expect(priceErrorKind(error)).toBe("gone");
+  });
+
+  it.each(["HTTP 500", "HTTP 503", "no price found", undefined])("is null for %s", (error) => {
+    expect(priceErrorKind(error)).toBeNull();
   });
 });
