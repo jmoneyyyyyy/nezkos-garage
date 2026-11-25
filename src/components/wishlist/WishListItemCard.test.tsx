@@ -70,7 +70,7 @@ describe("WishListItemCard blocked price check", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(WISHLIST_PRICE_CHECK_BLOCKED_TEXT);
   });
 
-  it.each(["HTTP 404", "no price found"])("shows no blocked notice for %s", (priceError) => {
+  it.each(["HTTP 500", "no price found"])("shows no blocked notice for %s", (priceError) => {
     renderCard({ priceError });
     expect(screen.queryByText(WISHLIST_PRICE_CHECK_BLOCKED_TEXT)).not.toBeInTheDocument();
   });

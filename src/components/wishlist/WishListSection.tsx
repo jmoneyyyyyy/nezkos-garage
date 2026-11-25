@@ -10,6 +10,7 @@ export default function WishListSection({ uid, vehicle }: { uid: string; vehicle
   const items = vehicle.wishlist ?? [];
   // update to calculate total of items in wishlist, if currentPrice exists use that, otherwise use price
   const total = items.reduce((sum, item) => sum + (item.currentPrice ?? item.price), 0);
+  const noWishListItems = items.length === 0;
 
   return (
     <section className="wishlist-section">
@@ -22,7 +23,7 @@ export default function WishListSection({ uid, vehicle }: { uid: string; vehicle
         </span>
         <AddWishListItemModal uid={uid} vehicleId={vehicle.id} />
       </header>
-      {items.length === 0 ? (
+      {noWishListItems ? (
         <p className="wishlist-empty">{NO_WISHLIST_ITEMS_TEXT}</p>
       ) : (
         <ul className="wishlist-items">

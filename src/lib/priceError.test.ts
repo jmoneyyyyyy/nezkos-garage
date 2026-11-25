@@ -14,11 +14,11 @@ describe("statusFromPriceError", () => {
 });
 
 describe("isPriceCheckBlocked", () => {
-  it.each(["HTTP 401", "HTTP 403", "HTTP 429"])("is true for %s", (error) => {
+  it.each(["HTTP 401", "HTTP 403", "HTTP 404", "HTTP 410", "HTTP 429"])("is true for %s", (error) => {
     expect(isPriceCheckBlocked(error)).toBe(true);
   });
 
-  it.each(["HTTP 404", "HTTP 500", "no price found", undefined])("is false for %s", (error) => {
+  it.each(["HTTP 500", "HTTP 503", "no price found", undefined])("is false for %s", (error) => {
     expect(isPriceCheckBlocked(error)).toBe(false);
   });
 });

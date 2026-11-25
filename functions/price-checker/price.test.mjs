@@ -16,6 +16,14 @@ describe("findPrice", () => {
     expect(findPrice({ "@graph": [{ "@type": "Org" }, { offers: [{ price: 0 }, { price: 42 }] }] })).toBe(42);
   });
 
+  it("skips an invalid offer and uses the next valid one", () => {
+    expect(findPrice({ offers: [{ price: "n/a" }, { price: "7.25" }] })).toBe(7.25);
+  });
+
+  it("finds offers nested deeper in the data", () => {
+    expect(findPrice({ mainEntity: { product: { offers: { price: 12 } } } })).toBe(12);
+  });
+
   it("ignores zero, negative, and non-numeric prices", () => {
     expect(findPrice({ offers: { price: 0 } })).toBeNull();
     expect(findPrice({ offers: { price: -3 } })).toBeNull();
@@ -35,6 +43,10 @@ describe("extractPrice", () => {
 
   it("skips malformed blocks and uses the next one", () => {
     expect(extractPrice(page("{not json", '{"offers":{"price":10}}'))).toBe(10);
+  });
+
+  it("uses a later block when the first has no price", () => {
+    expect(extractPrice(page('{"name":"thing"}', '{"offers":{"price":33}}'))).toBe(33);
   });
 
   it("returns null when there is no JSON-LD or no price", () => {
