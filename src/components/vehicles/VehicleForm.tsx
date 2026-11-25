@@ -1,8 +1,33 @@
 import { useRef, useState, type ChangeEvent, type SyntheticEvent } from "react";
-import { PHOTO_READ_ERROR, photoFromInput } from "../../lib/image";
+import { photoFromInput } from "../../lib/image";
 import { useCreateVehicle, useUpdateVehicle } from "../../hooks/useVehicles";
 import type { Vehicle, VehicleDetailsInput } from "../../types/vehicle";
-import { REQUIRED_FIELD } from "../../Constants";
+import {
+  ADD_NEW_VEHICLE_TEXT,
+  ADD_PHOTO_OPTIONAL_TEXT,
+  ADD_VEHICLE_SUBMIT_TEXT,
+  APPROX_MILEAGE_REQUIRED_LABEL,
+  CHANGE_BUTTON_TEXT,
+  COLOR_REQUIRED_LABEL,
+  COULDNT_SAVE_TEXT,
+  EDIT_VEHICLE_TEXT,
+  LICENSE_PLATE_OPTIONAL_LABEL,
+  MAKE_REQUIRED_LABEL,
+  MILEAGE_INVALID_ERROR,
+  MODEL_REQUIRED_LABEL,
+  PHOTO_READ_ERROR,
+  REMOVE_BUTTON_TEXT,
+  REQUIRED_FIELD,
+  SAVE_CHANGES_BUTTON_TEXT,
+  SAVING_TEXT,
+  SELECTED_VEHICLE_PHOTO_ALT,
+  VEHICLE_NAME_PLACEHOLDER,
+  VEHICLE_NAME_REQUIRED_LABEL,
+  VEHICLE_REQUIRED_FIELDS_ERROR,
+  VIN_OPTIONAL_LABEL,
+  YEAR_REQUIRED_LABEL,
+  vehicleYearError,
+} from "../../Constants";
 
 const empty = {
   name: "", make: "", model: "", year: "", mileage: "",
@@ -64,13 +89,13 @@ export default function VehicleForm({ uid, vehicle, onSaved }: Props) {
     const maxYear = new Date().getFullYear() + 1;
 
     if (!form.name.trim() || !form.make.trim() || !form.model.trim() || !form.color.trim()) {
-      return setError("Name, make, model, and color are required.");
+      return setError(VEHICLE_REQUIRED_FIELDS_ERROR);
     }
     if (!Number.isInteger(year) || year < 1900 || year > maxYear) {
-      return setError(`Year must be between 1900 and ${maxYear}.`);
+      return setError(vehicleYearError(maxYear));
     }
     if (form.mileage === "" || !Number.isFinite(mileage) || mileage < 0) {
-      return setError("Mileage must be 0 or more.");
+      return setError(MILEAGE_INVALID_ERROR);
     }
 
     setError(null);
@@ -101,21 +126,21 @@ export default function VehicleForm({ uid, vehicle, onSaved }: Props) {
 
   return (
     <form onSubmit={submit}>
-      <h2>{vehicle ? "Edit vehicle" : "Add new vehicle"}</h2>
+      <h2>{vehicle ? EDIT_VEHICLE_TEXT : ADD_NEW_VEHICLE_TEXT}</h2>
       {!vehicle && (
         // type="button" so these don't submit the form
         <div className="vehicle-photo form-photo">
           {photo ? (
             <>
-              <img src={photo} alt="Selected vehicle photo" />
+              <img src={photo} alt={SELECTED_VEHICLE_PHOTO_ALT} />
               <div className="vehicle-photo-actions">
-                <button type="button" onClick={pickPhoto}>Change</button>
-                <button type="button" onClick={() => setPhoto(null)}>Remove</button>
+                <button type="button" onClick={pickPhoto}>{CHANGE_BUTTON_TEXT}</button>
+                <button type="button" onClick={() => setPhoto(null)}>{REMOVE_BUTTON_TEXT}</button>
               </div>
             </>
           ) : (
             <button type="button" className="vehicle-photo-empty" onClick={pickPhoto}>
-              + Add photo (optional)
+              {ADD_PHOTO_OPTIONAL_TEXT}
             </button>
           )}
           <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPhotoChosen} />
@@ -124,44 +149,44 @@ export default function VehicleForm({ uid, vehicle, onSaved }: Props) {
       {photoError && <p role="alert">{photoError}</p>}
       <div className="form-fields">
         <label>
-          Name *
-          <input placeholder="e.g. Justin's Civic" aria-required value={form.name} onChange={set("name")} />
+          {VEHICLE_NAME_REQUIRED_LABEL}
+          <input placeholder={VEHICLE_NAME_PLACEHOLDER} aria-required value={form.name} onChange={set("name")} />
         </label>
         <label>
-          Make *
+          {MAKE_REQUIRED_LABEL}
           <input aria-required value={form.make} onChange={set("make")} />
         </label>
         <label>
-          Model *
+          {MODEL_REQUIRED_LABEL}
           <input aria-required value={form.model} onChange={set("model")} />
         </label>
         <label>
-          Year *
+          {YEAR_REQUIRED_LABEL}
           <input aria-required inputMode="numeric" value={form.year} onChange={set("year")} />
         </label>
         <label>
-          Approx. mileage *
+          {APPROX_MILEAGE_REQUIRED_LABEL}
           <input aria-required inputMode="numeric" value={form.mileage} onChange={set("mileage")} />
         </label>
         <label>
-          Color *
+          {COLOR_REQUIRED_LABEL}
           <input aria-required value={form.color} onChange={set("color")} />
         </label>
         <label>
-          VIN (optional)
+          {VIN_OPTIONAL_LABEL}
           <input value={form.vin} onChange={set("vin")} />
         </label>
         <label>
-          License plate (optional)
+          {LICENSE_PLATE_OPTIONAL_LABEL}
           <input value={form.licensePlate} onChange={set("licensePlate")} />
         </label>
       </div>
       <p className="muted">{REQUIRED_FIELD}</p>
       <button type="submit" disabled={isPending}>
-        {isPending ? "Saving..." : vehicle ? "Save changes" : "Add vehicle"}
+        {isPending ? SAVING_TEXT : vehicle ? SAVE_CHANGES_BUTTON_TEXT : ADD_VEHICLE_SUBMIT_TEXT}
       </button>
       {error && <p role="alert">{error}</p>}
-      {saveError && <p role="alert">Couldn't save: {saveError.message}</p>}
+      {saveError && <p role="alert">{COULDNT_SAVE_TEXT}: {saveError.message}</p>}
     </form>
   );
 }

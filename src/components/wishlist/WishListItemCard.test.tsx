@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
-  WISHLIST_ITEM_DELETE_TEXT,
+  DELETE_BUTTON_TEXT,
   WISHLIST_ON_SALE_TEXT,
   WISHLIST_PRICE_CHECK_BLOCKED_TEXT,
 } from "../../Constants";
@@ -52,14 +52,14 @@ describe("WishListItemCard delete", () => {
   it("deletes after the user confirms", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     renderCard();
-    await userEvent.click(screen.getByRole("button", { name: WISHLIST_ITEM_DELETE_TEXT }));
+    await userEvent.click(screen.getByRole("button", { name: DELETE_BUTTON_TEXT }));
     expect(mutate).toHaveBeenCalledWith({ vehicleId: "v1", itemId: "i1" });
   });
 
   it("does nothing if the user cancels", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(false);
     renderCard();
-    await userEvent.click(screen.getByRole("button", { name: WISHLIST_ITEM_DELETE_TEXT }));
+    await userEvent.click(screen.getByRole("button", { name: DELETE_BUTTON_TEXT }));
     expect(mutate).not.toHaveBeenCalled();
   });
 });

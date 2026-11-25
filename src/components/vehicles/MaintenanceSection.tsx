@@ -1,7 +1,20 @@
 import { useState } from "react";
 import Modal from "../common/Modal";
 import MaintenanceForm from "./MaintenanceForm";
+import {
+  ADD_SERVICE_BUTTON_TEXT,
+  COULDNT_DELETE_TEXT,
+  DELETE_BUTTON_TEXT,
+  EDIT_BUTTON_TEXT,
+  MAINTENANCE_HISTORY_TITLE,
+  NO_MAINTENANCE_RECORDS_TEXT,
+  VIEW_MAINTENANCE_HISTORY_TEXT,
+  confirmDeleteMaintenanceText,
+  maintenanceLastText,
+  maintenanceRecordsTitle,
+} from "../../Constants";
 import { useDeleteMaintenance } from "../../hooks/useVehicles";
+import { formatMileage } from "../../lib/format";
 import { MAINTENANCE_LABELS, type MaintenanceEntry, type Vehicle } from "../../types/vehicle";
 
 function formatDate(date: string) {
@@ -23,7 +36,7 @@ export default function MaintenanceSection({ uid, vehicle }: { uid: string; vehi
 
   const deleteEntry = (entry: MaintenanceEntry) => {
     const label = MAINTENANCE_LABELS[entry.type].toLowerCase();
-    if (confirm(`Delete the ${label} record from ${formatDate(entry.date)}?`)) {
+    if (confirm(confirmDeleteMaintenanceText(label, formatDate(entry.date)))) {
       remove.mutate({ vehicleId: vehicle.id, entryId: entry.id });
     }
   };
@@ -31,30 +44,30 @@ export default function MaintenanceSection({ uid, vehicle }: { uid: string; vehi
   return (
     <section className="service-records">
       <div className="service-records-header">
-        <h3>Maintenance history</h3>
-        <button onClick={() => setEditing("new")}>Add service</button>
+        <h3>{MAINTENANCE_HISTORY_TITLE}</h3>
+        <button onClick={() => setEditing("new")}>{ADD_SERVICE_BUTTON_TEXT}</button>
       </div>
       <p className="muted">
         {latest
-          ? `Last: ${MAINTENANCE_LABELS[latest.type]} on ${formatDate(latest.date)}`
-          : "No maintenance records yet."}
+          ? maintenanceLastText(MAINTENANCE_LABELS[latest.type], formatDate(latest.date))
+          : NO_MAINTENANCE_RECORDS_TEXT}
       </p>
       {entries.length > 0 && (
         <button className="service-records-view" onClick={() => setShowList(true)}>
-          View maintenance history
+          {VIEW_MAINTENANCE_HISTORY_TEXT}
         </button>
       )}
 
       <Modal open={showList} onClose={() => setShowList(false)}>
         <div className="service-records-modal">
-          <h2>{vehicle.name}: maintenance records</h2>
+          <h2>{maintenanceRecordsTitle(vehicle.name)}</h2>
           {entries.length === 0 ? (
-            <p className="muted">No maintenance records yet.</p>
+            <p className="muted">{NO_MAINTENANCE_RECORDS_TEXT}</p>
           ) : (
             <ul>
               {entries.map((entry) => {
                 const meta = [
-                  entry.mileage !== undefined && `${entry.mileage.toLocaleString()} mi`,
+                  entry.mileage !== undefined && formatMileage(entry.mileage),
                   entry.cost !== undefined && formatCost(entry.cost),
                 ].filter(Boolean).join(" · ");
 
@@ -67,9 +80,9 @@ export default function MaintenanceSection({ uid, vehicle }: { uid: string; vehi
                     {meta && <div className="muted">{meta}</div>}
                     {entry.details && <p>{entry.details}</p>}
                     <div className="service-record-actions">
-                      <button onClick={() => setEditing(entry)}>Edit</button>
+                      <button onClick={() => setEditing(entry)}>{EDIT_BUTTON_TEXT}</button>
                       <button className="danger" onClick={() => deleteEntry(entry)} disabled={remove.isPending}>
-                        Delete
+                        {DELETE_BUTTON_TEXT}
                       </button>
                     </div>
                   </li>
@@ -77,7 +90,7 @@ export default function MaintenanceSection({ uid, vehicle }: { uid: string; vehi
               })}
             </ul>
           )}
-          {remove.isError && <p role="alert">Couldn't delete: {remove.error.message}</p>}
+          {remove.isError && <p role="alert">{COULDNT_DELETE_TEXT}: {remove.error.message}</p>}
         </div>
       </Modal>
 

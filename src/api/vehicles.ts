@@ -2,6 +2,7 @@ import {
   addDoc, arrayUnion, collection, deleteDoc, deleteField, doc, getDocs,
   query, runTransaction, serverTimestamp, updateDoc, where,
 } from "firebase/firestore";
+import { VEHICLE_NOT_FOUND_ERROR } from "../Constants";
 import { vehicleCollection } from "../lib/firebase";
 import { newId } from "../lib/id";
 import type {
@@ -65,7 +66,7 @@ async function editVehicleList<T extends { id: string }>(
   const ref = doc(vehicleCollection, "vehicles", vehicleId);
   await runTransaction(vehicleCollection, async (transaction) => {
     const snap = await transaction.get(ref);
-    if (!snap.exists()) throw new Error("This vehicle no longer exists.");
+    if (!snap.exists()) throw new Error(VEHICLE_NOT_FOUND_ERROR);
     const items = (snap.data()[field] ?? []) as T[];
     transaction.update(ref, { [field]: edit(items), updatedAt: serverTimestamp() });
   });

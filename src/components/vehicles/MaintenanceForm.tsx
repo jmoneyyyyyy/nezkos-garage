@@ -1,4 +1,20 @@
 import { useState, type ChangeEvent, type SyntheticEvent } from "react";
+import {
+  ADD_SERVICE_RECORD_TEXT,
+  COST_INVALID_ERROR,
+  COST_OPTIONAL_LABEL,
+  COULDNT_SAVE_TEXT,
+  DATE_LABEL,
+  DATE_REQUIRED_ERROR,
+  DETAILS_OPTIONAL_LABEL,
+  EDIT_SERVICE_RECORD_TEXT,
+  MILEAGE_INVALID_ERROR,
+  MILEAGE_OPTIONAL_LABEL,
+  SAVE_CHANGES_BUTTON_TEXT,
+  SAVING_TEXT,
+  SERVICE_DETAILS_PLACEHOLDER,
+  SERVICE_LABEL,
+} from "../../Constants";
 import { useAddMaintenance, useUpdateMaintenance } from "../../hooks/useVehicles";
 import {
   MAINTENANCE_LABELS, MAINTENANCE_TYPES,
@@ -41,13 +57,13 @@ export default function MaintenanceForm({ uid, vehicleId, entry, onSaved }: Main
     const cost = form.cost === "" ? undefined : Number(form.cost);
 
     if (!form.date) {
-      return setError("Date is required.");
+      return setError(DATE_REQUIRED_ERROR);
     }
     if (mileage !== undefined && (!Number.isFinite(mileage) || mileage < 0)) {
-      return setError("Mileage must be 0 or more.");
+      return setError(MILEAGE_INVALID_ERROR);
     }
     if (cost !== undefined && (!Number.isFinite(cost) || cost < 0)) {
-      return setError("Cost must be 0 or more.");
+      return setError(COST_INVALID_ERROR);
     }
 
     setError(null);
@@ -67,9 +83,9 @@ export default function MaintenanceForm({ uid, vehicleId, entry, onSaved }: Main
 
   return (
     <form onSubmit={submit}>
-      <h2>{entry ? "Edit service record" : "Add service record"}</h2>
+      <h2>{entry ? EDIT_SERVICE_RECORD_TEXT : ADD_SERVICE_RECORD_TEXT}</h2>
       <label>
-        Service
+        {SERVICE_LABEL}
         <select value={form.type} onChange={set("type")}>
           {MAINTENANCE_TYPES.map((t) => (
             <option key={t} value={t}>{MAINTENANCE_LABELS[t]}</option>
@@ -77,33 +93,33 @@ export default function MaintenanceForm({ uid, vehicleId, entry, onSaved }: Main
         </select>
       </label>
       <label>
-        Date
+        {DATE_LABEL}
         <input type="date" value={form.date} onChange={set("date")} />
       </label>
       <div className="form-row">
         <label>
-          Mileage (optional)
+          {MILEAGE_OPTIONAL_LABEL}
           <input inputMode="numeric" value={form.mileage} onChange={set("mileage")} />
         </label>
         <label>
-          Cost (optional)
+          {COST_OPTIONAL_LABEL}
           <input inputMode="decimal" value={form.cost} onChange={set("cost")} />
         </label>
       </div>
       <label>
-        Details (optional)
+        {DETAILS_OPTIONAL_LABEL}
         <textarea
           rows={3}
-          placeholder="e.g. 0W-20 full synthetic, OEM filter"
+          placeholder={SERVICE_DETAILS_PLACEHOLDER}
           value={form.details}
           onChange={set("details")}
         />
       </label>
       <button type="submit" disabled={isPending}>
-        {isPending ? "Saving..." : entry ? "Save changes" : "Add service record"}
+        {isPending ? SAVING_TEXT : entry ? SAVE_CHANGES_BUTTON_TEXT : ADD_SERVICE_RECORD_TEXT}
       </button>
       {error && <p role="alert">{error}</p>}
-      {saveError && <p role="alert">Couldn't save: {saveError.message}</p>}
+      {saveError && <p role="alert">{COULDNT_SAVE_TEXT}: {saveError.message}</p>}
     </form>
   );
 }

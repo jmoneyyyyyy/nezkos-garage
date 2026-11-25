@@ -1,4 +1,5 @@
 import type { ChangeEvent } from "react";
+import { PHOTO_TOO_LARGE_ERROR } from "../Constants";
 
 // Firestore docs max out at 1MB, and the photo shares that with the service records,
 // so photos are scaled down and re-encoded as JPEG before saving.
@@ -14,7 +15,7 @@ export async function resizeImage(file: File, maxSize = 800, quality = 0.8): Pro
   bitmap.close();
 
   const dataUrl = canvas.toDataURL("image/jpeg", quality);
-  if (dataUrl.length > MAX_PHOTO_CHARS) throw new Error("Photo is too large even after resizing.");
+  if (dataUrl.length > MAX_PHOTO_CHARS) throw new Error(PHOTO_TOO_LARGE_ERROR);
   return dataUrl;
 }
 
@@ -25,5 +26,3 @@ export async function photoFromInput(e: ChangeEvent<HTMLInputElement>): Promise<
   e.target.value = ""; // so picking the same file again still fires onChange
   return file ? resizeImage(file) : null;
 }
-
-export const PHOTO_READ_ERROR = "Couldn't read that image. Try a JPEG or PNG.";

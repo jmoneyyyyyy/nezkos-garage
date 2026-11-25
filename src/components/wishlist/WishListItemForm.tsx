@@ -1,6 +1,19 @@
 import { useState, type ChangeEvent, type SyntheticEvent } from "react";
 import { useAddWishListItem } from "../../hooks/useVehicles";
-import { REQUIRED_FIELD } from "../../Constants";
+import {
+  ADD_WISHLIST_ITEM_BUTTON_TEXT,
+  ADD_WISHLIST_ITEM_TITLE,
+  COULDNT_SAVE_TEXT,
+  PRICE_INVALID_ERROR,
+  REQUIRED_FIELD,
+  SAVING_TEXT,
+  WISHLIST_LINK_INVALID_ERROR,
+  WISHLIST_LINK_PLACEHOLDER,
+  WISHLIST_PRICE_LABEL,
+  WISHLIST_PRODUCT_LINK_LABEL,
+  WISHLIST_PRODUCT_NAME_LABEL,
+  WISHLIST_REQUIRED_FIELDS_ERROR,
+} from "../../Constants";
 
 type WishListItemFormProps = { uid: string; vehicleId: string; onSaved: () => void };
 
@@ -30,13 +43,13 @@ export default function WishListItemForm({ uid, vehicleId, onSaved }: WishListIt
     const price = form.price.trim() === "" ? NaN : Number(form.price);
 
     if (!name || !link || form.price.trim() === "") {
-      return setError("Product name, product link, and price are required.");
+      return setError(WISHLIST_REQUIRED_FIELDS_ERROR);
     }
     if (!isHttpUrl(link)) {
-      return setError("Product link must be a valid web address starting with http:// or https://.");
+      return setError(WISHLIST_LINK_INVALID_ERROR);
     }
     if (!Number.isFinite(price) || price < 0) {
-      return setError("Price must be 0 or more.");
+      return setError(PRICE_INVALID_ERROR);
     }
 
     setError(null);
@@ -45,27 +58,27 @@ export default function WishListItemForm({ uid, vehicleId, onSaved }: WishListIt
 
   return (
     <form onSubmit={submit}>
-      <h2>Add wish list item</h2>
+      <h2>{ADD_WISHLIST_ITEM_TITLE}</h2>
       <div className="form-fields">
         <label>
-          Product name *
+          {WISHLIST_PRODUCT_NAME_LABEL}
           <input aria-required value={form.name} onChange={set("name")} />
         </label>
         <label>
-          Product link *
-          <input placeholder="https://..." aria-required inputMode="url" value={form.link} onChange={set("link")} />
+          {WISHLIST_PRODUCT_LINK_LABEL}
+          <input placeholder={WISHLIST_LINK_PLACEHOLDER} aria-required inputMode="url" value={form.link} onChange={set("link")} />
         </label>
         <label>
-          Price *
+          {WISHLIST_PRICE_LABEL}
           <input aria-required inputMode="decimal" value={form.price} onChange={set("price")} />
         </label>
       </div>
       <button type="submit" disabled={add.isPending}>
-        {add.isPending ? "Saving..." : "Add item"}
+        {add.isPending ? SAVING_TEXT : ADD_WISHLIST_ITEM_BUTTON_TEXT}
       </button>
       <p className="muted">{REQUIRED_FIELD}</p>
       {error && <p role="alert">{error}</p>}
-      {add.error && <p role="alert">Couldn't save: {add.error.message}</p>}
+      {add.error && <p role="alert">{COULDNT_SAVE_TEXT}: {add.error.message}</p>}
     </form>
   );
 }

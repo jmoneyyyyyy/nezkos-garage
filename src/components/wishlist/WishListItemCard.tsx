@@ -1,8 +1,13 @@
 import {
-  WISHLIST_ITEM_DELETE_TEXT,
+  COULDNT_DELETE_TEXT,
+  DELETE_BUTTON_TEXT,
+  WISHLIST_CURRENT_PRICE_LABEL,
   WISHLIST_ITEM_VIEW_TEXT,
   WISHLIST_ON_SALE_TEXT,
+  WISHLIST_ORIGINAL_PRICE_LABEL,
   WISHLIST_PRICE_CHECK_BLOCKED_TEXT,
+  confirmRemoveWishListItemText,
+  wishListSavingsText,
 } from "../../Constants";
 import { useDeleteWishListItem } from "../../hooks/useVehicles";
 import { formatPrice } from "../../lib/format";
@@ -27,7 +32,7 @@ export default function WishListItemCard({
   const blocked = isPriceCheckBlocked(item.priceError);
 
   const deleteItem = () => {
-    if (confirm(`Remove ${item.name} from the wish list?`)) {
+    if (confirm(confirmRemoveWishListItemText(item.name))) {
       remove.mutate({ vehicleId, itemId: item.id });
     }
   };
@@ -36,22 +41,22 @@ export default function WishListItemCard({
     <li className="wishlist-item">
       <span className="wishlist-item-name">{item.name}</span>
       <span className={`wishlist-item-price${onSale ? " is-sale" : ""}`}>
-        Original Price: {formatPrice(item.price)}
+        {WISHLIST_ORIGINAL_PRICE_LABEL} {formatPrice(item.price)}
       </span>
       {item.currentPrice !== undefined && (
         <span className={`wishlist-item-current-price${onSale ? " is-sale" : ""}`}>
-          Current Price: {formatPrice(item.currentPrice)}
+          {WISHLIST_CURRENT_PRICE_LABEL} {formatPrice(item.currentPrice)}
         </span>
       )}
       <a className="wishlist-item-view" href={item.link} target="_blank" rel="noopener noreferrer">
         {WISHLIST_ITEM_VIEW_TEXT}
       </a>
       <button className="danger" onClick={deleteItem} disabled={remove.isPending}>
-        {WISHLIST_ITEM_DELETE_TEXT}
+        {DELETE_BUTTON_TEXT}
       </button>
       {remove.isError && (
         <p className="wishlist-item-error" role="alert">
-          Couldn't delete: {remove.error.message}
+          {COULDNT_DELETE_TEXT}: {remove.error.message}
         </p>
       )}
       {blocked && (
@@ -61,8 +66,7 @@ export default function WishListItemCard({
       )}
       {onSale && (
         <p className="wishlist-item-sale-note" role="status">
-          {WISHLIST_ON_SALE_TEXT} Save {formatPrice(saved)}
-          {percentOff > 0 && ` (${percentOff}% off)`}
+          {WISHLIST_ON_SALE_TEXT} {wishListSavingsText(formatPrice(saved), percentOff)}
         </p>
       )}
     </li>
