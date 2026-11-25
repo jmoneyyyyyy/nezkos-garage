@@ -1,5 +1,5 @@
 import { addWishListItem, deleteWishListItem, updateWishListItem } from "../services/wishlist";
-import type { NewWishListItemInput, WishListItem } from "../types/vehicle";
+import type { NewWishListItemInput, WishListItem } from "../types/wishlist";
 import { useVehicleMutation } from "./useVehicles";
 
 export function useAddWishListItem(uid: string) {

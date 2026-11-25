@@ -13,7 +13,7 @@ import {
 import { useDeleteWishListItem } from "../../hooks/useWishlist";
 import { formatPrice } from "../../utils/formatters";
 import { priceErrorKind } from "../../utils/priceCheckStatus";
-import type { WishListItem } from "../../types/vehicle";
+import type { WishListItem } from "../../types/wishlist";
 
 /** One wish list row: name, wanted and current price, a link, a delete button, and a price drop notice. */
 export default function WishListItemCard({

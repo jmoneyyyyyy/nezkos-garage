@@ -6,7 +6,7 @@ import {
   WISHLIST_PAGE_GONE_TEXT,
   WISHLIST_PRICE_CHECK_BLOCKED_TEXT,
 } from "../../Constants";
-import type { WishListItem } from "../../types/vehicle";
+import type { WishListItem } from "../../types/wishlist";
 import WishListItemCard from "./WishListItemCard";
 
 const mutate = vi.fn();

@@ -1,7 +1,7 @@
 import { arrayUnion, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { vehicleCollection } from "../lib/firebase";
 import { newId } from "../utils/newId";
-import type { NewWishListItemInput, WishListItem } from "../types/vehicle";
+import type { NewWishListItemInput, WishListItem } from "../types/wishlist";
 import { editVehicleList } from "./vehicles";
 
 const editWishList = (vehicleId: string, edit: (items: WishListItem[]) => WishListItem[]) =>
