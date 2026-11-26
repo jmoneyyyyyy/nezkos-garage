@@ -1,10 +1,11 @@
-import { COMING_SOON_TEXT, FUNDS_PAGE_TITLE } from "../Constants";
+import LoanCalculator from "../components/funds/LoanCalculator";
+import { FUNDS_PAGE_TITLE } from "../Constants";
 
 export default function FundsPage() {
   return (
-    <main className="placeholder-page">
+    <main>
       <h1 className="page-title">{FUNDS_PAGE_TITLE}</h1>
-      <p className="list-status">{COMING_SOON_TEXT}</p>
+      <LoanCalculator />
     </main>
   );
 }

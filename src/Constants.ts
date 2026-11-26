@@ -21,7 +21,6 @@ const FUNDS_TAB_TEXT = "Funds";
 const WISHLIST_TAB_TEXT = "Wish List";
 const FUNDS_PAGE_TITLE = "Funds";
 const WISHLIST_PAGE_TITLE = "Wish List";
-const COMING_SOON_TEXT = "I need more please... Coming soon!";
 const NO_WISHLIST_ITEMS_TEXT = "No wishlist items yet. Add a vehicle to start your wishlist!";
 const ADD_WISHLIST_ITEM_BUTTON_TEXT = "Add item";
 const WISHLIST_ITEM_VIEW_TEXT = "View";
@@ -93,6 +92,32 @@ const VEHICLE_NOT_FOUND_ERROR = "This vehicle no longer exists.";
 const WISHLIST_PAGE_GONE_TEXT =
   "This page seems to be gone, so the price can't be tracked. Check the link.";
 const MAIN_NAV_LABEL = "Main";
+const LOAN_CALCULATOR_TITLE = "Loan calculator";
+const LOAN_RESET_BUTTON_TEXT = "Reset";
+const LOAN_AMOUNT_LABEL = "Loan amount ($)";
+const LOAN_APR_LABEL = "Interest rate (APR %)";
+const LOAN_TERM_LABEL = "Term (months)";
+const LOAN_PAYMENTS_MADE_LABEL = "Payments made";
+const LOAN_MONTHLY_PAYMENT_LABEL = "Monthly payment";
+const LOAN_BALANCE_LEFT_LABEL = "Principal left";
+const LOAN_TOTAL_INTEREST_LABEL = "Total interest";
+const LOAN_AMOUNT_INVALID_ERROR = "Loan amount must be more than $0 and at most $1,000,000,000.";
+const LOAN_APR_INVALID_ERROR = "Interest rate must be between 0 and 100.";
+const LOAN_TERM_INVALID_ERROR = "Term must be a whole number of months from 1 to 600.";
+const LOAN_PAYMENTS_INVALID_ERROR = "Payments made must be a whole number from 0 up to the term.";
+const LOAN_EMPTY_TEXT = "Enter a loan amount, rate, and term to see your payment.";
+const LOAN_CHART_INTEREST_LEGEND = "Interest";
+const LOAN_CHART_PRINCIPAL_LEGEND = "Principal";
+const LOAN_CHART_CROSSOVER_MARKER = "Crossover";
+const LOAN_CHART_PAID_MARKER = "Paid so far";
+const LOAN_CHART_X_AXIS_LABEL = "Payment number";
+const LOAN_CHART_Y_AXIS_LABEL = "Per payment";
+const loanChartSummary = (crossover: number | null, term: number) =>
+  crossover === null
+    ? `Over ${term} payments, interest is always at least as large as principal.`
+    : crossover === 1
+      ? `Over ${term} payments, principal is larger than interest from the very first payment.`
+      : `Over ${term} payments, principal passes interest at payment ${crossover}.`;
 const REQUIRED_FIELD = "* Required Field";
 
 // Text that includes values from the data is a function that fills them in.
@@ -136,7 +161,6 @@ export {
   WISHLIST_TAB_TEXT,
   FUNDS_PAGE_TITLE,
   WISHLIST_PAGE_TITLE,
-  COMING_SOON_TEXT,
   NO_WISHLIST_ITEMS_TEXT,
   ADD_WISHLIST_ITEM_BUTTON_TEXT,
   WISHLIST_ITEM_VIEW_TEXT,
@@ -213,6 +237,27 @@ export {
   confirmRemoveWishListItemText,
   wishListSavingsText,
   MAIN_NAV_LABEL,
+  LOAN_CALCULATOR_TITLE,
+  LOAN_RESET_BUTTON_TEXT,
+  LOAN_AMOUNT_LABEL,
+  LOAN_APR_LABEL,
+  LOAN_TERM_LABEL,
+  LOAN_PAYMENTS_MADE_LABEL,
+  LOAN_MONTHLY_PAYMENT_LABEL,
+  LOAN_BALANCE_LEFT_LABEL,
+  LOAN_TOTAL_INTEREST_LABEL,
+  LOAN_AMOUNT_INVALID_ERROR,
+  LOAN_APR_INVALID_ERROR,
+  LOAN_TERM_INVALID_ERROR,
+  LOAN_PAYMENTS_INVALID_ERROR,
+  LOAN_EMPTY_TEXT,
+  LOAN_CHART_INTEREST_LEGEND,
+  LOAN_CHART_PRINCIPAL_LEGEND,
+  LOAN_CHART_CROSSOVER_MARKER,
+  LOAN_CHART_PAID_MARKER,
+  LOAN_CHART_X_AXIS_LABEL,
+  LOAN_CHART_Y_AXIS_LABEL,
+  loanChartSummary,
   LOADING_VEHICLES_TEXT,
   COULDNT_LOAD_VEHICLES_TEXT,
   NO_VEHICLES_YET_TEXT,

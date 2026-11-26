@@ -12,6 +12,7 @@ A personal web app for tracking maintenance on family vehicles.
 - Per-owner access: each vehicle can only be read or changed by the users listed as its owners
 - Maintenance history per vehicle (service type, date, mileage, cost, details) with add, edit, and delete
 - Wish list per vehicle (item name, link, the price you want to pay)
+- Loan calculator on the Funds page: enter amount, APR, term and payments made to see the monthly payment, principal left, total interest, and a chart of interest vs. principal per payment (inputs are remembered in your browser)
 - Automatic price tracking: a scheduled AWS Lambda checks each wish list link once a day, and the wish list shows a "price drop" notice when the current price is below your price, or a red notice when the site blocks automated checks (HTTP 401, 403 or 429) or the page is gone (404 or 410)
 
 ## Tech stack
@@ -74,7 +75,7 @@ Firebase web app config is set up in `src/lib/firebase.ts`.
 ```bash
 npm test
 ```
-Vitest with jsdom and Testing Library. Tests sit next to the code as `*.test.ts(x)` and cover the Firestore service functions, route guards and routes, the TanStack Query hooks, the wish list card, the confirm dialog, and the Lambda's price parsing (`lambda/price-checker/price.test.mjs`).
+Vitest with jsdom and Testing Library. Tests sit next to the code as `*.test.ts(x)` and cover the Firestore service functions, route guards and routes, the TanStack Query hooks, the wish list card, the confirm dialog, the loan calculator and its chart, and the Lambda's price parsing (`lambda/price-checker/price.test.mjs`).
 
 ## Deployment
 Pushes to `main` trigger an Amplify build (`amplify.yml`, managed in amplify). The site started as a

@@ -1,0 +1,194 @@
+.loan-calculator {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(720px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 20px;
+  text-align: left;
+  background: linear-gradient(180deg, var(--garage-steel), var(--garage-asphalt));
+  border: 1px solid var(--garage-line);
+  border-top: 3px solid var(--garage-green);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+
+  h2 {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  [role="alert"],
+  .list-status {
+    margin: 0;
+    width: auto;
+  }
+}
+
+.loan-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font: 600 12px/1.2 var(--heading);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--garage-gray);
+  }
+}
+
+.loan-reset {
+  grid-column: 1 / -1;
+  justify-self: start;
+  font-size: 12px;
+  padding: 7px 12px;
+}
+
+/* Result readouts, styled like the vehicle spec gauges */
+.loan-results {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 0;
+  text-align: center;
+
+  @media (max-width: 520px) {
+    grid-template-columns: 1fr;
+  }
+
+  > div {
+    padding: 10px;
+    background: var(--garage-black);
+    border: 1px solid var(--garage-line);
+    border-radius: 8px;
+  }
+
+  dt {
+    font: 600 11px/1.2 var(--heading);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--garage-gray);
+  }
+
+  dd {
+    margin: 3px 0 0;
+    font: 600 20px/1.2 var(--heading);
+    letter-spacing: 0.03em;
+    font-variant-numeric: tabular-nums;
+    color: var(--garage-silver);
+  }
+}
+
+/* Crossover chart ----------------------------------------------------- */
+
+.loan-chart {
+  margin: 0;
+  padding: 12px;
+  background: var(--garage-black);
+  border: 1px solid var(--garage-line);
+  border-radius: 8px;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 18px;
+    margin-top: 8px;
+    font-size: 14px;
+    color: var(--garage-gray);
+
+    p {
+      flex: 0 0 100%;
+      margin: 0;
+    }
+  }
+}
+
+.chart-grid {
+  stroke: var(--garage-line);
+  stroke-width: 1;
+}
+
+.chart-tick,
+.chart-axis-label,
+.chart-marker-label {
+  font: 500 11px var(--sans);
+  fill: var(--garage-gray);
+}
+
+.chart-axis-label {
+  font: 600 11px var(--heading);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.chart-line {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.chart-line-principal {
+  stroke: var(--garage-green);
+}
+
+.chart-line-interest {
+  stroke: var(--garage-red);
+}
+
+.chart-marker {
+  stroke-width: 1.5;
+}
+
+.chart-marker-crossover {
+  stroke: var(--garage-silver);
+  stroke-dasharray: 5 4;
+}
+
+.chart-marker-paid {
+  stroke: var(--garage-green-bright);
+  opacity: 0.6;
+}
+
+.chart-marker-label {
+  fill: var(--garage-silver);
+}
+
+.chart-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 12px var(--heading);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+
+  &::before {
+    content: "";
+    width: 18px;
+    height: 3px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+}
+
+.chart-legend-principal {
+  color: var(--garage-green);
+}
+
+.chart-legend-interest {
+  color: var(--garage-red);
+}

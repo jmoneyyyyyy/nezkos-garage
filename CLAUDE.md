@@ -18,6 +18,8 @@ Personal web app for tracking maintenance on family vehicles.
 - Built: Google sign-in, vehicle list, add/edit/delete vehicles, vehicle photos,
   maintenance history (add/edit/delete)
 - Wish list per vehicle, with a daily Lambda price checker and a price drop notice
+- Funds page: loan calculator (amount, APR, term, payments made) with monthly payment,
+  principal left, total interest, and a chart of interest vs. principal per payment
 - Not built yet: TBD
 
 ## Commands
@@ -39,10 +41,13 @@ Personal web app for tracking maintenance on family vehicles.
 
 ## Conventions
 - Code is organized by layer under `src/`:
-  `components/<area>/` (layout, common, routing, vehicles, wishlist), `pages/` (each route's
-  `*Page.tsx`), `hooks/` (`useVehicles`, `useWishlist`, `useAuth`), `context/`, `services/` (Firestore calls:
+  `components/<area>/` (layout, common, routing, vehicles, wishlist, funds), `pages/` (each route's
+  `*Page.tsx`), `hooks/` (`useVehicles`, `useWishlist`, `useAuth`, `useLocalStorageState`), `context/`, `services/` (Firestore calls:
   `vehicles.ts`, `wishlist.ts`), `types/`, `lib/` (Firebase setup), `utils/`
   (helpers, firebase), `styles/`. User-facing text lives in `Constants.ts`
+- The loan calculator is client-side only: math in `utils/loan.ts` (`loanInputValidity` is the
+  one place for input limits), chart helpers in `utils/chartScale.ts`, and the four inputs are
+  kept in `localStorage` via `useLocalStorageState`, not Firestore
 - Confirmations (e.g. deletes) use `ConfirmModal` (`components/common/`, built on `Modal`), not
   `window.confirm`; the caller keeps the open state. jsdom lacks `<dialog>.showModal()`, so tests
   that render a `Modal` shim it at the top of the test file
