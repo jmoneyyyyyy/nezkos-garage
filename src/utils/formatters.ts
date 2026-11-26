@@ -11,3 +11,10 @@ export function formatDate(date: string) {
 
 export const formatCost = (cost: number) =>
   cost.toLocaleString(undefined, { style: "currency", currency: "USD" });
+
+/** The checker saves `lastCheckedAt` as an ISO timestamp; returns the local date, or null if it can't be read. */
+export function formatCheckedDate(timestamp?: string) {
+  if (!timestamp) return null;
+  const date = new Date(timestamp);
+  return Number.isNaN(date.getTime()) ? null : date.toLocaleDateString();
+}

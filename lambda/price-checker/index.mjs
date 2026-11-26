@@ -45,7 +45,7 @@ const parseJson = (text) => {
   }
 };
 
-// Returns the first price found in a page's JSON-LD script blocks, or null.
+// Returns the first price found in a page's JSON linked data script
 export function extractPrice(html) {
   const re = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
   return (

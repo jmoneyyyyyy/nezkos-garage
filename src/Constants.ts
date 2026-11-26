@@ -24,9 +24,9 @@ const WISHLIST_PAGE_TITLE = "Wish List";
 const NO_WISHLIST_ITEMS_TEXT = "No wishlist items yet. Add a vehicle to start your wishlist!";
 const ADD_WISHLIST_ITEM_BUTTON_TEXT = "Add item";
 const WISHLIST_ITEM_VIEW_TEXT = "View";
-const WISHLIST_ON_SALE_TEXT = "It's on sale, go get it!";
-const WISHLIST_PRICE_CHECK_BLOCKED_TEXT =
-  "This website blocks automated price checks, so the price can't be tracked automatically.";
+const WISHLIST_CHECK_FREQUENCY_TEXT = "Prices are checked automatically once a day.";
+const WISHLIST_NOT_CHECKED_TEXT = "Not checked yet";
+const WISHLIST_PRICE_CHECK_BLOCKED_TEXT = "Site blocks automated price checks";
 const MAINTENANCE_HISTORY_TITLE = "Maintenance history";
 const ADD_SERVICE_BUTTON_TEXT = "Add service";
 const VIEW_MAINTENANCE_HISTORY_TEXT = "View maintenance history";
@@ -79,6 +79,7 @@ const VIN_OPTIONAL_LABEL = "VIN (optional)";
 const LICENSE_PLATE_OPTIONAL_LABEL = "License plate (optional)";
 const VEHICLE_REQUIRED_FIELDS_ERROR = "Name, make, model, and color are required.";
 const ADD_WISHLIST_ITEM_TITLE = "Add wish list item";
+const EDIT_WISHLIST_ITEM_TITLE = "Edit wish list item";
 const WISHLIST_PRODUCT_NAME_LABEL = "Product name *";
 const WISHLIST_PRODUCT_LINK_LABEL = "Product link *";
 const WISHLIST_PRICE_LABEL = "Price *";
@@ -86,11 +87,9 @@ const WISHLIST_LINK_PLACEHOLDER = "https://...";
 const WISHLIST_REQUIRED_FIELDS_ERROR = "Product name, product link, and price are required.";
 const WISHLIST_LINK_INVALID_ERROR = "Product link must be a valid web address starting with http:// or https://.";
 const PRICE_INVALID_ERROR = "Price must be 0 or more.";
-const WISHLIST_ORIGINAL_PRICE_LABEL = "Original Price:";
-const WISHLIST_CURRENT_PRICE_LABEL = "Current Price:";
+const WISHLIST_TARGET_PRICE_LABEL = "Original Price";
 const VEHICLE_NOT_FOUND_ERROR = "This vehicle no longer exists.";
-const WISHLIST_PAGE_GONE_TEXT =
-  "This page seems to be gone, so the price can't be tracked. Check the link.";
+const WISHLIST_PAGE_GONE_TEXT = "Page is gone, check the link";
 const MAIN_NAV_LABEL = "Main";
 const LOAN_CALCULATOR_TITLE = "Loan calculator";
 const LOAN_RESET_BUTTON_TEXT = "Reset";
@@ -130,8 +129,14 @@ const vehicleYearError = (maxYear: number) => `Year must be between 1900 and ${m
 const confirmDeleteVehicleText = (name: string) =>
   `Delete ${name} and all of its service records? This can't be undone.`;
 const confirmRemoveWishListItemText = (name: string) => `Remove ${name} from the wish list?`;
+const WISHLIST_NO_PRICE_FOUND_TEXT = "Couldn't find a price";
+const wishListCheckedText = (date: string) => `Checked ${date}`;
+const wishListLastTriedText = (date: string) => `Last tried ${date}`;
 const wishListSavingsText = (saved: string, percentOff: number) =>
   `Save ${saved}${percentOff > 0 ? ` (${percentOff}% off)` : ""}`;
+
+const wishListPriceBelowCurrentError = (currentPrice: string) =>
+  `The price can't be lower than the current sale price of ${currentPrice}.`;
 
 const LANDING_STEPS = [
   { title: "Sign in", body: "Use your Google account. No new password to remember." },
@@ -164,7 +169,9 @@ export {
   NO_WISHLIST_ITEMS_TEXT,
   ADD_WISHLIST_ITEM_BUTTON_TEXT,
   WISHLIST_ITEM_VIEW_TEXT,
-  WISHLIST_ON_SALE_TEXT,
+  WISHLIST_CHECK_FREQUENCY_TEXT,
+  WISHLIST_NOT_CHECKED_TEXT,
+  WISHLIST_NO_PRICE_FOUND_TEXT,
   WISHLIST_PRICE_CHECK_BLOCKED_TEXT,
   WISHLIST_PAGE_GONE_TEXT,
   MAINTENANCE_HISTORY_TITLE,
@@ -222,6 +229,7 @@ export {
   LICENSE_PLATE_OPTIONAL_LABEL,
   VEHICLE_REQUIRED_FIELDS_ERROR,
   ADD_WISHLIST_ITEM_TITLE,
+  EDIT_WISHLIST_ITEM_TITLE,
   WISHLIST_PRODUCT_NAME_LABEL,
   WISHLIST_PRODUCT_LINK_LABEL,
   WISHLIST_PRICE_LABEL,
@@ -229,13 +237,15 @@ export {
   WISHLIST_REQUIRED_FIELDS_ERROR,
   WISHLIST_LINK_INVALID_ERROR,
   PRICE_INVALID_ERROR,
-  WISHLIST_ORIGINAL_PRICE_LABEL,
-  WISHLIST_CURRENT_PRICE_LABEL,
+  WISHLIST_TARGET_PRICE_LABEL,
   VEHICLE_NOT_FOUND_ERROR,
   vehicleYearError,
   confirmDeleteVehicleText,
   confirmRemoveWishListItemText,
   wishListSavingsText,
+  wishListPriceBelowCurrentError,
+  wishListCheckedText,
+  wishListLastTriedText,
   MAIN_NAV_LABEL,
   LOAN_CALCULATOR_TITLE,
   LOAN_RESET_BUTTON_TEXT,

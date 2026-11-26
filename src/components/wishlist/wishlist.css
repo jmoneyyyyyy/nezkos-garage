@@ -38,6 +38,12 @@
   white-space: nowrap;
 }
 
+.wishlist-note {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--text);
+}
+
 .wishlist-empty {
   margin: 12px 0 0;
   padding: 18px;
@@ -68,39 +74,40 @@
   border-radius: 10px;
 }
 
-.wishlist-item-name {
+.wishlist-item-info {
   flex: 1;
   min-width: 0;
+}
+
+.wishlist-item-name {
   font-weight: 700;
   color: var(--text-h);
   overflow-wrap: anywhere;
+}
+
+.wishlist-item-meta {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--text);
+
+  .is-sale {
+    font-weight: 600;
+    color: var(--garage-green-bright);
+  }
+
+  &.is-error {
+    color: var(--garage-red);
+  }
 }
 
 .wishlist-item-price {
   font-weight: 700;
   color: var(--text-h);
   white-space: nowrap;
-}
 
-.wishlist-item-price.is-sale {
-  font-weight: 500;
-  color: var(--text);
-  text-decoration: line-through;
-}
-
-.wishlist-item-current-price {
-  font-weight: 700;
-  color: var(--text-h);
-  white-space: nowrap;
-}
-
-.wishlist-item-current-price.is-sale {
-  padding: 4px 10px;
-  font-size: 16px;
-  color: var(--garage-green-bright);
-  background: var(--garage-green-glow);
-  border: 1px solid var(--garage-green);
-  border-radius: 999px;
+  &.is-sale {
+    color: var(--garage-green-bright);
+  }
 }
 
 .wishlist-item-view {
@@ -117,32 +124,6 @@
   &:hover {
     border-color: var(--accent);
   }
-}
-
-.wishlist-item-sale-note {
-  box-sizing: border-box;
-  flex: 0 0 100%;
-  margin: 0;
-  padding: 8px 12px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--garage-green-bright);
-  background: var(--garage-green-glow);
-  border-left: 3px solid var(--garage-green);
-  border-radius: 6px;
-}
-
-.wishlist-item-blocked {
-  box-sizing: border-box;
-  flex: 0 0 100%;
-  margin: 0;
-  padding: 8px 12px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--garage-red);
-  background: rgba(240, 90, 90, 0.12);
-  border-left: 3px solid var(--garage-red);
-  border-radius: 6px;
 }
 
 .wishlist-item button {

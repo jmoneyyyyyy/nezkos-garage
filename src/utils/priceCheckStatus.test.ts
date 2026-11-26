@@ -22,7 +22,11 @@ describe("priceErrorKind", () => {
     expect(priceErrorKind(error)).toBe("gone");
   });
 
-  it.each(["HTTP 500", "HTTP 503", "no price found", undefined])("is null for %s", (error) => {
+  it("is noPrice when the page loaded but had no readable price", () => {
+    expect(priceErrorKind("no price found")).toBe("noPrice");
+  });
+
+  it.each(["HTTP 500", "HTTP 503", "This operation was aborted", undefined])("is null for %s", (error) => {
     expect(priceErrorKind(error)).toBeNull();
   });
 });

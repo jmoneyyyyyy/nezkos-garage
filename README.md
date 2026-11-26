@@ -11,9 +11,9 @@ A personal web app for tracking maintenance on family vehicles.
 - Vehicle records: name, make, model, year, mileage, color, plus optional trim, VIN, and license plate
 - Per-owner access: each vehicle can only be read or changed by the users listed as its owners
 - Maintenance history per vehicle (service type, date, mileage, cost, details) with add, edit, and delete
-- Wish list per vehicle (item name, link, the price you want to pay)
+- Wish list per vehicle (item name, link, the price you want to pay) with add, edit, and delete; an edit can't set the price below the item's current sale price, and changing the link clears the checked price until the next check
 - Loan calculator on the Funds page: enter amount, APR, term and payments made to see the monthly payment, principal left, total interest, and a chart of interest vs. principal per payment (inputs are remembered in your browser)
-- Automatic price tracking: a scheduled AWS Lambda checks each wish list link once a day, and the wish list shows a "price drop" notice when the current price is below your price, or a red notice when the site blocks automated checks (HTTP 401, 403 or 429) or the page is gone (404 or 410)
+- Automatic price tracking: a scheduled AWS Lambda checks each wish list link once a day, and the wish list shows the current price in green with the savings when it is below your price, plus when it was last checked, or a red status line when the site blocks automated checks (HTTP 401, 403 or 429), the page is gone (404 or 410), or no price could be found
 
 ## Tech stack
 - **Frontend:** React, TypeScript, Vite, TanStack Query
@@ -51,7 +51,7 @@ EventBridge Scheduler (daily)
 3. The Lambda loads the Firebase service account from Parameter Store, reads every vehicle, and fetches each item's link (10 second timeout). The items of one vehicle are fetched in parallel; vehicles are handled one at a time.
 4. It reads the price from the page's JSON-LD (`offers.price`) and saves `currentPrice` and `lastCheckedAt` on the item, or `priceError` if no price could be read.
 5. Writes happen in a Firestore transaction that merges by item id, so edits made while the checker was running are not overwritten.
-6. The app reads the updated vehicle through TanStack Query. When `currentPrice < price`, the wish list shows a price drop notice with the difference. If the site refused the checker (`priceError` of HTTP 401, 403 or 429), the item shows a red "this website blocks automated price checks" notice instead; for HTTP 404 or 410 it says the page seems to be gone.
+6. The app reads the updated vehicle through TanStack Query. When `currentPrice < price`, the wish list shows the current price in green with the savings, and each item shows when it was last checked. If the site refused the checker (`priceError` of HTTP 401, 403 or 429), the item's status line turns red and says the site blocks automated price checks; for HTTP 404 or 410 it says the page is gone, and a `priceError` of "no price found" says no price could be found.
 
 ### Why the Lambda needs a Google service account
 The browser app talks to Firestore as a signed-in user (Google sign-in), and Firestore security rules decide what that user can read or write. Lambda is just a serverless runtime with no signed-in user, so it needs an identity of its own to reach Firestore. A Google service account provides that identity for server-side code: its key (a JSON file generated in Firebase Console, Project Settings, Service accounts) is stored in Parameter Store, and the Lambda loads it at startup and passes it to the Firebase Admin SDK.

@@ -3,11 +3,20 @@ import userEvent from "@testing-library/user-event";
 import {
   CANCEL_BUTTON_TEXT,
   DELETE_BUTTON_TEXT,
-  WISHLIST_ON_SALE_TEXT,
+  EDIT_BUTTON_TEXT,
+  SAVE_CHANGES_BUTTON_TEXT,
+  WISHLIST_LINK_INVALID_ERROR,
+  WISHLIST_PRICE_LABEL,
+  WISHLIST_PRODUCT_LINK_LABEL,
+  WISHLIST_PRODUCT_NAME_LABEL,
+  wishListPriceBelowCurrentError,
+  WISHLIST_NOT_CHECKED_TEXT,
+  WISHLIST_NO_PRICE_FOUND_TEXT,
   WISHLIST_PAGE_GONE_TEXT,
   WISHLIST_PRICE_CHECK_BLOCKED_TEXT,
 } from "../../Constants";
 import type { WishListItem } from "../../types/wishlist";
+import { formatPrice } from "../../utils/formatters";
 import WishListItemCard from "./WishListItemCard";
 
 // jsdom doesn't implement the <dialog> methods that Modal relies on.
@@ -20,8 +29,12 @@ HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
 };
 
 const mutate = vi.fn();
+const updateMutate = vi.fn();
+const idle = { isPending: false, isError: false, error: null };
 vi.mock("../../hooks/useWishlist", () => ({
-  useDeleteWishListItem: () => ({ mutate, isPending: false, isError: false, error: null }),
+  useDeleteWishListItem: () => ({ mutate, ...idle }),
+  useUpdateWishListItem: () => ({ mutate: updateMutate, ...idle }),
+  useAddWishListItem: () => ({ mutate: vi.fn(), ...idle }),
 }));
 
 const base: WishListItem = { id: "i1", name: "Floor jack", link: "https://shop.test/jack", price: 100 };
@@ -33,29 +46,99 @@ const renderCard = (item: Partial<WishListItem> = {}) =>
     </ul>
   );
 
-beforeEach(() => mutate.mockClear());
+beforeEach(() => {
+  mutate.mockClear();
+  updateMutate.mockClear();
+});
 
-describe("WishListItemCard price drop notice", () => {
+describe("WishListItemCard price line", () => {
   it("shows savings and percent off when current price is below target", () => {
     renderCard({ currentPrice: 75 });
-    const note = screen.getByRole("status");
-    expect(note).toHaveTextContent(WISHLIST_ON_SALE_TEXT);
-    expect(note).toHaveTextContent("Save $25.00");
-    expect(note).toHaveTextContent("25% off");
+    expect(screen.getByText("$75.00")).toHaveClass("is-sale");
+    expect(screen.getByText(/Original Price \$100\.00/)).toHaveTextContent("Save $25.00 (25% off)");
   });
 
   it.each([
     ["above target", 120],
     ["equal to target", 100],
-  ])("shows no notice when current price is %s", (_label, currentPrice) => {
+  ])("shows no savings when current price is %s", (_label, currentPrice) => {
     renderCard({ currentPrice });
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Save /)).not.toBeInTheDocument();
+    expect(screen.getByText(formatPrice(currentPrice))).not.toHaveClass("is-sale");
   });
 
-  it("shows no current price or notice before the checker has run", () => {
+  it("shows the target price and not-checked text before the checker has run", () => {
     renderCard();
-    expect(screen.queryByText(/Current Price/)).not.toBeInTheDocument();
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.getByText("$100.00", { selector: ".wishlist-item-price" })).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(WISHLIST_NOT_CHECKED_TEXT))).toBeInTheDocument();
+  });
+
+  it("shows when the price was last checked", () => {
+    const lastCheckedAt = "2026-11-26T15:30:00.000Z";
+    renderCard({ currentPrice: 100, lastCheckedAt });
+    expect(screen.getByText(/Checked/)).toHaveTextContent(
+      `Checked ${new Date(lastCheckedAt).toLocaleDateString()}`
+    );
+  });
+});
+
+describe("WishListItemCard edit", () => {
+  const openEdit = async (item: Partial<WishListItem> = {}) => {
+    renderCard(item);
+    await userEvent.click(screen.getByRole("button", { name: EDIT_BUTTON_TEXT }));
+    const dialog = screen.getByRole("dialog");
+    const field = (label: string) => within(dialog).getByLabelText(label);
+    const replace = async (label: string, value: string) => {
+      await userEvent.clear(field(label));
+      await userEvent.type(field(label), value);
+    };
+    const save = () => userEvent.click(within(dialog).getByRole("button", { name: SAVE_CHANGES_BUTTON_TEXT }));
+    return { dialog, field, replace, save };
+  };
+
+  it("opens a prefilled form and saves the edited fields", async () => {
+    const { field, replace, save } = await openEdit({ currentPrice: 75 });
+    expect(field(WISHLIST_PRODUCT_NAME_LABEL)).toHaveValue("Floor jack");
+    expect(field(WISHLIST_PRICE_LABEL)).toHaveValue("100");
+
+    await replace(WISHLIST_PRICE_LABEL, "90");
+    await save();
+
+    expect(updateMutate).toHaveBeenCalledWith(
+      { vehicleId: "v1", item: { id: "i1", name: "Floor jack", link: "https://shop.test/jack", price: 90 } },
+      expect.anything()
+    );
+  });
+
+  it("blocks a price below the current sale price and shows it in the modal", async () => {
+    const { dialog, replace, save } = await openEdit({ currentPrice: 75 });
+    await replace(WISHLIST_PRICE_LABEL, "70");
+    await save();
+    expect(updateMutate).not.toHaveBeenCalled();
+    expect(within(dialog).getByRole("alert")).toHaveTextContent(wishListPriceBelowCurrentError("$75.00"));
+  });
+
+  it("allows a price equal to the current sale price", async () => {
+    const { replace, save } = await openEdit({ currentPrice: 75 });
+    await replace(WISHLIST_PRICE_LABEL, "75");
+    await save();
+    expect(updateMutate).toHaveBeenCalled();
+  });
+
+  it("allows a lower price when the link is also changed", async () => {
+    const { replace, save } = await openEdit({ currentPrice: 75 });
+    await replace(WISHLIST_PRICE_LABEL, "70");
+    await replace(WISHLIST_PRODUCT_LINK_LABEL, "https://other.test/jack");
+    await save();
+    expect(updateMutate).toHaveBeenCalled();
+  });
+
+  it("does not save an invalid link", async () => {
+    const { dialog, replace, save } = await openEdit();
+    await replace(WISHLIST_PRODUCT_LINK_LABEL, "not a url");
+    await save();
+    expect(updateMutate).not.toHaveBeenCalled();
+    expect(within(dialog).getByRole("alert")).toHaveTextContent(WISHLIST_LINK_INVALID_ERROR);
   });
 });
 
@@ -90,10 +173,24 @@ describe("WishListItemCard blocked price check", () => {
     expect(screen.queryByText(WISHLIST_PRICE_CHECK_BLOCKED_TEXT)).not.toBeInTheDocument();
   });
 
-  it.each(["HTTP 500", "no price found"])("shows no notice for %s", (priceError) => {
+  it.each(["HTTP 500", "This operation was aborted"])("shows no notice for %s", (priceError) => {
     renderCard({ priceError });
     expect(screen.queryByText(WISHLIST_PRICE_CHECK_BLOCKED_TEXT)).not.toBeInTheDocument();
     expect(screen.queryByText(WISHLIST_PAGE_GONE_TEXT)).not.toBeInTheDocument();
+  });
+
+  it("shows a red notice with the last tried date when no price was found", () => {
+    const lastCheckedAt = "2026-11-26T15:30:00.000Z";
+    renderCard({ priceError: "no price found", lastCheckedAt });
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      `${WISHLIST_NO_PRICE_FOUND_TEXT} · Last tried ${new Date(lastCheckedAt).toLocaleDateString()}`
+    );
+    expect(screen.queryByText(WISHLIST_PRICE_CHECK_BLOCKED_TEXT)).not.toBeInTheDocument();
+  });
+
+  it("leaves out the date when the last check time is missing", () => {
+    renderCard({ priceError: "no price found" });
+    expect(screen.getByRole("alert")).toHaveTextContent(new RegExp(`^${WISHLIST_NO_PRICE_FOUND_TEXT}$`));
   });
 
   it("shows no blocked notice when there is no error", () => {

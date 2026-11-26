@@ -4,6 +4,7 @@ import {
   COULDNT_LOAD_VEHICLES_TEXT,
   LOADING_VEHICLES_TEXT,
   NO_WISHLIST_ITEMS_TEXT,
+  WISHLIST_CHECK_FREQUENCY_TEXT,
 } from "../../Constants";
 
 /** A wish list section for every vehicle in the garage. */
@@ -16,6 +17,7 @@ export default function WishList({ uid }: { uid: string }) {
 
   return (
     <div className="wishlist-list">
+      <p className="wishlist-note">{WISHLIST_CHECK_FREQUENCY_TEXT}</p>
       {data.map((v) => (
         <WishListSection key={v.id} uid={uid} vehicle={v} />
       ))}

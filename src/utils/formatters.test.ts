@@ -1,4 +1,4 @@
-import { formatCost, formatDate, formatMileage, formatPrice } from "./formatters";
+import { formatCheckedDate, formatCost, formatDate, formatMileage, formatPrice } from "./formatters";
 
 describe("formatPrice", () => {
   it("formats as USD", () => {
@@ -28,5 +28,17 @@ describe("formatDate", () => {
   it("keeps the calendar day instead of shifting it by timezone", () => {
     expect(formatDate("2026-07-13")).toBe(new Date(2026, 6, 13).toLocaleDateString());
     expect(formatDate("2026-01-01")).toBe(new Date(2026, 0, 1).toLocaleDateString());
+  });
+});
+
+describe("formatCheckedDate", () => {
+  it("formats an ISO timestamp as a local date", () => {
+    const iso = "2026-11-26T15:30:00.000Z";
+    expect(formatCheckedDate(iso)).toBe(new Date(iso).toLocaleDateString());
+  });
+
+  it("returns null when missing or unreadable", () => {
+    expect(formatCheckedDate(undefined)).toBeNull();
+    expect(formatCheckedDate("not a date")).toBeNull();
   });
 });

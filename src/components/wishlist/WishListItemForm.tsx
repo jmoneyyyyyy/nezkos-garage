@@ -1,11 +1,14 @@
 import { useState, type ChangeEvent, type SyntheticEvent } from "react";
-import { useAddWishListItem } from "../../hooks/useWishlist";
+import { useAddWishListItem, useUpdateWishListItem } from "../../hooks/useWishlist";
+import type { WishListItem } from "../../types/wishlist";
 import {
   ADD_WISHLIST_ITEM_BUTTON_TEXT,
   ADD_WISHLIST_ITEM_TITLE,
   COULDNT_SAVE_TEXT,
+  EDIT_WISHLIST_ITEM_TITLE,
   PRICE_INVALID_ERROR,
   REQUIRED_FIELD,
+  SAVE_CHANGES_BUTTON_TEXT,
   SAVING_TEXT,
   WISHLIST_LINK_INVALID_ERROR,
   WISHLIST_LINK_PLACEHOLDER,
@@ -13,9 +16,11 @@ import {
   WISHLIST_PRODUCT_LINK_LABEL,
   WISHLIST_PRODUCT_NAME_LABEL,
   WISHLIST_REQUIRED_FIELDS_ERROR,
+  wishListPriceBelowCurrentError,
 } from "../../Constants";
+import { formatPrice } from "../../utils/formatters";
 
-type WishListItemFormProps = { uid: string; vehicleId: string; onSaved: () => void };
+type WishListItemFormProps = { uid: string; vehicleId: string; item?: WishListItem; onSaved: () => void };
 
 function isHttpUrl(value: string) {
   try {
@@ -26,10 +31,17 @@ function isHttpUrl(value: string) {
   }
 }
 
-export default function WishListItemForm({ uid, vehicleId, onSaved }: WishListItemFormProps) {
-  const [form, setForm] = useState({ name: "", link: "", price: "" });
+export default function WishListItemForm({ uid, vehicleId, item, onSaved }: WishListItemFormProps) {
+  const [form, setForm] = useState({
+    name: item?.name ?? "",
+    link: item?.link ?? "",
+    price: item ? String(item.price) : "",
+  });
   const [error, setError] = useState<string | null>(null);
   const add = useAddWishListItem(uid);
+  const update = useUpdateWishListItem(uid);
+  const isPending = add.isPending || update.isPending;
+  const saveError = add.error ?? update.error;
 
   const set = (key: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [key]: e.target.value });
@@ -52,13 +64,23 @@ export default function WishListItemForm({ uid, vehicleId, onSaved }: WishListIt
       return setError(PRICE_INVALID_ERROR);
     }
 
+    // A changed link clears the checked price, so only guard against it when the link is unchanged.
+    if (item?.currentPrice !== undefined && link === item.link && price < item.currentPrice) {
+      return setError(wishListPriceBelowCurrentError(formatPrice(item.currentPrice)));
+    }
+
     setError(null);
-    add.mutate({ vehicleId, input: { name, link, price } }, { onSuccess: onSaved });
+    if (item) {
+      // Only the editable fields; the service keeps or clears the checker's fields.
+      update.mutate({ vehicleId, item: { id: item.id, name, link, price } }, { onSuccess: onSaved });
+    } else {
+      add.mutate({ vehicleId, input: { name, link, price } }, { onSuccess: onSaved });
+    }
   };
 
   return (
     <form onSubmit={submit}>
-      <h2>{ADD_WISHLIST_ITEM_TITLE}</h2>
+      <h2>{item ? EDIT_WISHLIST_ITEM_TITLE : ADD_WISHLIST_ITEM_TITLE}</h2>
       <div className="form-fields">
         <label>
           {WISHLIST_PRODUCT_NAME_LABEL}
@@ -73,12 +95,12 @@ export default function WishListItemForm({ uid, vehicleId, onSaved }: WishListIt
           <input aria-required inputMode="decimal" value={form.price} onChange={set("price")} />
         </label>
       </div>
-      <button type="submit" disabled={add.isPending}>
-        {add.isPending ? SAVING_TEXT : ADD_WISHLIST_ITEM_BUTTON_TEXT}
+      <button type="submit" disabled={isPending}>
+        {isPending ? SAVING_TEXT : item ? SAVE_CHANGES_BUTTON_TEXT : ADD_WISHLIST_ITEM_BUTTON_TEXT}
       </button>
       <p className="muted">{REQUIRED_FIELD}</p>
       {error && <p role="alert">{error}</p>}
-      {add.error && <p role="alert">{COULDNT_SAVE_TEXT}: {add.error.message}</p>}
+      {saveError && <p role="alert">{COULDNT_SAVE_TEXT}: {saveError.message}</p>}
     </form>
   );
 }

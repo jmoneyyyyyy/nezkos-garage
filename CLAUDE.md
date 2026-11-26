@@ -17,7 +17,7 @@ Personal web app for tracking maintenance on family vehicles.
 ## Status
 - Built: Google sign-in, vehicle list, add/edit/delete vehicles, vehicle photos,
   maintenance history (add/edit/delete)
-- Wish list per vehicle, with a daily Lambda price checker and a price drop notice
+- Wish list per vehicle (add/edit/delete), with a daily Lambda price checker, a green price on drops, and a last-checked date
 - Funds page: loan calculator (amount, APR, term, payments made) with monthly payment,
   principal left, total interest, and a chart of interest vs. principal per payment
 - Not built yet: TBD
@@ -68,10 +68,12 @@ Personal web app for tracking maintenance on family vehicles.
 - For each wishlist item with a link, fetches the page, reads the price from
   JSON-LD, and writes `currentPrice` + `lastCheckedAt` (or `priceError`) back in
   a transaction, merging by item id
-- `price` is what the user wants to pay; the UI shows a price drop notice when
-  `currentPrice < price`, and a red notice from `priceError`:
-  HTTP 401/403/429 = "blocks automated checks", HTTP 404/410 = "page is gone" (`src/utils/priceCheckStatus.ts`)
-- `updateWishListItem` keeps the checker's fields unless the link changed
+- `price` is what the user wants to pay; the UI shows the price in green with savings when
+  `currentPrice < price`, and a red status line from `priceError`:
+  HTTP 401/403/429 = "blocks automated checks", HTTP 404/410 = "page is gone", "no price found" =
+  "couldn't find a price" (`src/utils/priceCheckStatus.ts`)
+- `updateWishListItem` keeps the checker's fields unless the link changed; `WishListItemForm` (add and
+  edit) rejects an edited price below `currentPrice` unless the link also changed
 - Deploy by hand: zip `index.mjs`, `package.json`, `node_modules`, upload in the
   Lambda console
 - Admin SDK bypasses Firestore rules, so keep the Lambda role limited to
