@@ -7,7 +7,7 @@ export default function WishListPage() {
   if (!user) return null; // RequireAuth guarantees a user; this narrows the type
 
   return (
-    <main className="wishlist-page">
+    <main>
       <h1 className="page-title">{WISHLIST_PAGE_TITLE}</h1>
       <WishList uid={user.uid} />
     </main>

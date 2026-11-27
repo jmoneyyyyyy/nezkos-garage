@@ -1,3 +1,6 @@
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import ListStatus from "../common/ListStatus";
 import WishListSection from "./WishListSection";
 import { useVehicles } from "../../hooks/useVehicles";
 import {
@@ -9,18 +12,24 @@ import {
 
 /** A wish list section for every vehicle in the garage. */
 export default function WishList({ uid }: { uid: string }) {
-  const { data, isLoading, isError } = useVehicles(uid);
-
-  if (isLoading) return <p className="list-status">{LOADING_VEHICLES_TEXT}</p>;
-  if (isError) return <p role="alert" className="list-status">{COULDNT_LOAD_VEHICLES_TEXT}</p>;
-  if (!data?.length) return <p className="list-status">{NO_WISHLIST_ITEMS_TEXT}</p>;
+  const { data, isLoading, isError, error } = useVehicles(uid);
 
   return (
-    <div className="wishlist-list">
-      <p className="wishlist-note">{WISHLIST_CHECK_FREQUENCY_TEXT}</p>
-      {data.map((v) => (
-        <WishListSection key={v.id} uid={uid} vehicle={v} />
-      ))}
-    </div>
+    <ListStatus
+      isLoading={isLoading}
+      error={isError ? error : null}
+      isEmpty={!data?.length}
+      loadingText={LOADING_VEHICLES_TEXT}
+      emptyText={NO_WISHLIST_ITEMS_TEXT}
+      errorText={COULDNT_LOAD_VEHICLES_TEXT}
+      errorDetail={false}
+    >
+      <Box sx={{ width: "min(960px, calc(100% - 48px))", mx: "auto", pb: 6, textAlign: "left" }}>
+        <Typography sx={{ mb: 2, fontSize: 14 }}>{WISHLIST_CHECK_FREQUENCY_TEXT}</Typography>
+        {data?.map((v) => (
+          <WishListSection key={v.id} uid={uid} vehicle={v} />
+        ))}
+      </Box>
+    </ListStatus>
   );
 }

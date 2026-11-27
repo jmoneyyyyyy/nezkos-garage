@@ -1,135 +1,110 @@
-import { useRef, useState, type ChangeEvent } from "react";
-import ConfirmModal from "../common/ConfirmModal";
-import Modal from "../common/Modal";
+import { useState } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import Typography from "@mui/material/Typography";
+import AppDialog from "../common/AppDialog";
+import DeleteWithConfirm from "../common/DeleteWithConfirm";
+import ErrorAlert from "../common/ErrorAlert";
+import PhotoPicker from "../common/PhotoPicker";
+import ReadoutList from "../common/ReadoutList";
 import {
   ADD_PHOTO_TEXT,
-  CHANGE_BUTTON_TEXT,
   COLOR_LABEL,
   COULDNT_DELETE_TEXT,
   COULDNT_SAVE_PHOTO_TEXT,
   DELETE_VEHICLE_BUTTON_TEXT,
-  DELETING_TEXT,
   EDIT_BUTTON_TEXT,
   MILEAGE_LABEL,
-  PHOTO_READ_ERROR,
   PLATE_LABEL,
-  REMOVE_BUTTON_TEXT,
   SAVING_TEXT,
   TRIM_LABEL,
   VIN_LABEL,
   confirmDeleteVehicleText,
 } from "../../Constants";
 import { formatMileage } from "../../utils/formatters";
-import { photoFromInput } from "../../utils/photoUpload";
 import MaintenanceSection from "./MaintenanceSection";
 import VehicleForm from "./VehicleForm";
 import { useDeleteVehicle, useSetVehiclePhoto } from "../../hooks/useVehicles";
 import type { Vehicle } from "../../types/vehicle";
 
 export default function VehicleCard({ uid, vehicle }: { uid: string; vehicle: Vehicle }) {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [photoError, setPhotoError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const closeEdit = () => setEditing(false);
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const setPhoto = useSetVehiclePhoto(uid);
   const remove = useDeleteVehicle(uid);
 
-  const pickPhoto = () => fileRef.current?.click();
-
-  const onPhotoChosen = async (e: ChangeEvent<HTMLInputElement>) => {
-    setPhotoError(null);
-    try {
-      const photo = await photoFromInput(e);
-      if (photo) setPhoto.mutate({ vehicleId: vehicle.id, photo });
-    } catch {
-      setPhotoError(PHOTO_READ_ERROR);
-    }
-  };
-
-  const deleteVehicle = () => {
-    setConfirmingDelete(false);
-    remove.mutate(vehicle.id);
-  };
-
-  const details: [string, string | undefined][] = [
-    [COLOR_LABEL, vehicle.color],
-    [MILEAGE_LABEL, formatMileage(vehicle.mileage)],
-    [TRIM_LABEL, vehicle.trim],
-    [VIN_LABEL, vehicle.vin],
-    [PLATE_LABEL, vehicle.licensePlate],
-  ];
+  const details = (
+    [
+      [COLOR_LABEL, vehicle.color],
+      [MILEAGE_LABEL, formatMileage(vehicle.mileage)],
+      [TRIM_LABEL, vehicle.trim],
+      [VIN_LABEL, vehicle.vin],
+      [PLATE_LABEL, vehicle.licensePlate],
+    ] as [string, string | undefined][]
+  ).filter((entry): entry is [string, string] => Boolean(entry[1]));
 
   return (
-    <article className="vehicle-card">
-      <div className="vehicle-photo">
-        {vehicle.photo ? (
-          <>
-            <img src={vehicle.photo} alt={vehicle.name} />
-            <div className="vehicle-photo-actions">
-              <button onClick={pickPhoto} disabled={setPhoto.isPending}>{CHANGE_BUTTON_TEXT}</button>
-              <button
-                onClick={() => setPhoto.mutate({ vehicleId: vehicle.id, photo: null })}
-                disabled={setPhoto.isPending}
-              >
-                {REMOVE_BUTTON_TEXT}
-              </button>
-            </div>
-          </>
-        ) : (
-          <button className="vehicle-photo-empty" onClick={pickPhoto} disabled={setPhoto.isPending}>
-            {setPhoto.isPending ? SAVING_TEXT : ADD_PHOTO_TEXT}
-          </button>
-        )}
-        <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPhotoChosen} />
-      </div>
+    <Card
+      component="article"
+      sx={{
+        width: 360,
+        maxWidth: "100%",
+        display: "flex",
+        flexDirection: "column",
+        transition: "border-color 0.2s, box-shadow 0.2s, transform 0.2s",
+        "&:hover": {
+          borderColor: "#3a463f",
+          transform: "translateY(-2px)",
+          boxShadow:
+            "var(--shadow), 0 0 0 1px rgba(52, 199, 112, 0.15), 0 12px 40px -16px rgba(52, 199, 112, 0.22)",
+        },
+        "@media (prefers-reduced-motion: reduce)": { "&:hover": { transform: "none" } },
+      }}
+    >
+      <PhotoPicker
+        photo={vehicle.photo}
+        alt={vehicle.name}
+        emptyLabel={setPhoto.isPending ? SAVING_TEXT : ADD_PHOTO_TEXT}
+        disabled={setPhoto.isPending}
+        onChange={(photo) => setPhoto.mutate({ vehicleId: vehicle.id, photo })}
+        errorSx={{ mx: "20px", mt: "18px" }}
+      />
 
-      <div className="vehicle-card-body">
-        {photoError && <p role="alert">{photoError}</p>}
-        {setPhoto.isError && <p role="alert">{COULDNT_SAVE_PHOTO_TEXT}: {setPhoto.error.message}</p>}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: "18px", p: "18px 20px 20px" }}>
+        <ErrorAlert prefix={COULDNT_SAVE_PHOTO_TEXT} error={setPhoto.error} />
 
-        <div className="vehicle-card-title">
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 1.5 }}>
           <div>
-            <h2>{vehicle.name}</h2>
-            <p className="muted">{vehicle.year} {vehicle.make} {vehicle.model}</p>
+            <Typography component="h2" variant="h2" sx={{ m: 0, fontSize: 26, lineHeight: 1.05 }}>
+              {vehicle.name}
+            </Typography>
+            <Typography sx={{ mt: "4px", fontSize: 15, color: "text.secondary" }}>
+              {vehicle.year} {vehicle.make} {vehicle.model}
+            </Typography>
           </div>
-          <button onClick={() => setEditing(true)}>{EDIT_BUTTON_TEXT}</button>
-        </div>
+          <Button variant="outlined" onClick={() => setEditing(true)}>{EDIT_BUTTON_TEXT}</Button>
+        </Box>
 
-        <Modal open={editing} onClose={closeEdit}>
+        <AppDialog open={editing} onClose={closeEdit}>
           {/* Only mounted while open, so it starts from the saved values every time */}
           {editing && <VehicleForm uid={uid} vehicle={vehicle} onSaved={closeEdit} />}
-        </Modal>
+        </AppDialog>
 
-        <dl className="vehicle-details">
-          {details
-            .filter(([, value]) => value)
-            .map(([label, value]) => (
-              <div key={label}>
-                <dt>{label}</dt>
-                <dd>{value}</dd>
-              </div>
-            ))}
-        </dl>
+        <ReadoutList items={details} layout="wrap" />
 
         <MaintenanceSection uid={uid} vehicle={vehicle} />
 
-        <button
-          className="danger vehicle-delete"
-          onClick={() => setConfirmingDelete(true)}
-          disabled={remove.isPending}
-        >
-          {remove.isPending ? DELETING_TEXT : DELETE_VEHICLE_BUTTON_TEXT}
-        </button>
-        <ConfirmModal
-          open={confirmingDelete}
-          message={confirmDeleteVehicleText(vehicle.name)}
-          confirmLabel={DELETE_VEHICLE_BUTTON_TEXT}
-          onConfirm={deleteVehicle}
-          onCancel={() => setConfirmingDelete(false)}
-        />
-        {remove.isError && <p role="alert">{COULDNT_DELETE_TEXT}: {remove.error.message}</p>}
-      </div>
-    </article>
+        <Box sx={{ alignSelf: "flex-start" }}>
+          <DeleteWithConfirm
+            label={DELETE_VEHICLE_BUTTON_TEXT}
+            message={confirmDeleteVehicleText(vehicle.name)}
+            isPending={remove.isPending}
+            onDelete={() => remove.mutate(vehicle.id)}
+          />
+        </Box>
+        <ErrorAlert prefix={COULDNT_DELETE_TEXT} error={remove.error} />
+      </Box>
+    </Card>
   );
 }

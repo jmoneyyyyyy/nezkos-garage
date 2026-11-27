@@ -1,3 +1,5 @@
+import Box from "@mui/material/Box";
+import ListStatus from "../common/ListStatus";
 import VehicleCard from "./VehicleCard";
 import { useVehicles } from "../../hooks/useVehicles";
 import { COULDNT_LOAD_VEHICLES_TEXT, LOADING_VEHICLES_TEXT, NO_VEHICLES_YET_TEXT } from "../../Constants";
@@ -5,15 +7,30 @@ import { COULDNT_LOAD_VEHICLES_TEXT, LOADING_VEHICLES_TEXT, NO_VEHICLES_YET_TEXT
 export default function VehicleList({ uid }: { uid: string }) {
   const { data, isLoading, isError, error } = useVehicles(uid);
 
-  if (isLoading) return <p className="list-status">{LOADING_VEHICLES_TEXT}</p>;
-  if (isError) return <p role="alert" className="list-status">{COULDNT_LOAD_VEHICLES_TEXT}: {error.message}</p>;
-  if (!data?.length) return <p className="list-status">{NO_VEHICLES_YET_TEXT}</p>;
-
   return (
-    <div className="vehicle-grid">
-      {data.map((v) => (
-        <VehicleCard key={v.id} uid={uid} vehicle={v} />
-      ))}
-    </div>
+    <ListStatus
+      isLoading={isLoading}
+      error={isError ? error : null}
+      isEmpty={!data?.length}
+      loadingText={LOADING_VEHICLES_TEXT}
+      emptyText={NO_VEHICLES_YET_TEXT}
+      errorText={COULDNT_LOAD_VEHICLES_TEXT}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          alignItems: "flex-start", // cards keep their own height instead of matching the tallest
+          gap: "28px",
+          p: "32px 24px",
+          textAlign: "left",
+        }}
+      >
+        {data?.map((v) => (
+          <VehicleCard key={v.id} uid={uid} vehicle={v} />
+        ))}
+      </Box>
+    </ListStatus>
   );
 }

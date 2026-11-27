@@ -1,9 +1,11 @@
+import Box from "@mui/material/Box";
+import List from "@mui/material/List";
+import Typography from "@mui/material/Typography";
 import AddWishListItemModal from "./AddWishListItemModal";
 import WishListItemCard from "./WishListItemCard";
 import { NO_WISHLIST_ITEMS_TEXT } from "../../Constants";
 import { formatPrice } from "../../utils/formatters";
 import type { Vehicle } from "../../types/vehicle";
-import "./wishlist.css";
 
 /** One vehicle's wish list: its items, a count and total, and an Add item button. */
 export default function WishListSection({ uid, vehicle }: { uid: string; vehicle: Vehicle }) {
@@ -13,25 +15,52 @@ export default function WishListSection({ uid, vehicle }: { uid: string; vehicle
   const noWishListItems = items.length === 0;
 
   return (
-    <section className="wishlist-section">
-      <header className="wishlist-section-header">
-        <h2>
+    <Box component="section" sx={{ mb: 4 }}>
+      <Box
+        component="header"
+        sx={{
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          gap: 2,
+          pb: 1,
+          borderBottom: 1,
+          borderColor: "divider",
+        }}
+      >
+        <Typography component="h2" variant="h2" sx={{ m: 0, fontSize: 20 }}>
           {vehicle.year} {vehicle.make} {vehicle.model}
-        </h2>
-        <span className="wishlist-section-summary">
+        </Typography>
+        <Typography
+          component="span"
+          sx={{ ml: "auto", fontSize: 14, fontWeight: 600, whiteSpace: "nowrap", color: "text.secondary" }}
+        >
           {items.length} {items.length === 1 ? "item" : "items"}: {formatPrice(total)} total
-        </span>
+        </Typography>
         <AddWishListItemModal uid={uid} vehicleId={vehicle.id} />
-      </header>
+      </Box>
       {noWishListItems ? (
-        <p className="wishlist-empty">{NO_WISHLIST_ITEMS_TEXT}</p>
+        <Typography
+          sx={{
+            mt: 1.5,
+            p: "18px",
+            fontSize: 15,
+            color: "text.secondary",
+            bgcolor: "background.paper",
+            border: 1,
+            borderColor: "divider",
+            borderRadius: "10px",
+          }}
+        >
+          {NO_WISHLIST_ITEMS_TEXT}
+        </Typography>
       ) : (
-        <ul className="wishlist-items">
+        <List disablePadding sx={{ mt: 1.5, display: "flex", flexDirection: "column", gap: "10px" }}>
           {items.map((item) => (
             <WishListItemCard key={item.id} uid={uid} vehicleId={vehicle.id} item={item} />
           ))}
-        </ul>
+        </List>
       )}
-    </section>
+    </Box>
   );
 }

@@ -1,0 +1,155 @@
+/*
+ * Global styles: the garage colors as CSS variables, the page background, and the
+ * plain headings used by the landing page and the page titles. Components are styled
+ * by the MUI theme (theme.ts); keep its palette in sync with the --garage-* values here.
+ * Fonts are loaded in index.html.
+ */
+
+:root {
+  --garage-black: #0a0c0b;
+  --garage-asphalt: #111412;
+  --garage-steel: #171b19;
+  --garage-gunmetal: #222825;
+  --garage-line: #2b322e;
+  --garage-gray: #98a29c;
+  --garage-silver: #e7ece9;
+  --garage-green: #34c770;
+  --garage-green-bright: #52de8d;
+  --garage-green-deep: #0f3a24;
+  --garage-green-glow: rgba(52, 199, 112, 0.22);
+  --garage-red: #f05a5a;
+
+  /* Shorthand names used by landing.css, funds.css and the theme */
+  --text: var(--garage-gray);
+  --text-h: var(--garage-silver);
+  --bg: var(--garage-asphalt);
+  --border: var(--garage-line);
+  --accent: var(--garage-green);
+  --accent-bg: var(--garage-green-glow);
+  --accent-border: var(--garage-green);
+  --shadow:
+    rgba(0, 0, 0, 0.55) 0 18px 30px -12px, rgba(0, 0, 0, 0.35) 0 4px 10px -2px;
+
+  --sans: "Barlow", system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: dark;
+  accent-color: var(--garage-green);
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+}
+
+::selection {
+  background: var(--garage-green);
+  color: var(--garage-black);
+}
+
+body {
+  background-color: var(--garage-black);
+  background-image:
+    /* green glow from the top, like shop lights */
+    radial-gradient(ellipse 90% 45% at 50% -8%, rgba(52, 199, 112, 0.16), transparent 70%),
+    /* faint carbon-fiber weave */
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.014) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.014) 0 2px, transparent 2px 6px);
+  background-attachment: fixed;
+}
+
+#root {
+  max-width: 100%;
+  min-height: 100svh;
+  margin: 0 auto;
+  padding-bottom: 48px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+p {
+  margin: 0;
+}
+
+/* Plain headings (landing page, page titles). MUI Typography sets its own. ---- */
+
+h1,
+h2,
+h3 {
+  font-family: var(--heading);
+  color: var(--text-h);
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 32px 0;
+  font-size: 56px;
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 24px rgba(52, 199, 112, 0.25);
+
+  @media (max-width: 1024px) {
+    margin: 20px 0;
+    font-size: 36px;
+  }
+}
+
+/* Double racing stripe under the title */
+h1::after {
+  content: "";
+  display: block;
+  width: 140px;
+  height: 10px;
+  margin: 14px auto 0;
+  transform: skewX(-20deg);
+  background:
+    linear-gradient(var(--garage-green), var(--garage-green)) top / 100% 3px no-repeat,
+    linear-gradient(var(--garage-green), var(--garage-green)) bottom / 70% 3px no-repeat;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 118%;
+  letter-spacing: 0.02em;
+
+  @media (max-width: 1024px) {
+    font-size: 20px;
+  }
+}
+
+h3 {
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.page-title {
+  margin: 32px 0 24px;
+  text-align: center;
+}
+
+/* Scrollbars and reduced motion --------------------------------------- */
+
+* {
+  scrollbar-color: var(--garage-gunmetal) var(--garage-black);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

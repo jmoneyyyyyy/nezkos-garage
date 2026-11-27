@@ -1,6 +1,11 @@
 import { useState } from "react";
-import ConfirmModal from "../common/ConfirmModal";
-import Modal from "../common/Modal";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import ListItem from "@mui/material/ListItem";
+import Typography from "@mui/material/Typography";
+import AppDialog from "../common/AppDialog";
+import DeleteWithConfirm from "../common/DeleteWithConfirm";
+import ErrorAlert from "../common/ErrorAlert";
 import WishListItemForm from "./WishListItemForm";
 import {
   COULDNT_DELETE_TEXT,
@@ -40,7 +45,6 @@ export default function WishListItemCard({
   item: WishListItem;
 }) {
   const remove = useDeleteWishListItem(uid);
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [editing, setEditing] = useState(false);
   const onSale = item.currentPrice !== undefined && item.currentPrice < item.price;
   const saved = onSale ? item.price - item.currentPrice! : 0;
@@ -49,61 +53,78 @@ export default function WishListItemCard({
   const errorKind = priceErrorKind(item.priceError);
   const checkedDate = formatCheckedDate(item.lastCheckedAt);
 
-  const deleteItem = () => {
-    setConfirmingDelete(false);
-    remove.mutate({ vehicleId, itemId: item.id });
-  };
-
   return (
-    <li className="wishlist-item">
-      <div className="wishlist-item-info">
-        <span className="wishlist-item-name">{item.name}</span>
+    <ListItem
+      disablePadding
+      sx={{
+        flexWrap: "wrap",
+        alignItems: "center",
+        gap: 2,
+        p: "14px 18px",
+        bgcolor: "background.paper",
+        border: 1,
+        borderColor: "divider",
+        borderRadius: "10px",
+      }}
+    >
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography component="span" sx={{ fontWeight: 700, color: "text.primary", overflowWrap: "anywhere" }}>
+          {item.name}
+        </Typography>
         {errorKind ? (
-          <p className="wishlist-item-meta is-error" role="alert">
+          <Typography role="alert" sx={{ mt: "2px", fontSize: 13, color: "error.main" }}>
             {ERROR_TEXT[errorKind]}
             {checkedDate && ` · ${wishListLastTriedText(checkedDate)}`}
-          </p>
+          </Typography>
         ) : (
-          <p className="wishlist-item-meta">
+          <Typography sx={{ mt: "2px", fontSize: 13, color: "text.secondary" }}>
             {WISHLIST_TARGET_PRICE_LABEL} {formatPrice(item.price)}
             {onSale && (
               <>
                 {" · "}
-                <span className="is-sale">{wishListSavingsText(formatPrice(saved), percentOff)}</span>
+                <Typography component="span" sx={{ fontSize: "inherit", fontWeight: 600, color: "primary.light" }}>
+                  {wishListSavingsText(formatPrice(saved), percentOff)}
+                </Typography>
               </>
             )}
             {" · "}
             {checkedDate ? wishListCheckedText(checkedDate) : WISHLIST_NOT_CHECKED_TEXT}
-          </p>
+          </Typography>
         )}
-      </div>
-      <span className={`wishlist-item-price${onSale ? " is-sale" : ""}`}>
+      </Box>
+      <Typography
+        component="span"
+        data-testid="wishlist-item-price"
+        data-on-sale={onSale}
+        sx={{ fontWeight: 700, whiteSpace: "nowrap", color: onSale ? "primary.light" : "text.primary" }}
+      >
         {formatPrice(item.currentPrice ?? item.price)}
-      </span>
-      <a className="wishlist-item-view" href={item.link} target="_blank" rel="noopener noreferrer">
+      </Typography>
+      <Button
+        component="a"
+        variant="outlined"
+        size="small"
+        href={item.link}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         {WISHLIST_ITEM_VIEW_TEXT}
-      </a>
-      <button onClick={() => setEditing(true)}>{EDIT_BUTTON_TEXT}</button>
-      <button className="danger" onClick={() => setConfirmingDelete(true)} disabled={remove.isPending}>
-        {DELETE_BUTTON_TEXT}
-      </button>
-      <Modal open={editing} onClose={() => setEditing(false)}>
+      </Button>
+      <Button variant="outlined" size="small" onClick={() => setEditing(true)}>{EDIT_BUTTON_TEXT}</Button>
+      <DeleteWithConfirm
+        size="small"
+        label={DELETE_BUTTON_TEXT}
+        pendingLabel={DELETE_BUTTON_TEXT}
+        message={confirmRemoveWishListItemText(item.name)}
+        isPending={remove.isPending}
+        onDelete={() => remove.mutate({ vehicleId, itemId: item.id })}
+      />
+      <AppDialog open={editing} onClose={() => setEditing(false)}>
         {editing && (
           <WishListItemForm uid={uid} vehicleId={vehicleId} item={item} onSaved={() => setEditing(false)} />
         )}
-      </Modal>
-      <ConfirmModal
-        open={confirmingDelete}
-        message={confirmRemoveWishListItemText(item.name)}
-        confirmLabel={DELETE_BUTTON_TEXT}
-        onConfirm={deleteItem}
-        onCancel={() => setConfirmingDelete(false)}
-      />
-      {remove.isError && (
-        <p className="wishlist-item-error" role="alert">
-          {COULDNT_DELETE_TEXT}: {remove.error.message}
-        </p>
-      )}
-    </li>
+      </AppDialog>
+      <ErrorAlert prefix={COULDNT_DELETE_TEXT} error={remove.error} sx={{ flex: "0 0 100%" }} />
+    </ListItem>
   );
 }

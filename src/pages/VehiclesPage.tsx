@@ -8,7 +8,7 @@ export default function VehiclesPage() {
   if (!user) return null; // RequireAuth guarantees a user; this narrows the type
 
   return (
-    <main className="vehicles-page">
+    <main>
       <h1 className="page-title">{GARAGE_LOG_TITLE}</h1>
       <AddVehicleModal uid={user.uid} />
       <VehicleList uid={user.uid} />

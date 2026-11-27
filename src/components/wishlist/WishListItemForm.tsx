@@ -1,15 +1,18 @@
-import { useState, type ChangeEvent, type SyntheticEvent } from "react";
+import { useState, type SyntheticEvent } from "react";
+import DialogHeading from "../common/DialogHeading";
+import FormActions from "../common/FormActions";
+import { FormFieldGrid, FormStack } from "../common/FormLayout";
+import FormTextField from "../common/FormTextField";
+import { useFormState } from "../../hooks/useFormState";
 import { useAddWishListItem, useUpdateWishListItem } from "../../hooks/useWishlist";
 import type { WishListItem } from "../../types/wishlist";
 import {
   ADD_WISHLIST_ITEM_BUTTON_TEXT,
   ADD_WISHLIST_ITEM_TITLE,
-  COULDNT_SAVE_TEXT,
   EDIT_WISHLIST_ITEM_TITLE,
   PRICE_INVALID_ERROR,
   REQUIRED_FIELD,
   SAVE_CHANGES_BUTTON_TEXT,
-  SAVING_TEXT,
   WISHLIST_LINK_INVALID_ERROR,
   WISHLIST_LINK_PLACEHOLDER,
   WISHLIST_PRICE_LABEL,
@@ -32,7 +35,7 @@ function isHttpUrl(value: string) {
 }
 
 export default function WishListItemForm({ uid, vehicleId, item, onSaved }: WishListItemFormProps) {
-  const [form, setForm] = useState({
+  const [form, set] = useFormState({
     name: item?.name ?? "",
     link: item?.link ?? "",
     price: item ? String(item.price) : "",
@@ -42,9 +45,6 @@ export default function WishListItemForm({ uid, vehicleId, item, onSaved }: Wish
   const update = useUpdateWishListItem(uid);
   const isPending = add.isPending || update.isPending;
   const saveError = add.error ?? update.error;
-
-  const set = (key: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) =>
-    setForm({ ...form, [key]: e.target.value });
 
   //SyntheticEvent is used here to prevent the default form submission behavior
   //It wraps around the browser's native event and provides a consistent interface across different browsers
@@ -79,28 +79,34 @@ export default function WishListItemForm({ uid, vehicleId, item, onSaved }: Wish
   };
 
   return (
-    <form onSubmit={submit}>
-      <h2>{item ? EDIT_WISHLIST_ITEM_TITLE : ADD_WISHLIST_ITEM_TITLE}</h2>
-      <div className="form-fields">
-        <label>
-          {WISHLIST_PRODUCT_NAME_LABEL}
-          <input aria-required value={form.name} onChange={set("name")} />
-        </label>
-        <label>
-          {WISHLIST_PRODUCT_LINK_LABEL}
-          <input placeholder={WISHLIST_LINK_PLACEHOLDER} aria-required inputMode="url" value={form.link} onChange={set("link")} />
-        </label>
-        <label>
-          {WISHLIST_PRICE_LABEL}
-          <input aria-required inputMode="decimal" value={form.price} onChange={set("price")} />
-        </label>
-      </div>
-      <button type="submit" disabled={isPending}>
-        {isPending ? SAVING_TEXT : item ? SAVE_CHANGES_BUTTON_TEXT : ADD_WISHLIST_ITEM_BUTTON_TEXT}
-      </button>
-      <p className="muted">{REQUIRED_FIELD}</p>
-      {error && <p role="alert">{error}</p>}
-      {saveError && <p role="alert">{COULDNT_SAVE_TEXT}: {saveError.message}</p>}
-    </form>
+    <FormStack onSubmit={submit}>
+      <DialogHeading>{item ? EDIT_WISHLIST_ITEM_TITLE : ADD_WISHLIST_ITEM_TITLE}</DialogHeading>
+      <FormFieldGrid>
+        <FormTextField label={WISHLIST_PRODUCT_NAME_LABEL} required value={form.name} onChange={set("name")} />
+        <FormTextField
+          label={WISHLIST_PRODUCT_LINK_LABEL}
+          placeholder={WISHLIST_LINK_PLACEHOLDER}
+          required
+          inputMode="url"
+          value={form.link}
+          onChange={set("link")}
+        />
+        <FormTextField
+          label={WISHLIST_PRICE_LABEL}
+          required
+          inputMode="decimal"
+          value={form.price}
+          onChange={set("price")}
+        />
+      </FormFieldGrid>
+      <FormActions
+        isPending={isPending}
+        label={item ? SAVE_CHANGES_BUTTON_TEXT : ADD_WISHLIST_ITEM_BUTTON_TEXT}
+        note={REQUIRED_FIELD}
+        notePosition="after"
+        error={error}
+        saveError={saveError}
+      />
+    </FormStack>
   );
 }

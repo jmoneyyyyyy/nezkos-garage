@@ -1,4 +1,11 @@
-import type { ChangeEvent } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import Typography from "@mui/material/Typography";
+import ErrorAlert from "../common/ErrorAlert";
+import FormTextField from "../common/FormTextField";
+import { StatusText } from "../common/ListStatus";
+import ReadoutList from "../common/ReadoutList";
 import {
   LOAN_AMOUNT_INVALID_ERROR,
   LOAN_AMOUNT_LABEL,
@@ -45,7 +52,7 @@ const parse = (value: string) => {
 export default function LoanCalculator() {
   const [form, setForm] = useLocalStorageState(STORAGE_KEY, EMPTY_FORM, isLoanForm);
 
-  const set = (key: keyof typeof form) => (e: ChangeEvent<HTMLInputElement>) =>
+  const set = (key: keyof typeof form) => (e: { target: { value: string } }) =>
     setForm({ ...form, [key]: e.target.value });
 
   const amount = parse(form.amount);
@@ -68,57 +75,73 @@ export default function LoanCalculator() {
   const schedule = ready ? buildSchedule(amount, apr, term) : [];
 
   return (
-    <section className="loan-calculator">
-      <h2>{LOAN_CALCULATOR_TITLE}</h2>
-      <form className="loan-form" onSubmit={(e) => e.preventDefault()}>
-        <label>
-          {LOAN_AMOUNT_LABEL}
-          <input inputMode="decimal" value={form.amount} onChange={set("amount")} />
-        </label>
-        <label>
-          {LOAN_APR_LABEL}
-          <input inputMode="decimal" value={form.apr} onChange={set("apr")} />
-        </label>
-        <label>
-          {LOAN_TERM_LABEL}
-          <input inputMode="numeric" value={form.term} onChange={set("term")} />
-        </label>
-        <label>
-          {LOAN_PAYMENTS_MADE_LABEL}
-          <input inputMode="numeric" value={form.paymentsMade} onChange={set("paymentsMade")} />
-        </label>
-        <button type="button" className="loan-reset" onClick={() => setForm(EMPTY_FORM)}>
+    <Card
+      component="section"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+        width: "min(720px, calc(100% - 48px))",
+        mx: "auto",
+        p: "20px",
+        textAlign: "left",
+        borderTop: "3px solid",
+        borderTopColor: "primary.main",
+        borderRadius: "14px",
+      }}
+    >
+      <Typography component="h2" variant="h2" sx={{ m: 0, fontSize: 24 }}>
+        {LOAN_CALCULATOR_TITLE}
+      </Typography>
+      <Box
+        component="form"
+        onSubmit={(e) => e.preventDefault()}
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "12px 16px",
+          "@media (max-width:520px)": { gridTemplateColumns: "1fr" },
+        }}
+      >
+        <FormTextField label={LOAN_AMOUNT_LABEL} inputMode="decimal" value={form.amount} onChange={set("amount")} />
+        <FormTextField label={LOAN_APR_LABEL} inputMode="decimal" value={form.apr} onChange={set("apr")} />
+        <FormTextField label={LOAN_TERM_LABEL} inputMode="numeric" value={form.term} onChange={set("term")} />
+        <FormTextField
+          label={LOAN_PAYMENTS_MADE_LABEL}
+          inputMode="numeric"
+          value={form.paymentsMade}
+          onChange={set("paymentsMade")}
+        />
+        <Button
+          variant="outlined"
+          size="small"
+          sx={{ gridColumn: "1 / -1", justifySelf: "start" }}
+          onClick={() => setForm(EMPTY_FORM)}
+        >
           {LOAN_RESET_BUTTON_TEXT}
-        </button>
-      </form>
+        </Button>
+      </Box>
 
       {errors.map((message) => (
-        <p key={message} role="alert">
-          {message}
-        </p>
+        <ErrorAlert key={message} error={message} />
       ))}
 
       {ready ? (
         <>
-          <dl className="loan-results">
-            <div>
-              <dt>{LOAN_MONTHLY_PAYMENT_LABEL}</dt>
-              <dd>{formatPrice(schedule[0].payment)}</dd>
-            </div>
-            <div>
-              <dt>{LOAN_BALANCE_LEFT_LABEL}</dt>
-              <dd>{formatPrice(balanceAfter(schedule, paymentsMade))}</dd>
-            </div>
-            <div>
-              <dt>{LOAN_TOTAL_INTEREST_LABEL}</dt>
-              <dd>{formatPrice(totalInterest(schedule))}</dd>
-            </div>
-          </dl>
+          <ReadoutList
+            layout="grid"
+            valueSize={20}
+            items={[
+              [LOAN_MONTHLY_PAYMENT_LABEL, formatPrice(schedule[0].payment)],
+              [LOAN_BALANCE_LEFT_LABEL, formatPrice(balanceAfter(schedule, paymentsMade))],
+              [LOAN_TOTAL_INTEREST_LABEL, formatPrice(totalInterest(schedule))],
+            ]}
+          />
           <AmortizationChart schedule={schedule} crossover={findCrossover(schedule)} paymentsMade={paymentsMade} />
         </>
       ) : (
-        errors.length === 0 && <p className="list-status">{LOAN_EMPTY_TEXT}</p>
+        errors.length === 0 && <StatusText sx={{ m: 0, width: "auto" }}>{LOAN_EMPTY_TEXT}</StatusText>
       )}
-    </section>
+    </Card>
   );
 }

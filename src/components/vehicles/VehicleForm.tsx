@@ -1,5 +1,10 @@
-import { useRef, useState, type ChangeEvent, type SyntheticEvent } from "react";
-import { photoFromInput } from "../../utils/photoUpload";
+import { useState, type SyntheticEvent } from "react";
+import DialogHeading from "../common/DialogHeading";
+import FormActions from "../common/FormActions";
+import { FormFieldGrid, FormStack } from "../common/FormLayout";
+import FormTextField from "../common/FormTextField";
+import PhotoPicker from "../common/PhotoPicker";
+import { useFormState } from "../../hooks/useFormState";
 import { useCreateVehicle, useUpdateVehicle } from "../../hooks/useVehicles";
 import type { Vehicle, VehicleDetailsInput } from "../../types/vehicle";
 import {
@@ -7,19 +12,14 @@ import {
   ADD_PHOTO_OPTIONAL_TEXT,
   ADD_VEHICLE_SUBMIT_TEXT,
   APPROX_MILEAGE_REQUIRED_LABEL,
-  CHANGE_BUTTON_TEXT,
   COLOR_REQUIRED_LABEL,
-  COULDNT_SAVE_TEXT,
   EDIT_VEHICLE_TEXT,
   LICENSE_PLATE_OPTIONAL_LABEL,
   MAKE_REQUIRED_LABEL,
   MILEAGE_INVALID_ERROR,
   MODEL_REQUIRED_LABEL,
-  PHOTO_READ_ERROR,
-  REMOVE_BUTTON_TEXT,
   REQUIRED_FIELD,
   SAVE_CHANGES_BUTTON_TEXT,
-  SAVING_TEXT,
   SELECTED_VEHICLE_PHOTO_ALT,
   VEHICLE_NAME_PLACEHOLDER,
   VEHICLE_NAME_REQUIRED_LABEL,
@@ -55,30 +55,13 @@ type Props = {
 };
 
 export default function VehicleForm({ uid, vehicle, onSaved }: Props) {
-  const [form, setForm] = useState(vehicle ? toForm(vehicle) : empty);
+  const [form, set, setForm] = useFormState(vehicle ? toForm(vehicle) : empty);
   const [error, setError] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
   const [photo, setPhoto] = useState<string | null>(null);
-  const [photoError, setPhotoError] = useState<string | null>(null);
   const create = useCreateVehicle(uid);
   const update = useUpdateVehicle(uid);
   const isPending = create.isPending || update.isPending;
   const saveError = create.error ?? update.error;
-
-  const set = (key: keyof typeof empty) => (e: ChangeEvent<HTMLInputElement>) =>
-    setForm({ ...form, [key]: e.target.value });
-
-  const pickPhoto = () => fileRef.current?.click();
-
-  const onPhotoChosen = async (e: ChangeEvent<HTMLInputElement>) => {
-    setPhotoError(null);
-    try {
-      const chosen = await photoFromInput(e);
-      if (chosen) setPhoto(chosen);
-    } catch {
-      setPhotoError(PHOTO_READ_ERROR);
-    }
-  };
 
   //SyntheticEvent is used here to prevent the default form submission behavior
   //It wraps around the browser's native event and provides a consistent interface across different browsers
@@ -125,68 +108,46 @@ export default function VehicleForm({ uid, vehicle, onSaved }: Props) {
   };
 
   return (
-    <form onSubmit={submit}>
-      <h2>{vehicle ? EDIT_VEHICLE_TEXT : ADD_NEW_VEHICLE_TEXT}</h2>
+    <FormStack onSubmit={submit}>
+      <DialogHeading>{vehicle ? EDIT_VEHICLE_TEXT : ADD_NEW_VEHICLE_TEXT}</DialogHeading>
       {!vehicle && (
-        // type="button" so these don't submit the form
-        <div className="vehicle-photo form-photo">
-          {photo ? (
-            <>
-              <img src={photo} alt={SELECTED_VEHICLE_PHOTO_ALT} />
-              <div className="vehicle-photo-actions">
-                <button type="button" onClick={pickPhoto}>{CHANGE_BUTTON_TEXT}</button>
-                <button type="button" onClick={() => setPhoto(null)}>{REMOVE_BUTTON_TEXT}</button>
-              </div>
-            </>
-          ) : (
-            <button type="button" className="vehicle-photo-empty" onClick={pickPhoto}>
-              {ADD_PHOTO_OPTIONAL_TEXT}
-            </button>
-          )}
-          <input ref={fileRef} type="file" accept="image/*" hidden onChange={onPhotoChosen} />
-        </div>
+        <PhotoPicker
+          variant="form"
+          photo={photo}
+          alt={SELECTED_VEHICLE_PHOTO_ALT}
+          emptyLabel={ADD_PHOTO_OPTIONAL_TEXT}
+          onChange={setPhoto}
+        />
       )}
-      {photoError && <p role="alert">{photoError}</p>}
-      <div className="form-fields">
-        <label>
-          {VEHICLE_NAME_REQUIRED_LABEL}
-          <input placeholder={VEHICLE_NAME_PLACEHOLDER} aria-required value={form.name} onChange={set("name")} />
-        </label>
-        <label>
-          {MAKE_REQUIRED_LABEL}
-          <input aria-required value={form.make} onChange={set("make")} />
-        </label>
-        <label>
-          {MODEL_REQUIRED_LABEL}
-          <input aria-required value={form.model} onChange={set("model")} />
-        </label>
-        <label>
-          {YEAR_REQUIRED_LABEL}
-          <input aria-required inputMode="numeric" value={form.year} onChange={set("year")} />
-        </label>
-        <label>
-          {APPROX_MILEAGE_REQUIRED_LABEL}
-          <input aria-required inputMode="numeric" value={form.mileage} onChange={set("mileage")} />
-        </label>
-        <label>
-          {COLOR_REQUIRED_LABEL}
-          <input aria-required value={form.color} onChange={set("color")} />
-        </label>
-        <label>
-          {VIN_OPTIONAL_LABEL}
-          <input value={form.vin} onChange={set("vin")} />
-        </label>
-        <label>
-          {LICENSE_PLATE_OPTIONAL_LABEL}
-          <input value={form.licensePlate} onChange={set("licensePlate")} />
-        </label>
-      </div>
-      <p className="muted">{REQUIRED_FIELD}</p>
-      <button type="submit" disabled={isPending}>
-        {isPending ? SAVING_TEXT : vehicle ? SAVE_CHANGES_BUTTON_TEXT : ADD_VEHICLE_SUBMIT_TEXT}
-      </button>
-      {error && <p role="alert">{error}</p>}
-      {saveError && <p role="alert">{COULDNT_SAVE_TEXT}: {saveError.message}</p>}
-    </form>
+      <FormFieldGrid>
+        <FormTextField
+          label={VEHICLE_NAME_REQUIRED_LABEL}
+          placeholder={VEHICLE_NAME_PLACEHOLDER}
+          required
+          value={form.name}
+          onChange={set("name")}
+        />
+        <FormTextField label={MAKE_REQUIRED_LABEL} required value={form.make} onChange={set("make")} />
+        <FormTextField label={MODEL_REQUIRED_LABEL} required value={form.model} onChange={set("model")} />
+        <FormTextField label={YEAR_REQUIRED_LABEL} required inputMode="numeric" value={form.year} onChange={set("year")} />
+        <FormTextField
+          label={APPROX_MILEAGE_REQUIRED_LABEL}
+          required
+          inputMode="numeric"
+          value={form.mileage}
+          onChange={set("mileage")}
+        />
+        <FormTextField label={COLOR_REQUIRED_LABEL} required value={form.color} onChange={set("color")} />
+        <FormTextField label={VIN_OPTIONAL_LABEL} value={form.vin} onChange={set("vin")} />
+        <FormTextField label={LICENSE_PLATE_OPTIONAL_LABEL} value={form.licensePlate} onChange={set("licensePlate")} />
+      </FormFieldGrid>
+      <FormActions
+        isPending={isPending}
+        label={vehicle ? SAVE_CHANGES_BUTTON_TEXT : ADD_VEHICLE_SUBMIT_TEXT}
+        note={REQUIRED_FIELD}
+        error={error}
+        saveError={saveError}
+      />
+    </FormStack>
   );
 }

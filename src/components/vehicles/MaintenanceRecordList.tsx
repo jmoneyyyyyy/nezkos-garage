@@ -1,3 +1,7 @@
+import Box from "@mui/material/Box";
+import List from "@mui/material/List";
+import Typography from "@mui/material/Typography";
+import DialogHeading from "../common/DialogHeading";
 import MaintenanceRecordRow from "./MaintenanceRecordRow";
 import { NO_MAINTENANCE_RECORDS_TEXT, maintenanceRecordsTitle } from "../../Constants";
 import type { MaintenanceEntry, Vehicle } from "../../types/vehicle";
@@ -12,19 +16,19 @@ type MaintenanceRecordListProps = {
 /** The body of the "maintenance records" modal: a title and one row per service record. */
 export default function MaintenanceRecordList({ uid, vehicle, entries, onEdit }: MaintenanceRecordListProps) {
   const noMaintenanceRecord = entries.length === 0;
-  
+
   return (
-    <div className="service-records-modal">
-      <h2>{maintenanceRecordsTitle(vehicle.name)}</h2>
+    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1.5, textAlign: "left" }}>
+      <DialogHeading>{maintenanceRecordsTitle(vehicle.name)}</DialogHeading>
       {noMaintenanceRecord ? (
-        <p className="muted">{NO_MAINTENANCE_RECORDS_TEXT}</p>
+        <Typography sx={{ color: "text.secondary" }}>{NO_MAINTENANCE_RECORDS_TEXT}</Typography>
       ) : (
-        <ul>
+        <List disablePadding sx={{ alignSelf: "stretch", display: "flex", flexDirection: "column", gap: 1 }}>
           {entries.map((entry) => (
             <MaintenanceRecordRow key={entry.id} uid={uid} vehicleId={vehicle.id} entry={entry} onEdit={onEdit} />
           ))}
-        </ul>
+        </List>
       )}
-    </div>
+    </Box>
   );
 }

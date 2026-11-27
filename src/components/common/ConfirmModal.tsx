@@ -1,5 +1,8 @@
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 import { CANCEL_BUTTON_TEXT } from "../../Constants";
-import Modal from "./Modal";
+import AppDialog from "./AppDialog";
 
 type ConfirmModalProps = {
   open: boolean;
@@ -21,16 +24,21 @@ export default function ConfirmModal({
   onCancel,
 }: ConfirmModalProps) {
   return (
-    <Modal open={open} onClose={onCancel} className="confirm-dialog">
-      <div className="confirm-modal">
-        <p>{message}</p>
-        <div className="confirm-modal-actions">
-          <button type="button" onClick={onCancel}>{CANCEL_BUTTON_TEXT}</button>
-          <button type="button" className={tone === "danger" ? "danger" : undefined} onClick={onConfirm}>
+    <AppDialog open={open} onClose={onCancel} maxWidth="xs">
+      <Box sx={{ pt: 1 }}>
+        <Typography>{message}</Typography>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1.5, mt: 2.5 }}>
+          <Button variant="outlined" onClick={onCancel}>{CANCEL_BUTTON_TEXT}</Button>
+          <Button
+            variant={tone === "danger" ? "outlined" : "contained"}
+            color={tone === "danger" ? "error" : "primary"}
+            data-tone={tone}
+            onClick={onConfirm}
+          >
             {confirmLabel}
-          </button>
-        </div>
-      </div>
-    </Modal>
+          </Button>
+        </Box>
+      </Box>
+    </AppDialog>
   );
 }

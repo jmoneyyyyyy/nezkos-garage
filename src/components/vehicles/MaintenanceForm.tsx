@@ -1,9 +1,12 @@
-import { useState, type ChangeEvent, type SyntheticEvent } from "react";
+import { useState, type SyntheticEvent } from "react";
+import DialogHeading from "../common/DialogHeading";
+import FormActions from "../common/FormActions";
+import { FormRow, FormStack } from "../common/FormLayout";
+import FormTextField from "../common/FormTextField";
 import {
   ADD_SERVICE_RECORD_TEXT,
   COST_INVALID_ERROR,
   COST_OPTIONAL_LABEL,
-  COULDNT_SAVE_TEXT,
   DATE_LABEL,
   DATE_REQUIRED_ERROR,
   DETAILS_OPTIONAL_LABEL,
@@ -11,10 +14,10 @@ import {
   MILEAGE_INVALID_ERROR,
   MILEAGE_OPTIONAL_LABEL,
   SAVE_CHANGES_BUTTON_TEXT,
-  SAVING_TEXT,
   SERVICE_DETAILS_PLACEHOLDER,
   SERVICE_LABEL,
 } from "../../Constants";
+import { useFormState } from "../../hooks/useFormState";
 import { useAddMaintenance, useUpdateMaintenance } from "../../hooks/useVehicles";
 import {
   MAINTENANCE_LABELS, MAINTENANCE_TYPES,
@@ -31,7 +34,7 @@ type MaintenanceFormProps = {
 };
 
 export default function MaintenanceForm({ uid, vehicleId, entry, onSaved }: MaintenanceFormProps) {
-  const [form, setForm] = useState({
+  const [form, set] = useFormState({
     type: entry?.type ?? ("oil_change" as MaintenanceType),
     date: entry?.date ?? today(),
     mileage: entry?.mileage?.toString() ?? "",
@@ -43,11 +46,6 @@ export default function MaintenanceForm({ uid, vehicleId, entry, onSaved }: Main
   const update = useUpdateMaintenance(uid);
   const isPending = add.isPending || update.isPending;
   const saveError = add.error ?? update.error;
-
-  const set =
-    (key: keyof typeof form) =>
-    (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
-      setForm({ ...form, [key]: e.target.value });
 
   //SyntheticEvent is used here to prevent the default form submission behavior
   //It wraps around the browser's native event and provides a consistent interface across different browsers
@@ -82,44 +80,32 @@ export default function MaintenanceForm({ uid, vehicleId, entry, onSaved }: Main
   };
 
   return (
-    <form onSubmit={submit}>
-      <h2>{entry ? EDIT_SERVICE_RECORD_TEXT : ADD_SERVICE_RECORD_TEXT}</h2>
-      <label>
-        {SERVICE_LABEL}
-        <select value={form.type} onChange={set("type")}>
-          {MAINTENANCE_TYPES.map((t) => (
-            <option key={t} value={t}>{MAINTENANCE_LABELS[t]}</option>
-          ))}
-        </select>
-      </label>
-      <label>
-        {DATE_LABEL}
-        <input type="date" value={form.date} onChange={set("date")} />
-      </label>
-      <div className="form-row">
-        <label>
-          {MILEAGE_OPTIONAL_LABEL}
-          <input inputMode="numeric" value={form.mileage} onChange={set("mileage")} />
-        </label>
-        <label>
-          {COST_OPTIONAL_LABEL}
-          <input inputMode="decimal" value={form.cost} onChange={set("cost")} />
-        </label>
-      </div>
-      <label>
-        {DETAILS_OPTIONAL_LABEL}
-        <textarea
-          rows={3}
-          placeholder={SERVICE_DETAILS_PLACEHOLDER}
-          value={form.details}
-          onChange={set("details")}
-        />
-      </label>
-      <button type="submit" disabled={isPending}>
-        {isPending ? SAVING_TEXT : entry ? SAVE_CHANGES_BUTTON_TEXT : ADD_SERVICE_RECORD_TEXT}
-      </button>
-      {error && <p role="alert">{error}</p>}
-      {saveError && <p role="alert">{COULDNT_SAVE_TEXT}: {saveError.message}</p>}
-    </form>
+    <FormStack onSubmit={submit}>
+      <DialogHeading>{entry ? EDIT_SERVICE_RECORD_TEXT : ADD_SERVICE_RECORD_TEXT}</DialogHeading>
+      <FormTextField select label={SERVICE_LABEL} value={form.type} onChange={set("type")}>
+        {MAINTENANCE_TYPES.map((t) => (
+          <option key={t} value={t}>{MAINTENANCE_LABELS[t]}</option>
+        ))}
+      </FormTextField>
+      <FormTextField type="date" label={DATE_LABEL} value={form.date} onChange={set("date")} />
+      <FormRow>
+        <FormTextField label={MILEAGE_OPTIONAL_LABEL} inputMode="numeric" value={form.mileage} onChange={set("mileage")} />
+        <FormTextField label={COST_OPTIONAL_LABEL} inputMode="decimal" value={form.cost} onChange={set("cost")} />
+      </FormRow>
+      <FormTextField
+        multiline
+        minRows={3}
+        label={DETAILS_OPTIONAL_LABEL}
+        placeholder={SERVICE_DETAILS_PLACEHOLDER}
+        value={form.details}
+        onChange={set("details")}
+      />
+      <FormActions
+        isPending={isPending}
+        label={entry ? SAVE_CHANGES_BUTTON_TEXT : ADD_SERVICE_RECORD_TEXT}
+        error={error}
+        saveError={saveError}
+      />
+    </FormStack>
   );
 }

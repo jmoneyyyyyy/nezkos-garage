@@ -1,5 +1,8 @@
 import { useState } from "react";
-import Modal from "../common/Modal";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+import AppDialog from "../common/AppDialog";
 import MaintenanceForm from "./MaintenanceForm";
 import MaintenanceRecordList from "./MaintenanceRecordList";
 import {
@@ -21,29 +24,33 @@ export default function MaintenanceSection({ uid, vehicle }: { uid: string; vehi
   const maintenanceHistoryPresent = entries.length > 0;
 
   return (
-    <section className="service-records">
-      <div className="service-records-header">
-        <h3>{MAINTENANCE_HISTORY_TITLE}</h3>
-        <button onClick={() => setEditing("new")}>{ADD_SERVICE_BUTTON_TEXT}</button>
-      </div>
-      <p className="muted">
+    <Box component="section" sx={{ borderTop: "1px dashed", borderColor: "divider", pt: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1 }}>
+        <Typography component="h3" variant="h3" sx={{ m: 0, fontSize: 16 }}>
+          {MAINTENANCE_HISTORY_TITLE}
+        </Typography>
+        <Button variant="contained" size="small" onClick={() => setEditing("new")}>
+          {ADD_SERVICE_BUTTON_TEXT}
+        </Button>
+      </Box>
+      <Typography sx={{ mt: 1, fontSize: 15, color: "text.secondary" }}>
         {latest
           ? maintenanceLastText(MAINTENANCE_LABELS[latest.type], formatDate(latest.date))
           : NO_MAINTENANCE_RECORDS_TEXT}
-      </p>
+      </Typography>
       {maintenanceHistoryPresent && (
-        <button className="service-records-view" onClick={() => setShowList(true)}>
+        <Button variant="outlined" size="small" sx={{ mt: 1 }} onClick={() => setShowList(true)}>
           {VIEW_MAINTENANCE_HISTORY_TEXT}
-        </button>
+        </Button>
       )}
 
-      <Modal open={showList} onClose={() => setShowList(false)}>
+      <AppDialog open={showList} onClose={() => setShowList(false)}>
         <MaintenanceRecordList uid={uid} vehicle={vehicle} entries={entries} onEdit={setEditing} />
-      </Modal>
+      </AppDialog>
 
       {/* A sibling of the list modal, not inside it, so it opens on top of the list.
           Keyed so the form starts fresh each time it opens for a different record. */}
-      <Modal open={editing !== null} onClose={closeForm}>
+      <AppDialog open={editing !== null} onClose={closeForm}>
         {editing && (
           <MaintenanceForm
             key={editing === "new" ? "new" : editing.id}
@@ -53,7 +60,7 @@ export default function MaintenanceSection({ uid, vehicle }: { uid: string; vehi
             onSaved={closeForm}
           />
         )}
-      </Modal>
-    </section>
+      </AppDialog>
+    </Box>
   );
 }

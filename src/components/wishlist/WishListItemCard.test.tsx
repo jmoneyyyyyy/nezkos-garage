@@ -19,15 +19,6 @@ import type { WishListItem } from "../../types/wishlist";
 import { formatPrice } from "../../utils/formatters";
 import WishListItemCard from "./WishListItemCard";
 
-// jsdom doesn't implement the <dialog> methods that Modal relies on.
-HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
-  this.setAttribute("open", "");
-};
-HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
-  this.removeAttribute("open");
-  this.dispatchEvent(new Event("close"));
-};
-
 const mutate = vi.fn();
 const updateMutate = vi.fn();
 const idle = { isPending: false, isError: false, error: null };
@@ -54,7 +45,9 @@ beforeEach(() => {
 describe("WishListItemCard price line", () => {
   it("shows savings and percent off when current price is below target", () => {
     renderCard({ currentPrice: 75 });
-    expect(screen.getByText("$75.00")).toHaveClass("is-sale");
+    const price = screen.getByTestId("wishlist-item-price");
+    expect(price).toHaveTextContent("$75.00");
+    expect(price).toHaveAttribute("data-on-sale", "true");
     expect(screen.getByText(/Original Price \$100\.00/)).toHaveTextContent("Save $25.00 (25% off)");
   });
 
@@ -64,12 +57,14 @@ describe("WishListItemCard price line", () => {
   ])("shows no savings when current price is %s", (_label, currentPrice) => {
     renderCard({ currentPrice });
     expect(screen.queryByText(/Save /)).not.toBeInTheDocument();
-    expect(screen.getByText(formatPrice(currentPrice))).not.toHaveClass("is-sale");
+    const price = screen.getByTestId("wishlist-item-price");
+    expect(price).toHaveTextContent(formatPrice(currentPrice));
+    expect(price).toHaveAttribute("data-on-sale", "false");
   });
 
   it("shows the target price and not-checked text before the checker has run", () => {
     renderCard();
-    expect(screen.getByText("$100.00", { selector: ".wishlist-item-price" })).toBeInTheDocument();
+    expect(screen.getByTestId("wishlist-item-price")).toHaveTextContent("$100.00");
     expect(screen.getByText(new RegExp(WISHLIST_NOT_CHECKED_TEXT))).toBeInTheDocument();
   });
 

@@ -3,15 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { CANCEL_BUTTON_TEXT } from "../../Constants";
 import ConfirmModal from "./ConfirmModal";
 
-// jsdom doesn't implement the <dialog> methods that Modal relies on.
-HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
-  this.setAttribute("open", "");
-};
-HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
-  this.removeAttribute("open");
-  this.dispatchEvent(new Event("close"));
-};
-
 const setup = (props: Partial<Parameters<typeof ConfirmModal>[0]> = {}) => {
   const onConfirm = vi.fn();
   const onCancel = vi.fn();
@@ -44,13 +35,18 @@ describe("ConfirmModal", () => {
     expect(onConfirm).not.toHaveBeenCalled();
   });
 
-  it("styles the confirm button as danger by default, not for the default tone", () => {
+  it("marks the confirm button as danger by default", () => {
     setup();
-    expect(screen.getByRole("button", { name: "Delete" })).toHaveClass("danger");
+    expect(screen.getByRole("button", { name: "Delete" })).toHaveAttribute("data-tone", "danger");
   });
 
-  it("omits the danger class for the default tone", () => {
+  it("does not mark the confirm button as danger for the default tone", () => {
     setup({ tone: "default" });
-    expect(screen.getByRole("button", { name: "Delete" })).not.toHaveClass("danger");
+    expect(screen.getByRole("button", { name: "Delete" })).toHaveAttribute("data-tone", "default");
+  });
+
+  it("renders nothing while closed", () => {
+    setup({ open: false });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });

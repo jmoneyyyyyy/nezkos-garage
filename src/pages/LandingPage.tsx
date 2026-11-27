@@ -1,3 +1,4 @@
+import Button from "@mui/material/Button";
 import { useAuth } from "../hooks/useAuth";
 import {
   GOOGLE_SIGN_IN_BUTTON_TEXT,
@@ -11,6 +12,9 @@ import {
 } from "../Constants";
 import "./landing.css";
 
+// The big call-to-action button, used in the hero and at the bottom.
+const ctaSx = { mt: 1, px: "28px", py: "14px", fontSize: 17 };
+
 function LandingPage() {
   const { signIn } = useAuth();
 
@@ -19,9 +23,9 @@ function LandingPage() {
       <section className="landing-hero">
         <h1>{LANDING_HERO_TITLE}</h1>
         <p className="landing-lede">{LANDING_HERO_SUBTEXT}</p>
-        <button className="landing-cta" onClick={signIn}>
+        <Button variant="contained" onClick={signIn} sx={ctaSx}>
           {GOOGLE_SIGN_IN_BUTTON_TEXT}
-        </button>
+        </Button>
       </section>
 
       <section id="how-it-works" className="landing-section landing-section-alt">
@@ -39,9 +43,9 @@ function LandingPage() {
       <section className="landing-section landing-final">
         <h2>{LANDING_FINAL_TITLE}</h2>
         <p>{LANDING_FINAL_SUBTEXT}</p>
-        <button className="landing-cta" onClick={signIn}>
+        <Button variant="contained" onClick={signIn} sx={ctaSx}>
           {GOOGLE_SIGN_IN_BUTTON_TEXT}
-        </button>
+        </Button>
       </section>
 
       <footer className="landing-footer">

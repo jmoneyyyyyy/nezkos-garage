@@ -7,6 +7,8 @@ Personal web app for tracking maintenance on family vehicles.
 - Data and auth: Firebase (Firestore + Google sign-in), accessed directly
   from the browser. There is no backend server; the only server-side piece is
   the daily price-checker Lambda (see Price checker)
+- UI: Material UI (`@mui/material`, Emotion). The garage look (dark, racing green, Barlow fonts) lives in
+  `src/styles/theme.ts`; `main.tsx` wraps the app in `ThemeProvider` + `CssBaseline`
 - Server state: TanStack Query
 - Routing: React Router (`src/components/routing/AppRoutes.tsx`); `AppLayout` renders the shared
   `Header` plus the matched page via `<Outlet />`. Routes: `/` (landing,
@@ -42,15 +44,24 @@ Personal web app for tracking maintenance on family vehicles.
 ## Conventions
 - Code is organized by layer under `src/`:
   `components/<area>/` (layout, common, routing, vehicles, wishlist, funds), `pages/` (each route's
-  `*Page.tsx`), `hooks/` (`useVehicles`, `useWishlist`, `useAuth`, `useLocalStorageState`), `context/`, `services/` (Firestore calls:
+  `*Page.tsx`), `hooks/` (`useVehicles`, `useWishlist`, `useAuth`, `useLocalStorageState`, `useFormState`), `context/`, `services/` (Firestore calls:
   `vehicles.ts`, `wishlist.ts`), `types/`, `lib/` (Firebase setup), `utils/`
-  (helpers, firebase), `styles/`. User-facing text lives in `Constants.ts`
+  (helpers, firebase), `styles/` (`theme.ts` is the MUI theme, `global.css` holds the `--garage-*` color
+  variables, page background and plain headings; keep the two palettes in sync). User-facing text lives in `Constants.ts`
+- Use MUI components, not raw `<button>`, `<input>` or `<dialog>`. Shared wrappers in `components/common/`:
+  `AppDialog` (modal), `ConfirmModal`, `DeleteWithConfirm`, `FormTextField` (+ `useFormState`, `FormLayout`,
+  `FormActions`, `DialogHeading`), `ErrorAlert`, `ListStatus`/`StatusText`, `LoadingState`, `PhotoPicker`, `ReadoutList`.
+  Style with the theme or `sx`, not new global CSS; `landing.css` and `funds.css` (the chart) are the only component CSS left
+- Form fields never use the native `required` prop (it would block our own validation messages); `FormTextField`'s
+  `required` sets `aria-required` only. Numeric fields stay `type="text"` with an `inputMode`
+- Dialogs unmount when closed, so forms start fresh each open; `AddVehicleModal` uses `keepMounted` on purpose to keep a
+  half-filled form
 - The loan calculator is client-side only: math in `utils/loan.ts` (`loanInputValidity` is the
   one place for input limits), chart helpers in `utils/chartScale.ts`, and the four inputs are
   kept in `localStorage` via `useLocalStorageState`, not Firestore
-- Confirmations (e.g. deletes) use `ConfirmModal` (`components/common/`, built on `Modal`), not
-  `window.confirm`; the caller keeps the open state. jsdom lacks `<dialog>.showModal()`, so tests
-  that render a `Modal` shim it at the top of the test file
+- Confirmations (e.g. deletes) use `ConfirmModal` (`components/common/`, built on `AppDialog`), not
+  `window.confirm`; the caller keeps the open state, or use `DeleteWithConfirm`, which owns it. MUI dialogs work in jsdom,
+  so tests need no shim. Tests find the confirm button's tone through `data-tone`, not a CSS class
 - Use `import type` for type-only imports (verbatimModuleSyntax is on)
 - Firestore rejects `undefined`; omit optional fields or rely on
   `ignoreUndefinedProperties`
