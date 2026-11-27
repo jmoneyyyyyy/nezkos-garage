@@ -5,9 +5,9 @@ import VehicleCard from "./VehicleCard";
 
 export default function VehicleList({ uid }: { uid: string }) {
   const { data, isLoading, isError, error } = useVehicles(uid);
-  const firstVehicle = data?.[0];
-  // Only the first vehicle gets upcoming-maintenance suggestions for now
-  const upcomingVehicleMaintenance = useUpcomingMaintenance(firstVehicle);
+  const civic = data?.find((v) => /civic/i.test(v.model));
+  // Only the Civic gets upcoming-maintenance suggestions for now
+  const upcomingVehicleMaintenance = useUpcomingMaintenance(civic);
 
   if (isLoading) return <p className="list-status">{LOADING_VEHICLES_TEXT}</p>;
   if (isError) return <p role="alert" className="list-status">{COULDNT_LOAD_VEHICLES_TEXT}: {error.message}</p>;
@@ -16,7 +16,7 @@ export default function VehicleList({ uid }: { uid: string }) {
   return (
     <div className="vehicle-grid">
       {data.map((v) => (
-        <VehicleCard key={v.id} uid={uid} vehicle={v} upcomingMaintenance={v.id === firstVehicle?.id ? upcomingVehicleMaintenance : []} />
+        <VehicleCard key={v.id} uid={uid} vehicle={v} upcomingMaintenance={v.id === civic?.id ? upcomingVehicleMaintenance : []} />
       ))}
     </div>
   );
