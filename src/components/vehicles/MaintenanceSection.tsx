@@ -6,13 +6,25 @@ import {
   ADD_SERVICE_BUTTON_TEXT,
   MAINTENANCE_HISTORY_TITLE,
   NO_MAINTENANCE_RECORDS_TEXT,
+  UPCOMING_MAINTENANCE_TITLE,
   VIEW_MAINTENANCE_HISTORY_TEXT,
   maintenanceLastText,
+  upcomingMoreText,
+  upcomingNextText,
 } from "../../Constants";
+import type { UpcomingItem } from "../../utils/upcomingMaintenance";
 import { formatDate } from "../../utils/formatters";
 import { MAINTENANCE_LABELS, type MaintenanceEntry, type Vehicle } from "../../types/vehicle";
 
-export default function MaintenanceSection({ uid, vehicle }: { uid: string; vehicle: Vehicle }) {
+export default function MaintenanceSection({
+  uid,
+  vehicle,
+  upcoming = [],
+}: {
+  uid: string;
+  vehicle: Vehicle;
+  upcoming?: UpcomingItem[];
+}) {
   const [showList, setShowList] = useState(false);
   const [editing, setEditing] = useState<MaintenanceEntry | "new" | null>(null);
   const closeForm = () => setEditing(null);
@@ -22,6 +34,19 @@ export default function MaintenanceSection({ uid, vehicle }: { uid: string; vehi
 
   return (
     <section className="service-records">
+      {upcoming.length > 0 && (
+        <button
+          className="upcoming-summary"
+          aria-label={UPCOMING_MAINTENANCE_TITLE}
+          onClick={() => setShowList(true)}
+        >
+          <span className="upcoming-summary-next">{upcomingNextText(upcoming[0].type)}</span>
+          <span className="upcoming-summary-due">{upcoming[0].due}</span>
+          {upcoming.length > 1 && (
+            <span className="upcoming-summary-more">{upcomingMoreText(upcoming.length - 1)}</span>
+          )}
+        </button>
+      )}
       <div className="service-records-header">
         <h3>{MAINTENANCE_HISTORY_TITLE}</h3>
         <button onClick={() => setEditing("new")}>{ADD_SERVICE_BUTTON_TEXT}</button>
@@ -38,7 +63,7 @@ export default function MaintenanceSection({ uid, vehicle }: { uid: string; vehi
       )}
 
       <Modal open={showList} onClose={() => setShowList(false)}>
-        <MaintenanceRecordList uid={uid} vehicle={vehicle} entries={entries} onEdit={setEditing} />
+        <MaintenanceRecordList uid={uid} vehicle={vehicle} entries={entries} upcoming={upcoming} onEdit={setEditing} />
       </Modal>
 
       {/* A sibling of the list modal, not inside it, so it opens on top of the list.

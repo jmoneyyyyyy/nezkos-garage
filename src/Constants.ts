@@ -8,6 +8,7 @@ const LOADING_TEXT = "Loading...";
 const LOADING_VEHICLES_TEXT = "Loading vehicles...";
 const COULDNT_LOAD_VEHICLES_TEXT = "Couldn't load vehicles";
 const NO_VEHICLES_YET_TEXT = "No vehicles yet. Get started now!";
+const UPCOMING_MAINTENANCE_TITLE = "Upcoming maintenance";
 const WELCOME_BACK_TEXT = "Welcome back:";
 const HOW_IT_WORKS_LINK_TEXT = "How it works";
 const LANDING_HERO_TITLE = "Keep track of your vehicle maintenance.";
@@ -121,6 +122,8 @@ const REQUIRED_FIELD = "* Required Field";
 
 // Text that includes values from the data is a function that fills them in.
 const maintenanceLastText = (label: string, date: string) => `Last: ${label} on ${date}`;
+const upcomingNextText = (type: string) => `Next: ${type}`;
+const upcomingMoreText = (count: number) => `+${count} more`;
 const maintenanceRecordsTitle = (vehicleName: string) => `${vehicleName}: maintenance records`;
 const confirmDeleteMaintenanceText = (label: string, date: string) =>
   `Delete the ${label} record from ${date}?`;
@@ -184,6 +187,8 @@ export {
   CANCEL_BUTTON_TEXT,
   maintenanceLastText,
   maintenanceRecordsTitle,
+  upcomingNextText,
+  upcomingMoreText,
   confirmDeleteMaintenanceText,
   ADD_SERVICE_RECORD_TEXT,
   EDIT_SERVICE_RECORD_TEXT,
@@ -271,4 +276,5 @@ export {
   LOADING_VEHICLES_TEXT,
   COULDNT_LOAD_VEHICLES_TEXT,
   NO_VEHICLES_YET_TEXT,
+  UPCOMING_MAINTENANCE_TITLE,
 };

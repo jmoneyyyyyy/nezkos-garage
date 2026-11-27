@@ -25,8 +25,17 @@ import MaintenanceSection from "./MaintenanceSection";
 import VehicleForm from "./VehicleForm";
 import { useDeleteVehicle, useSetVehiclePhoto } from "../../hooks/useVehicles";
 import type { Vehicle } from "../../types/vehicle";
+import type { UpcomingItem } from "../../utils/upcomingMaintenance";
 
-export default function VehicleCard({ uid, vehicle }: { uid: string; vehicle: Vehicle }) {
+export default function VehicleCard({
+  uid,
+  vehicle,
+  upcomingMaintenance = [],
+}: {
+  uid: string;
+  vehicle: Vehicle;
+  upcomingMaintenance?: UpcomingItem[];
+}) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
@@ -36,6 +45,8 @@ export default function VehicleCard({ uid, vehicle }: { uid: string; vehicle: Ve
   const remove = useDeleteVehicle(uid);
 
   const pickPhoto = () => fileRef.current?.click();
+
+  const removePhoto = () => setPhoto.mutate({ vehicleId: vehicle.id, photo: null });
 
   const onPhotoChosen = async (e: ChangeEvent<HTMLInputElement>) => {
     setPhotoError(null);
@@ -69,7 +80,7 @@ export default function VehicleCard({ uid, vehicle }: { uid: string; vehicle: Ve
             <div className="vehicle-photo-actions">
               <button onClick={pickPhoto} disabled={setPhoto.isPending}>{CHANGE_BUTTON_TEXT}</button>
               <button
-                onClick={() => setPhoto.mutate({ vehicleId: vehicle.id, photo: null })}
+                onClick={removePhoto}
                 disabled={setPhoto.isPending}
               >
                 {REMOVE_BUTTON_TEXT}
@@ -112,7 +123,7 @@ export default function VehicleCard({ uid, vehicle }: { uid: string; vehicle: Ve
             ))}
         </dl>
 
-        <MaintenanceSection uid={uid} vehicle={vehicle} />
+        <MaintenanceSection uid={uid} vehicle={vehicle} upcoming={upcomingMaintenance} />
 
         <button
           className="danger vehicle-delete"

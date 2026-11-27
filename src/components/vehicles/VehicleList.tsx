@@ -1,9 +1,13 @@
-import VehicleCard from "./VehicleCard";
 import { useVehicles } from "../../hooks/useVehicles";
+import { useUpcomingMaintenance } from "../../hooks/useUpcomingMaintenance";
 import { COULDNT_LOAD_VEHICLES_TEXT, LOADING_VEHICLES_TEXT, NO_VEHICLES_YET_TEXT } from "../../Constants";
+import VehicleCard from "./VehicleCard";
 
 export default function VehicleList({ uid }: { uid: string }) {
   const { data, isLoading, isError, error } = useVehicles(uid);
+  const firstVehicle = data?.[0];
+  // Only the first vehicle gets upcoming-maintenance suggestions for now
+  const upcomingVehicleMaintenance = useUpcomingMaintenance(firstVehicle);
 
   if (isLoading) return <p className="list-status">{LOADING_VEHICLES_TEXT}</p>;
   if (isError) return <p role="alert" className="list-status">{COULDNT_LOAD_VEHICLES_TEXT}: {error.message}</p>;
@@ -12,7 +16,7 @@ export default function VehicleList({ uid }: { uid: string }) {
   return (
     <div className="vehicle-grid">
       {data.map((v) => (
-        <VehicleCard key={v.id} uid={uid} vehicle={v} />
+        <VehicleCard key={v.id} uid={uid} vehicle={v} upcomingMaintenance={v.id === firstVehicle?.id ? upcomingVehicleMaintenance : []} />
       ))}
     </div>
   );

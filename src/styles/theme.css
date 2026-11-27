@@ -302,6 +302,73 @@ textarea {
   color: #ff9b9b;
 }
 
+/* Upcoming maintenance notice (inside a vehicle card) */
+
+.upcoming-maintenance {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  background: var(--garage-green-glow);
+  border: 1px solid var(--garage-green-deep);
+  border-left: 3px solid var(--garage-green);
+  border-radius: 6px;
+}
+
+.upcoming-maintenance h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--garage-green-bright);
+}
+
+.upcoming-maintenance ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  color: var(--garage-silver);
+}
+
+.upcoming-maintenance li span {
+  color: var(--garage-gray);
+}
+
+/* One-line summary on the card; opens the maintenance modal */
+.upcoming-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 13px;
+  background: var(--garage-green-glow);
+  border: 1px solid var(--garage-green-deep);
+  border-left: 3px solid var(--garage-green);
+  border-radius: 6px;
+  color: var(--garage-silver);
+}
+
+.upcoming-summary-next {
+  font-weight: 600;
+  color: var(--garage-green-bright);
+  white-space: nowrap;
+}
+
+.upcoming-summary-due {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--garage-gray);
+}
+
+.upcoming-summary-more {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--garage-green-deep);
+  white-space: nowrap;
+}
+
 /* Header -------------------------------------------------------------- */
 
 .page-title {
